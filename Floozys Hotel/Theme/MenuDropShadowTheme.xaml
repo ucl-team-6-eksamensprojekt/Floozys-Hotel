@@ -1,0 +1,22 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    
+        <Style x:Key="MenuDropShadowTheme" TargetType="Border">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Margin" Value="0,0,10,0" />
+
+        <!-- Hvis du bruger runde hjørner -->
+        <!--<Setter Property="CornerRadius" Value="8" />-->
+
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect 
+                        Color="Black"
+                        BlurRadius="10"
+                        ShadowDepth="4"
+                        Opacity="0.5" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

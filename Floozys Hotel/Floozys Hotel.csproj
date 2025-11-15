@@ -19,10 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
-    <Folder Include="Commands\" />
-    <Folder Include="Views\" />
-    <Folder Include="ViewModels\" />
+	  <Folder Include="Models\" />
+	  <Folder Include="Commands\" />
+	  <Folder Include="Views\" />
+	  <Folder Include="ViewModels\" />
 	  
 	  
 	  <Resource Include="Assets\Logo\Logo_1-1.png">

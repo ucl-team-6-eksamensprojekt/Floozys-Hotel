@@ -25,11 +25,11 @@ The system is designed to streamline hotel operations by providing an intuitive 
 
 | Milestone | Date |
 |-----------|------|
-| Problem Statement Approved | October 24, 2024 |
-| Project Start | November 3, 2024 |
-| Project Delivery | December 19, 2024 |
-| Second Attempt (if needed) | January 12, 2025 |
-| Oral Examination | January 2025 |
+| Problem Statement Sent | October 21, 2025 |
+| Problem Statement Approved | October 23, 2025 |
+| Project Start | November 3, 2025 |
+| Project Delivery | December 19, 2025 |
+| Oral Examination | January 15, 2026 |
 
 ---
 
@@ -202,9 +202,9 @@ This project is developed for educational purposes as part of the Computer Scien
 
 - **Institution:** University College Lillebælt (UCL)
 - **Program:** Computer Science AP (Datamatiker)
-- **Semester:** 3rd Semester
+- **Semester:** 2nd Semester
 - **Course:** Exam Project
-- **Year:** 2024/2025
+- **Year:** 2025/2026
 
 ---
 

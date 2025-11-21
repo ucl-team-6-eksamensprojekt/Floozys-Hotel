@@ -362,12 +362,12 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# ---- Auto-genererede kodefiler ----
+# ---- Auto-generated code files ----
 *.Designer.cs
 *.g.cs
 *.g.i.cs
 
-# ---- Diverse værktøjer ----
+# ---- Miscellaneous tools ----
 .paket/
 paket-files/
 _nCrunch_*
@@ -375,10 +375,19 @@ _nCrunch_*
 .tools/
 .secrets/
 
-# Ignorér alle rigtige appsettings-filer (med credentials)
+# Ignore all real appsettings files (with credentials)
 **/appsettings.json
 **/appsettings.*.json
 
-# ...men behold skabeloner (templaten) i repo
+# ...but keep templates in repo
 !**/appsettings.Template.json
 !**/appsettings.*.Template.json
+
+# ---- Mac OS ----
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride

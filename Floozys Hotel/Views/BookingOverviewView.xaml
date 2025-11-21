@@ -1,20 +1,163 @@
-﻿<UserControl x:Class="Floozys_Hotel.Views.BookingOverviewView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Floozys_Hotel.Views"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        
-        <TextBlock Text="Booking Overview"
-                      FontSize="30"
-                      FontWeight="ExtraBold"/>
-        <Button Name="" Content="New Booking">
-        
-            
-        </Button>
-        
+﻿<UserControl
+    x:Class="Floozys_Hotel.Views.BookingOverviewView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Floozys_Hotel.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!--  Header Section  -->
+        <TextBlock
+            Grid.Row="0"
+            Grid.Column="0"
+            Margin="0,0,0,30"
+            VerticalAlignment="Center"
+            FontSize="30"
+            FontWeight="ExtraBold"
+            Text="Booking Overview" />
+
+        <Button
+            Grid.Row="0"
+            Grid.Column="2"
+            Width="180"
+            Height="50"
+            Margin="0,0,0,30"
+            Background="#90EE90"
+            BorderBrush="#32CD32"
+            BorderThickness="2"
+            Content="New booking"
+            FontSize="16"
+            FontWeight="SemiBold"
+            Foreground="Black" />
+
+        <!--  Calendar Container  -->
+        <Border
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Padding="15"
+            BorderBrush="LightGray"
+            BorderThickness="1">
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!--  Month Navigation  -->
+                <StackPanel
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Margin="0,0,0,15"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal">
+
+                    <Button
+                        Width="30"
+                        Height="30"
+                        Margin="0,0,10,0"
+                        Content="&lt;"
+                        FontSize="16" />
+
+                    <Button
+                        Width="30"
+                        Height="30"
+                        Margin="0,0,10,0"
+                        Content="&gt;"
+                        FontSize="16" />
+
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        FontSize="18"
+                        FontWeight="SemiBold"
+                        Text="November 2025" />
+
+                </StackPanel>
+
+                <!--  View Type Selector  -->
+                <StackPanel
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    Margin="0,0,0,15"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal">
+
+                    <Button
+                        Width="80"
+                        Height="35"
+                        Margin="0,0,2,0"
+                        Content="Week"
+                        FontSize="14" />
+
+                    <Button
+                        Width="80"
+                        Height="35"
+                        Margin="0,0,2,0"
+                        Content="Month"
+                        FontSize="14" />
+
+                    <Button
+                        Width="80"
+                        Height="35"
+                        Content="Year"
+                        FontSize="14" />
+
+                </StackPanel>
+
+                <!--  Category Filter  -->
+                <ComboBox
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Width="240"
+                    Height="40"
+                    Margin="0,0,0,20"
+                    HorizontalAlignment="Left"
+                    FontSize="14">
+                    <ComboBoxItem Content="▼ Filter by category" IsSelected="True" />
+                    <ComboBoxItem Content="Category 1" />
+                    <ComboBoxItem Content="Category 2" />
+                    <ComboBoxItem Content="Category 3" />
+                </ComboBox>
+
+                <!--  TODO: Implement calendar view  -->
+                <TextBlock
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="3"
+                    Margin="20"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontSize="16"
+                    Foreground="Gray"
+                    Text="Add Calendar here..." />
+
+            </Grid>
+
+        </Border>
+
     </Grid>
+
 </UserControl>

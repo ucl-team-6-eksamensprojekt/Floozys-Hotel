@@ -1,38 +1,38 @@
-﻿<Application x:Class="Floozys_Hotel.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Floozys_Hotel"
-             
-             xmlns:viewModel="clr-namespace:Floozys_Hotel.ViewModels"
-             xmlns:view="clr-namespace:Floozys_Hotel.Views"
-             StartupUri="MainWindow.xaml">
+﻿<Application
+    x:Class="Floozys_Hotel.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Floozys_Hotel"
+    xmlns:view="clr-namespace:Floozys_Hotel.Views"
+    xmlns:viewModel="clr-namespace:Floozys_Hotel.ViewModels"
+    StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
 
-                <ResourceDictionary Source="Theme/MenuButtonTheme.xaml"/>
-                <ResourceDictionary Source="/Theme/MenuDropShadowTheme.xaml"/>
+                <ResourceDictionary Source="Theme/MenuButtonTheme.xaml" />
+                <ResourceDictionary Source="/Theme/MenuDropShadowTheme.xaml" />
 
             </ResourceDictionary.MergedDictionaries>
 
             <DataTemplate DataType="{x:Type viewModel:BookingOverviewViewModel}">
-                <view:BookingOverviewView/>
+                <view:BookingOverviewView />
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type viewModel:GuestOverviewViewModel}">
-                <view:GuestOverviewView/>
+                <view:GuestOverviewView />
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type viewModel:RoomOverviewViewModel}">
-                <view:RoomOverviewView/>
+                <view:RoomOverviewView />
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type viewModel:SalesOverviewViewModel}">
-                <view:SalesOverviewView/>
+                <view:SalesOverviewView />
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type viewModel:GuestPolicyViewModel}">
-                <view:GuestPolicyView/>
+                <view:GuestPolicyView />
             </DataTemplate>
 
         </ResourceDictionary>

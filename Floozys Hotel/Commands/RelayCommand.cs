@@ -9,7 +9,7 @@ namespace Floozys_Hotel.Commands
 {
     class RelayCommand : ICommand
     {
-
+       
         private Action<object> _execute;
         private Func<object, bool> _canExecute;
 

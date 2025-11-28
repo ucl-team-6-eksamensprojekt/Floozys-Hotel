@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Floozys_Hotel.Validation;
 
 namespace Floozys_Hotel.Models
@@ -33,5 +34,6 @@ namespace Floozys_Hotel.Models
 
         [Required(ErrorMessage = "Guest is required")]
         public int GuestID { get; set; }
+
     }
 }

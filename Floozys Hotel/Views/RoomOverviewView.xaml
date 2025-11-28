@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="6*"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
 
@@ -26,7 +26,7 @@
                        FontWeight="ExtraBold"
                        Margin="0,0,0,10"/>
 
-        <Button Grid.Row="0" Grid.Column="0"
+        <Button Grid.Row="0" Grid.Column="1"
                 Content="Create Room"
                 Width="120"
                 Height="32"

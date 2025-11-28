@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Floozys_Hotel.ViewModels;
+using Microsoft.Extensions.FileSystemGlobbing;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +24,7 @@ namespace Floozys_Hotel.Views
         public NewBookingView()
         {
             InitializeComponent();
+            DataContext = new NewBookingViewModel();
         }
     }
 }

@@ -30,6 +30,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Check-in & Check-out DatePickers -->
@@ -50,7 +51,7 @@
                                    FontWeight="Bold" 
                                    Margin="0,0,0,10"
                                    HorizontalAlignment="Center"/>
-                        <DatePicker SelectedDate="2025-11-07" 
+                        <DatePicker SelectedDate="{Binding CheckInDate, Mode=TwoWay}" 
                                     FontSize="18"
                                     Height="40"
                                     HorizontalAlignment="Stretch"/>
@@ -67,7 +68,7 @@
                                    FontWeight="Bold" 
                                    Margin="0,0,0,10"
                                    HorizontalAlignment="Center"/>
-                        <DatePicker SelectedDate="2025-11-09" 
+                        <DatePicker SelectedDate="{Binding CheckOutDate, Mode=TwoWay}" 
                                     FontSize="18"
                                     Height="40"
                                     HorizontalAlignment="Stretch"/>
@@ -81,7 +82,8 @@
                            FontSize="18" 
                            FontWeight="Bold" 
                            Margin="0,0,0,10"/>
-
+                
+                <!-- TODO: Waiting on Team member Nickolai on Room update -->
                 <ListBox MinHeight="160"
                          MaxHeight="200"
                          FontSize="14"
@@ -170,25 +172,37 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Firstname" FontSize="14" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <TextBox Text="John" FontSize="14" Height="35" Padding="8"/>
+                        <TextBox Text="{Binding FirstName, Mode=TwoWay}" 
+                                 FontSize="14" 
+                                 Height="35" 
+                                 Padding="8"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Lastname" FontSize="14" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <TextBox Text="Doe" FontSize="14" Height="35" Padding="8"/>
+                        <TextBox Text="{Binding LastName, Mode=TwoWay}" 
+                                 FontSize="14" 
+                                 Height="35" 
+                                 Padding="8"/>
                     </StackPanel>
                 </Grid>
 
                 <!-- Email -->
                 <StackPanel Grid.Row="1" Margin="0,0,0,15">
                     <TextBlock Text="Email" FontSize="14" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <TextBox Text="john12@gmail.com" FontSize="14" Height="35" Padding="8"/>
+                    <TextBox Text="{Binding Email, Mode=TwoWay}" 
+                             FontSize="14" 
+                             Height="35" 
+                             Padding="8"/>
                 </StackPanel>
 
                 <!-- Passport number -->
                 <StackPanel Grid.Row="2" Margin="0,0,0,15">
                     <TextBlock Text="Passport number" FontSize="14" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <TextBox Text="N00394857" FontSize="14" Height="35" Padding="8"/>
+                    <TextBox Text="{Binding PassportNumber, Mode=TwoWay}" 
+                             FontSize="14" 
+                             Height="35" 
+                             Padding="8"/>
                 </StackPanel>
 
                 <!-- Phone number & Country -->
@@ -201,19 +215,26 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Phone number:" FontSize="14" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <TextBox Text="+195847373" FontSize="14" Height="35" Padding="8"/>
+                        <TextBox Text="{Binding PhoneNumber, Mode=TwoWay}" 
+                                 FontSize="14" 
+                                 Height="35" 
+                                 Padding="8"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Country:" FontSize="14" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <TextBox Text="USA" FontSize="14" Height="35" Padding="8"/>
+                        <TextBox Text="{Binding Country, Mode=TwoWay}" 
+                                 FontSize="14" 
+                                 Height="35" 
+                                 Padding="8"/>
                     </StackPanel>
                 </Grid>
             </Grid>
 
             <!-- Confirm Button -->
             <Button Grid.Row="3" 
-                    Content="Confirm Booking" 
+                    Content="Confirm Booking"
+                    Command="{Binding ConfirmBookingCommand}"
                     Background="#A5D6A7" 
                     FontSize="16" 
                     FontWeight="Bold"
@@ -230,6 +251,17 @@
                     </Style>
                 </Button.Resources>
             </Button>
+
+            <!-- Error Message Display -->
+            <TextBlock Grid.Row="4"
+                       Text="{Binding ErrorMessage, Mode=OneWay}"
+                       Foreground="Red"
+                       FontSize="14"
+                       FontWeight="Bold"
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Top"
+                       Margin="0,0,0,20"/>
 
         </Grid>
     </ScrollViewer>

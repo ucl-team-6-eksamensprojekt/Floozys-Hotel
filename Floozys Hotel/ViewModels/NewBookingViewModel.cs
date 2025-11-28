@@ -8,7 +8,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Floozys_Hotel.ViewModels
 {
@@ -115,5 +114,42 @@ namespace Floozys_Hotel.ViewModels
                 OnPropertyChanged();
             }
         }
+
+        // Commands
+        public RelayCommand ConfirmBookingCommand { get; set; }
+
+        // Constructor
+        public NewBookingViewModel()
+        {
+            ConfirmBookingCommand = new RelayCommand(
+                execute: o => ConfirmBooking(),
+                canExecute: o => CanConfirmBooking()
+            );
+        }
+
+        // Command Methods
+        private bool CanConfirmBooking()
+        {
+            // Button is always enabled for now
+            return true;
+        }
+
+        private void ConfirmBooking()
+        {
+            try
+            {
+                // TODO: Validate dates
+                // TODO: Create Guest object
+                // TODO: Create Booking object
+                // TODO: Save to database via Repository
+
+                ErrorMessage = "Booking functionality not yet implemented";
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error: {ex.Message}";
+            }
+        }
+
     }
 }

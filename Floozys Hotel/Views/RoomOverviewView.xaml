@@ -6,9 +6,116 @@
              xmlns:local="clr-namespace:Floozys_Hotel.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock Text="Room Overview"
-                      FontSize="30"
-                      FontWeight="ExtraBold"/>
+
+
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="6*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0"
+                       Text="Room Overview"
+                       FontSize="30"
+                       FontWeight="ExtraBold"
+                       Margin="0,0,0,10"/>
+
+        <Button Grid.Row="0" Grid.Column="1"
+                Content="Create Room"
+                Width="120"
+                Height="32"
+                HorizontalAlignment="right"
+                VerticalAlignment="Center"
+                Margin="0,0,0,5"
+                />
+
+
+        <Grid Grid.Row="1" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+
+            <Button Grid.Row="0"
+                    Content=" Filter by category"
+                    Width="150"
+                    Height="32"
+                    Margin="0,0,0,10"
+                    HorizontalAlignment="Left"/>
+
+            <Border Grid.Row="1"
+        CornerRadius="10"
+        Background="White"
+        Padding="0"
+        ClipToBounds="True">
+        
+
+
+
+
+
+            <DataGrid 
+                  ItemsSource="{Binding Rooms}"
+                  AutoGenerateColumns="False"
+                  GridLinesVisibility="None"
+                  HeadersVisibility="Column"
+                  IsReadOnly="True"
+                  Background="Transparent"
+                  BorderThickness="0"
+                  ColumnWidth="*"
+                  Style="{StaticResource FlatDataGridStyle}"
+                  ColumnHeaderStyle="{StaticResource FlatDataGridHeaderStyle}"
+                  CellStyle="{StaticResource FlatDataGridCellStyle}">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Room"/>
+                <DataGridTextColumn Header="Floor" />
+                <DataGridTextColumn Header="Room Size"/>
+                <DataGridTextColumn Header="Capacity" />
+                <DataGridTextColumn Header="Status"/>
+                <DataGridTextColumn Header="Edit"/>
+                <DataGridTextColumn Header="Delete"/>
+                </DataGrid.Columns>
+            
+            </DataGrid>
+
+
+            </Border>
+        </Grid>
+        <Border Grid.Row="1" Grid.Column="1"
+                Margin="20,0,0,0"
+                Background="White"
+                CornerRadius="8"
+                Padding="16"
+                BorderBrush="#DDD"
+                BorderThickness="1"
+                Visibility="Collapsed">
+            <!-- Senere: bind Visibility til fx IsRoomFormOpen -->
+            <StackPanel>
+                <TextBlock Text="Pick a floor"/>
+                <ComboBox Margin="0,4,0,12"/>
+
+                <TextBlock Text="Pick a size"/>
+                <ComboBox Margin="0,4,0,12"/>
+
+                <TextBlock Text="How much room capacity?"/>
+                <TextBox Margin="0,4,0,12"/>
+
+                <TextBlock Text="Room status"/>
+                <ComboBox Margin="0,4,0,20"/>
+
+                <Button Content="Confirm Room"
+                        Width="140"
+                        Height="32"
+                        HorizontalAlignment="Right"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>

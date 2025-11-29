@@ -7,7 +7,7 @@ using System.Windows.Input;
 
 namespace Floozys_Hotel.Commands
 {
-    class RelayCommand : ICommand
+    public class RelayCommand : ICommand
     {
        
         private Action<object> _execute;

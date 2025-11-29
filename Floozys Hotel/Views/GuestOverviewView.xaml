@@ -6,11 +6,12 @@
              xmlns:local="clr-namespace:Floozys_Hotel.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+
     <Grid Margin="20">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="30" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
@@ -18,6 +19,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
+        <!-- Header -->
         <TextBlock 
             Grid.Row="0"
             Grid.Column="0"
@@ -37,19 +39,75 @@
             Background="#90EE90"
             BorderBrush="#32CD32"
             BorderThickness="2"
-            Content="New Guest"
+            Content="New guest"
             FontSize="16"
             FontWeight="SemiBold"
-            Foreground="Black" />
+            Foreground="Black" 
+            HorizontalAlignment="Right" />
 
+        <!-- Guest List -->
         <Border
             Grid.Row="1"
             Grid.Column="0"
-            Grid.ColumnSpan="3"
-            Padding="15"
+            Padding="10"
             BorderBrush="LightGray"
             BorderThickness="1">
+            <ListView ItemsSource="{Binding Guests}" 
+                      SelectedItem="{Binding SelectedGuest, Mode=TwoWay}"
+                      Margin="0"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Last name" 
+                                        DisplayMemberBinding="{Binding LastName}"/>
+                        <GridViewColumn Header="Phone" 
+                                        DisplayMemberBinding="{Binding Phone}"/>
+                        <GridViewColumn Header="Country" 
+                                        DisplayMemberBinding="{Binding Country}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Border>
 
+        <!-- Guest Details (Edit) -->
+        <Border
+            Grid.Row="1"
+            Grid.Column="2"
+            Padding="10"
+            BorderBrush="LightGray"
+            BorderThickness="1">
+            <StackPanel>
+                <TextBlock Text="Guest Details" FontWeight="Bold" FontSize="18" Margin="0,0,0,10"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="First name:" Width="100"/>
+                    <TextBox Text="{Binding SelectedGuest.FirstName, Mode=TwoWay}" Width="200"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Last name:" Width="100"/>
+                    <TextBox Text="{Binding SelectedGuest.LastName, Mode=TwoWay}" Width="200"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Phone:" Width="100"/>
+                    <TextBox Text="{Binding SelectedGuest.Phone, Mode=TwoWay}" Width="200"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Email:" Width="100"/>
+                    <TextBox Text="{Binding SelectedGuest.Email, Mode=TwoWay}" Width="200"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Country:" Width="100"/>
+                    <TextBox Text="{Binding SelectedGuest.Country, Mode=TwoWay}" Width="200"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Passport number:" Width="100"/>
+                    <TextBox Text="{Binding SelectedGuest.PassportNumber, Mode=TwoWay}" Width="200"/>
+                </StackPanel>
+                <Button Content="Edit Guest"
+                    Command="{Binding EditGuestCommand}"
+                    Margin="0,10,0,0"
+                    Width="120"/>
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

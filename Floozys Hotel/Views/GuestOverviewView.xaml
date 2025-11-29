@@ -6,9 +6,50 @@
              xmlns:local="clr-namespace:Floozys_Hotel.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock Text="Guest Overview"
-                      FontSize="30"
-                      FontWeight="ExtraBold"/>
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock 
+            Grid.Row="0"
+            Grid.Column="0"
+            Margin="0,0,0,30"
+            VerticalAlignment="Center"
+            FontSize="30"
+            FontWeight="ExtraBold"
+            Text="Guest Overview"/>
+
+        <Button
+            Command="{Binding NewGuestCommand}"
+            Grid.Row="0"
+            Grid.Column="2"
+            Width="180"
+            Height="50"
+            Margin="0,0,0,30"
+            Background="#90EE90"
+            BorderBrush="#32CD32"
+            BorderThickness="2"
+            Content="New Guest"
+            FontSize="16"
+            FontWeight="SemiBold"
+            Foreground="Black" />
+
+        <Border
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Padding="15"
+            BorderBrush="LightGray"
+            BorderThickness="1">
+
+        </Border>
     </Grid>
 </UserControl>

@@ -5,7 +5,7 @@ using Floozys_Hotel.Validation;
 
 namespace Floozys_Hotel.Models
 {
-    class Booking
+    public class Booking
     {
         // Primary Key (IDENTITY in SQL)
         public int BookingID { get; init; }

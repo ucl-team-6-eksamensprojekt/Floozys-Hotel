@@ -1,16 +1,10 @@
-﻿using System;
-using Floozys_Hotel.Core;
+﻿using Floozys_Hotel.Core;
+using Floozys_Hotel.Models;
+using System;
 
 namespace Floozys_Hotel.Models
 {
-    /// <summary>
-    /// Represents a hotel room booking for a specific guest and time period.
-    /// Contains business rules for valid booking dates and times.
-    /// Follows Larman's Information Expert (GRASP) - validates its own data.
-    /// Follows DDD - business logic in domain model.
-    /// UC01: Register Booking - StartDate, EndDate (CheckInTime/CheckOutTime optional)
-    /// UC03: Update Booking - Can modify all fields including CheckInTime, CheckOutTime
-    /// </summary>
+
     public class Booking : ObservableObject
     {
         // Unique identifier for the booking (assigned by repository after database insert)
@@ -65,7 +59,7 @@ namespace Floozys_Hotel.Models
             }
         }
 
-        // Actual check-in timestamp 
+        // Actual check-in timestamp
         private DateTime? _checkInTime;
         public DateTime? CheckInTime
         {
@@ -94,7 +88,19 @@ namespace Floozys_Hotel.Models
             }
         }
 
-        // Reference to the booked room - UC01, UC03
+        // Booking status - UC02 (filter by status), UC03 (can be updated)
+        private BookingStatus _status;
+        public BookingStatus Status
+        {
+            get => _status;
+            set
+            {
+                _status = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // Reference to the booked room - UC01, UC03, UC08
         private int _roomID;
         public int RoomID
         {

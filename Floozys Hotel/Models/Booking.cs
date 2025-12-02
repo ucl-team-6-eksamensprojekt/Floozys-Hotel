@@ -1,39 +1,153 @@
-﻿
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Floozys_Hotel.Validation;
+﻿using System;
+using Floozys_Hotel.Core;
 
 namespace Floozys_Hotel.Models
 {
-    class Booking
+    /// <summary>
+    /// Represents a hotel room booking for a specific guest and time period.
+    /// Contains business rules for valid booking dates and times.
+    /// Follows Larman's Information Expert (GRASP) - validates its own data.
+    /// Follows DDD - business logic in domain model.
+    /// UC01: Register Booking - StartDate, EndDate (CheckInTime/CheckOutTime optional)
+    /// UC03: Update Booking - Can modify all fields including CheckInTime, CheckOutTime
+    /// </summary>
+    public class Booking : ObservableObject
     {
-        // Primary Key (IDENTITY in SQL)
-        public int BookingID { get; init; }
+        // Unique identifier for the booking (assigned by repository after database insert)
+        private int _bookingID;
+        public int BookingID
+        {
+            get => _bookingID;
+            set
+            {
+                _bookingID = value;
+                OnPropertyChanged();
+            }
+        }
 
-        // Start Date (DATE in SQL)
-        [Required(ErrorMessage = "Start date is required")]
-        public DateTime StartDate { get; set; }
+        // Start date of booking (first day of stay) - UC01, UC03
+        private DateTime _startDate;
+        public DateTime StartDate
+        {
+            get => _startDate;
+            set
+            {
+                if (value == default)
+                {
+                    throw new ArgumentException("Start date is required");
+                }
+                _startDate = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Duration));
+                OnPropertyChanged(nameof(NumberOfNights));
+            }
+        }
 
-        // End Date (DATE in SQL) - Must be AFTER StartDate
-        [Required(ErrorMessage = "End date is required")]
-        [DateGreaterThan(nameof(StartDate), ErrorMessage = "End date must be after start date")]
-        public DateTime EndDate { get; set; }
+        // End date of booking (last day of stay) - Must be after start date - UC01, UC03
+        private DateTime _endDate;
+        public DateTime EndDate
+        {
+            get => _endDate;
+            set
+            {
+                if (value == default)
+                {
+                    throw new ArgumentException("End date is required");
+                }
+                if (value <= StartDate)
+                {
+                    throw new ArgumentException("End date must be after start date");
+                }
+                _endDate = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Duration));
+                OnPropertyChanged(nameof(NumberOfNights));
+            }
+        }
 
-        // Check-In Time (DATETIME2 in SQL)
-        [Required(ErrorMessage = "Check-in time is required")]
-        public DateTime CheckInTime { get; set; }
+        // Actual check-in timestamp 
+        private DateTime? _checkInTime;
+        public DateTime? CheckInTime
+        {
+            get => _checkInTime;
+            set
+            {
+                _checkInTime = value;
+                OnPropertyChanged();
+            }
+        }
 
-        // Check-Out Time (DATETIME2 in SQL) - Must be AFTER CheckInTime
-        [Required(ErrorMessage = "Check-out time is required")]
-        [DateGreaterThan(nameof(CheckInTime), ErrorMessage = "Check-out time must be after check-in time")]
-        public DateTime CheckOutTime { get; set; }
+        // Actual check-out timestamp 
+        private DateTime? _checkOutTime;
+        public DateTime? CheckOutTime
+        {
+            get => _checkOutTime;
+            set
+            {
+                // Validate only if both are set
+                if (value.HasValue && CheckInTime.HasValue && value.Value <= CheckInTime.Value)
+                {
+                    throw new ArgumentException("Check-out time must be after check-in time");
+                }
+                _checkOutTime = value;
+                OnPropertyChanged();
+            }
+        }
 
-        // Foreign Keys
-        [Required(ErrorMessage = "Room is required")]
-        public int RoomID { get; set; }
+        // Reference to the booked room - UC01, UC03
+        private int _roomID;
+        public int RoomID
+        {
+            get => _roomID;
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentException("Room is required");
+                }
+                _roomID = value;
+                OnPropertyChanged();
+            }
+        }
 
-        [Required(ErrorMessage = "Guest is required")]
-        public int GuestID { get; set; }
+        // Reference to the guest making the booking - UC01, UC03
+        private int _guestID;
+        public int GuestID
+        {
+            get => _guestID;
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentException("Guest is required");
+                }
+                _guestID = value;
+                OnPropertyChanged();
+            }
+        }
 
+        // Calculated property - duration of stay (based on dates)
+        public TimeSpan Duration
+        {
+            get
+            {
+                if (StartDate == default || EndDate == default)
+                    return TimeSpan.Zero;
+
+                return EndDate - StartDate;
+            }
+        }
+
+        // Calculated property - number of nights stayed
+        public int NumberOfNights
+        {
+            get
+            {
+                if (StartDate == default || EndDate == default)
+                    return 0;
+
+                return (EndDate - StartDate).Days;
+            }
+        }
     }
 }

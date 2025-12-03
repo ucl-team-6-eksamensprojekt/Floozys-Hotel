@@ -89,7 +89,7 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Phone:" Width="100"/>
-                    <TextBox Text="{Binding SelectedGuest.Phone, Mode=TwoWay}" Width="200"/>
+                    <TextBox Text="{Binding SelectedGuest.PhoneNumber, Mode=TwoWay}" Width="200"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Email:" Width="100"/>

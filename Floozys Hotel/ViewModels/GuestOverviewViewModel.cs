@@ -34,8 +34,8 @@ namespace Floozys_Hotel.ViewModels
             // Dummy data for demonstration
             Guests = new ObservableCollection<Guest>
             {
-                new Guest { FirstName = "Anna", LastName = "Smith", Phone = "+4512345678", Email = "anna.smith@mail.com", Country = "Denmark" },
-                new Guest { FirstName = "John", LastName = "Doe", Phone = "+4598765432", Email = "john.doe@mail.com", Country = "Sweden" }
+                new Guest { FirstName = "Anna", LastName = "Smith", PhoneNumber = "+4512345678", Email = "anna.smith@mail.com", Country = "Denmark" },
+                new Guest { FirstName = "John", LastName = "Doe", PhoneNumber = "+4598765432", Email = "john.doe@mail.com", Country = "Sweden" }
             };
 
             NewGuestCommand = new RelayCommand(n => OpenNewGuest());

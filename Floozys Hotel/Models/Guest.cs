@@ -8,54 +8,55 @@ namespace Floozys_Hotel.Models
 {
     public class Guest
     {
-        private int _GuestID;
-        private string _FirstName;
-        private string _LastName;
-        private string _Email;
-        private string _Phone;
-        private string _Country;
-        private string _PassportNumber;
+        /* Auto-properties are used to simplify the code and improve readability
+         * when no extra logic is needed in the getter or setter.
+         * They provide encapsulation without explicit backing fields
+         * and make it easy to add logic later if requirements change.
+         */
+        public int GuestID { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Country { get; set; }
+        public string PassportNumber { get; set; }
 
-        public int GuestID 
-        { 
-            get { return _GuestID; } 
-            set { _GuestID = value; } 
-        }
-
-        public string FirstName 
-        { 
-            get { return _FirstName; } 
-            set { _FirstName = value; } 
-        }
-
-        public string LastName
+        public Guest()
         {
-            get { return _LastName; }
-            set { _LastName = value; }
+
         }
 
-        public string Email
+        public Guest(string firstName, string lastName, string email, string phoneNumber, string country, string passportNumber)
         {
-            get { return _Email; }
-            set { _Email = value; }
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            PhoneNumber = phoneNumber;
+            Country = country;
+            PassportNumber = passportNumber;
         }
 
-        public string Phone
+        /* Validation for the data that is required in roombooking.
+         * Validation is collected in this method instead of in each property-setter.
+         * This approach is preferred in WPF/MVVM because:
+         * - It allows the object to be constructed and updated freely (e.g. via data binding) without throwing exceptions.
+         * - All validation errors can be collected and shown at once, instead of stopping at the first error.
+         * - It separates domain logic (validation rules) from UI logic, making the model reusable and easier to maintain.
+         */
+        public List<string> Validate()
         {
-            get { return _Phone; }
-            set { _Phone = value; }
-        }
-
-        public string Country
-        {
-            get { return _Country; }
-            set { _Country = value; }
-        }
-
-        public string PassportNumber
-        {
-            get { return _PassportNumber; }
-            set { _PassportNumber = value; }
+            var errors = new List<string>();
+            if (string.IsNullOrWhiteSpace(FirstName))
+                errors.Add("First name is required.");
+            if (string.IsNullOrWhiteSpace(LastName))
+                errors.Add("Last name is required.");
+            if (string.IsNullOrWhiteSpace(Email) || !Email.Contains("@") || !Email.Contains("."))
+                errors.Add("A valid email is required.");
+            if (string.IsNullOrWhiteSpace(PhoneNumber))
+                errors.Add("Phone number is required.");
+            if (string.IsNullOrWhiteSpace(Country))
+                errors.Add("Country is required.");
+            return errors;
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using Floozys_Hotel.Core;
 using Floozys_Hotel.Models;
 using System;
+using System.ComponentModel.DataAnnotations;
+using Floozys_Hotel.Validation;
 
 namespace Floozys_Hotel.Models
 {
-
     public class Booking : ObservableObject
     {
         // Unique identifier for the booking (assigned by repository after database insert)
@@ -21,6 +22,7 @@ namespace Floozys_Hotel.Models
 
         // Start date of booking (first day of stay) - UC01, UC03
         private DateTime _startDate;
+        [Required(ErrorMessage = "Start date is required")]
         public DateTime StartDate
         {
             get => _startDate;
@@ -39,6 +41,8 @@ namespace Floozys_Hotel.Models
 
         // End date of booking (last day of stay) - Must be after start date - UC01, UC03
         private DateTime _endDate;
+        [Required(ErrorMessage = "End date is required")]
+        [DateGreaterThan(nameof(StartDate), ErrorMessage = "End date must be after start date")]
         public DateTime EndDate
         {
             get => _endDate;
@@ -61,6 +65,7 @@ namespace Floozys_Hotel.Models
 
         // Actual check-in timestamp
         private DateTime? _checkInTime;
+        [Required(ErrorMessage = "Check-in time is required")]
         public DateTime? CheckInTime
         {
             get => _checkInTime;
@@ -73,6 +78,8 @@ namespace Floozys_Hotel.Models
 
         // Actual check-out timestamp 
         private DateTime? _checkOutTime;
+        [Required(ErrorMessage = "Check-out time is required")]
+        [DateGreaterThan(nameof(CheckInTime), ErrorMessage = "Check-out time must be after check-in time")]
         public DateTime? CheckOutTime
         {
             get => _checkOutTime;
@@ -100,8 +107,9 @@ namespace Floozys_Hotel.Models
             }
         }
 
-        // Reference to the booked room - UC01, UC03, UC08
+        // Foreign Keys
         private int _roomID;
+        [Required(ErrorMessage = "Room is required")]
         public int RoomID
         {
             get => _roomID;
@@ -116,8 +124,8 @@ namespace Floozys_Hotel.Models
             }
         }
 
-        // Reference to the guest making the booking - UC01, UC03
         private int _guestID;
+        [Required(ErrorMessage = "Guest is required")]
         public int GuestID
         {
             get => _guestID;

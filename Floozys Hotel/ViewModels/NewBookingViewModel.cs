@@ -1,21 +1,33 @@
 ﻿using Floozys_Hotel.Commands;
 using Floozys_Hotel.Core;
 using Floozys_Hotel.Models;
+using Floozys_Hotel.Repositories;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Input;
+using System.Windows.Media.Animation;
 
 namespace Floozys_Hotel.ViewModels
 {
-    class NewBookingViewModel : ObservableObject
+    public class NewBookingViewModel : ObservableObject
     {
-        // Date Properties
+        // BACKING FIELDS
         private DateTime? _checkInDate;
-        public DateTime? CheckInDate
+        private DateTime? _checkOutDate;
+        private string _firstName;
+        private string _lastName;
+        private string _email;
+        private string _passportNumber;
+        private string _phoneNumber;
+        private string _country;
+        private string _errorMessage;
+
+        // REPOSITORY
+        private readonly BookingRepo _bookingRepo;
+
+        // PROPERTIES
+
+        public DateTime? CheckInDate  // Nullable because DatePicker starts with no selection
         {
             get => _checkInDate;
             set
@@ -25,8 +37,7 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        private DateTime? _checkOutDate;
-        public DateTime? CheckOutDate
+        public DateTime? CheckOutDate  // Nullable because DatePicker starts with no selection
         {
             get => _checkOutDate;
             set
@@ -36,8 +47,6 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        // Guest Information
-        private string _firstName;
         public string FirstName
         {
             get => _firstName;
@@ -48,7 +57,6 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        private string _lastName;
         public string LastName
         {
             get => _lastName;
@@ -59,7 +67,6 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        private string _email;
         public string Email
         {
             get => _email;
@@ -70,7 +77,6 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        private string _passportNumber;
         public string PassportNumber
         {
             get => _passportNumber;
@@ -81,8 +87,7 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        private string _phoneNumber;
-        public string PhoneNumber  // Stored as string to preserve formatting (+45, spaces)
+        public string PhoneNumber
         {
             get => _phoneNumber;
             set
@@ -92,7 +97,6 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        private string _country;
         public string Country
         {
             get => _country;
@@ -103,9 +107,7 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        // Error Handling
-        private string _errorMessage;
-        public string ErrorMessage
+        public string ErrorMessage  // Displays validation errors or success messages to user
         {
             get => _errorMessage;
             set
@@ -115,41 +117,110 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        // Commands
-        public RelayCommand ConfirmBookingCommand { get; set; }
+        // COMMAND
 
-        // Constructor
+        public ICommand ConfirmBookingCommand { get; }
+
+        // CONSTRUCTOR
+
         public NewBookingViewModel()
         {
-            ConfirmBookingCommand = new RelayCommand(
-                execute: o => ConfirmBooking(),
-                canExecute: o => CanConfirmBooking()
-            );
+            _bookingRepo = new BookingRepo();
+            ConfirmBookingCommand = new RelayCommand(CreateBooking);
         }
 
-        // Command Methods
-        private bool CanConfirmBooking()
-        {
-            // Button is always enabled for now
-            return true;
-        }
+        // METHODS
 
-        private void ConfirmBooking()
+        private void CreateBooking(object parameter)
         {
             try
             {
-                // TODO: Validate dates
-                // TODO: Create Guest object
-                // TODO: Create Booking object
-                // TODO: Save to database via Repository
+                ErrorMessage = string.Empty;
 
-                ErrorMessage = "Booking functionality not yet implemented";
+                // STEP 1: VALIDATE DATES
+                if (!CheckInDate.HasValue)
+                {
+                    throw new ArgumentException("Check-in date is required");
+                }
+
+                if (!CheckOutDate.HasValue)
+                {
+                    throw new ArgumentException("Check-out date is required");
+                }
+
+                if (CheckOutDate.Value <= CheckInDate.Value)
+                {
+                    throw new ArgumentException("Check-out date must be after check-in date");
+                }
+
+                if (CheckInDate.Value.Date < DateTime.Now.Date)
+                {
+                    throw new ArgumentException("Check-in date cannot be in the past");
+                }
+
+                // STEP 2: CREATE AND VALIDATE GUEST
+                var guest = new Guest(
+                    firstName: FirstName,
+                    lastName: LastName,
+                    email: Email,
+                    phoneNumber: PhoneNumber,
+                    country: Country,
+                    passportNumber: PassportNumber
+                );
+
+                var guestErrors = guest.Validate();
+
+                if (guestErrors.Any())  // Show first error for better UX
+                {
+                    throw new ArgumentException(guestErrors.First());
+                }
+
+                // STEP 3: VALIDATE ROOM SELECTION
+                int selectedRoomID = 1;  // Temporary hardcoded - waiting on Nickolaj's Room implementation
+
+                // STEP 4: CREATE BOOKING
+                var booking = new Booking
+                {
+                    StartDate = CheckInDate.Value,
+                    EndDate = CheckOutDate.Value,
+                    Status = BookingStatus.Pending,
+                    RoomID = selectedRoomID,
+                    GuestID = 1  // Temporary hardcoded - will be real GuestID when Anna completes GuestRepo
+                };
+
+                // STEP 5: SAVE TO DATABASE
+                _bookingRepo.Create(booking);  // Repository assigns BookingID after insert
+
+                // STEP 6: SUCCESS - Show confirmation and clear form
+                ErrorMessage = "✅ Booking created successfully!\n" +
+                               "Booking ID: " + booking.BookingID + "\n" +
+                               "Guest: " + guest.FirstName + " " + guest.LastName + "\n" +
+                               "Check-in: " + booking.StartDate.ToShortDateString() + "\n" +
+                               "Check-out: " + booking.EndDate.ToShortDateString() + "\n" +
+                               "Nights: " + booking.NumberOfNights;
+
+                ClearForm();
             }
-            catch (Exception ex)
+            catch (ArgumentException ex)  // Expected validation errors
             {
-                ErrorMessage = $"Error: {ex.Message}";
+                ErrorMessage = ex.Message;
+            }
+            catch (Exception ex)  // Unexpected errors (database, null reference, etc.)
+            {
+                ErrorMessage = "An unexpected error occurred: " + ex.Message;
             }
         }
 
+        private void ClearForm()  // Resets form for next booking
+        {
+            CheckInDate = null;
+            CheckOutDate = null;
+            FirstName = string.Empty;
+            LastName = string.Empty;
+            Email = string.Empty;
+            PassportNumber = string.Empty;
+            PhoneNumber = string.Empty;
+            Country = string.Empty;
+        }
     }
 }

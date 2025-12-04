@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using Floozys_Hotel.Commands;
 using Floozys_Hotel.Core;
 using Floozys_Hotel.Models;
 using Floozys_Hotel.Repositories;
-using Floozys_Hotel.Repositories.Interfaces;
 
 namespace Floozys_Hotel.ViewModels
 {
@@ -21,11 +21,30 @@ namespace Floozys_Hotel.ViewModels
         private string _phoneNumber;
         private string _country;
         private string _errorMessage;
-
-        // REPOSITORY
-        private readonly IBooking _bookingRepo;
+        private ObservableCollection<Room> _newBookingRoomList;
+        private Room _selectedRoom;
 
         // PROPERTIES
+
+        public ObservableCollection<Room> NewBookingRoomList
+        {
+            get => _newBookingRoomList;
+            set
+            {
+                _newBookingRoomList = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Room SelectedRoom
+        {
+            get => _selectedRoom;
+            set
+            {
+                _selectedRoom = value;
+                OnPropertyChanged();
+            }
+        }
 
         public DateTime? CheckInDate
         {
@@ -121,16 +140,23 @@ namespace Floozys_Hotel.ViewModels
 
         public ICommand ConfirmBookingCommand { get; }
 
-        // CONSTRUCTORS
+        // CONSTRUCTOR
 
-        public NewBookingViewModel() : this(new BookingRepo())
+        public NewBookingViewModel()
         {
-        }
-
-        public NewBookingViewModel(IBooking bookingRepo)
-        {
-            _bookingRepo = bookingRepo;
             ConfirmBookingCommand = new RelayCommand(CreateBooking);
+
+            // Initialize ObservableCollection
+            NewBookingRoomList = new ObservableCollection<Room>();
+
+            // Load available rooms
+            RoomRepo roomRepo = new RoomRepo();
+            List<Room> rooms = roomRepo.GetAllByAvailability();
+
+            foreach (Room room in rooms)
+            {
+                NewBookingRoomList.Add(room);  // Add each room to ObservableCollection
+            }
         }
 
         // METHODS
@@ -180,23 +206,28 @@ namespace Floozys_Hotel.ViewModels
                 }
 
                 // STEP 3: VALIDATE ROOM SELECTION
-                int selectedRoomID = 1;
+                if (SelectedRoom == null)
+                {
+                    throw new ArgumentException("Please select a room");
+                }
 
                 // STEP 4: CREATE BOOKING
+                BookingRepo bookingRepo = new BookingRepo();
+
                 var booking = new Booking
                 {
                     StartDate = CheckInDate.Value,
                     EndDate = CheckOutDate.Value,
                     Status = BookingStatus.Pending,
-                    RoomID = selectedRoomID,
-                    GuestID = 1
+                    Room = SelectedRoom,
+                    Guest = guest
                 };
 
                 // STEP 5: SAVE TO REPOSITORY
-                _bookingRepo.Create(booking);
+                bookingRepo.Create(booking);
 
-                // STEP 6: SUCCESS - Display message
-                ErrorMessage = $"✅ Booking #{booking.BookingID} created successfully for {guest.FirstName} {guest.LastName}!";
+                // STEP 6: SUCCESS
+                ErrorMessage = $"✅ Booking #{booking.BookingID} created for {guest.FirstName} {guest.LastName} ({booking.NumberOfNights} nights)!";
 
                 ClearForm();
             }
@@ -220,6 +251,7 @@ namespace Floozys_Hotel.ViewModels
             PassportNumber = string.Empty;
             PhoneNumber = string.Empty;
             Country = string.Empty;
+            SelectedRoom = null;
         }
     }
 }

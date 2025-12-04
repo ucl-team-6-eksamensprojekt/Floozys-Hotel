@@ -1,4 +1,7 @@
-﻿using Floozys_Hotel.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Floozys_Hotel.Models;
 using Floozys_Hotel.Repositories.Interfaces;
 
 namespace Floozys_Hotel.Repositories
@@ -12,13 +15,17 @@ namespace Floozys_Hotel.Repositories
 
         public BookingRepo()
         {
+            // Get sample rooms and guests for test data
+            var roomRepo = new RoomRepo();
+            var rooms = roomRepo.GetAll();
+
             _bookings = new List<Booking>
             {
                 new Booking
                 {
                     BookingID = 1,
-                    RoomID = 1,
-                    GuestID = 1,
+                    Room = rooms.FirstOrDefault(r => r.RoomId == 1),
+                    Guest = new Guest { GuestID = 1, FirstName = "John", LastName = "Doe", Email = "john@example.com", PhoneNumber = "+4512345678", Country = "Denmark" },
                     StartDate = DateTime.Today.AddDays(-2),
                     EndDate = DateTime.Today.AddDays(3),
                     CheckInTime = DateTime.Now.AddDays(-2),
@@ -28,8 +35,8 @@ namespace Floozys_Hotel.Repositories
                 new Booking
                 {
                     BookingID = 2,
-                    RoomID = 2,
-                    GuestID = 2,
+                    Room = rooms.FirstOrDefault(r => r.RoomId == 2),
+                    Guest = new Guest { GuestID = 2, FirstName = "Jane", LastName = "Smith", Email = "jane@example.com", PhoneNumber = "+4587654321", Country = "Sweden" },
                     StartDate = DateTime.Today.AddDays(5),
                     EndDate = DateTime.Today.AddDays(10),
                     CheckInTime = null,
@@ -39,8 +46,8 @@ namespace Floozys_Hotel.Repositories
                 new Booking
                 {
                     BookingID = 3,
-                    RoomID = 1,
-                    GuestID = 3,
+                    Room = rooms.FirstOrDefault(r => r.RoomId == 1),
+                    Guest = new Guest { GuestID = 3, FirstName = "Bob", LastName = "Johnson", Email = "bob@example.com", PhoneNumber = "+4511223344", Country = "Norway" },
                     StartDate = DateTime.Today.AddDays(12),
                     EndDate = DateTime.Today.AddDays(15),
                     CheckInTime = null,
@@ -50,8 +57,8 @@ namespace Floozys_Hotel.Repositories
                 new Booking
                 {
                     BookingID = 4,
-                    RoomID = 4,
-                    GuestID = 4,
+                    Room = rooms.FirstOrDefault(r => r.RoomId == 4),
+                    Guest = new Guest { GuestID = 4, FirstName = "Alice", LastName = "Brown", Email = "alice@example.com", PhoneNumber = "+4599887766", Country = "Finland" },
                     StartDate = DateTime.Today.AddDays(-5),
                     EndDate = DateTime.Today.AddDays(-1),
                     CheckInTime = DateTime.Now.AddDays(-5),
@@ -61,8 +68,8 @@ namespace Floozys_Hotel.Repositories
                 new Booking
                 {
                     BookingID = 5,
-                    RoomID = 5,
-                    GuestID = 5,
+                    Room = rooms.FirstOrDefault(r => r.RoomId == 5),
+                    Guest = new Guest { GuestID = 5, FirstName = "Charlie", LastName = "Wilson", Email = "charlie@example.com", PhoneNumber = "+4544332211", Country = "Iceland" },
                     StartDate = DateTime.Today,
                     EndDate = DateTime.Today.AddDays(5),
                     CheckInTime = DateTime.Now,
@@ -107,12 +114,12 @@ namespace Floozys_Hotel.Repositories
 
         public List<Booking> GetByRoomID(int roomID)  // Find all bookings for a room
         {
-            return _bookings.Where(b => b.RoomID == roomID).ToList();
+            return _bookings.Where(b => b.Room != null && b.Room.RoomId == roomID).ToList();
         }
 
         public List<Booking> GetByGuestID(int guestID)  // Find all bookings for a guest
         {
-            return _bookings.Where(b => b.GuestID == guestID).ToList();
+            return _bookings.Where(b => b.Guest != null && b.Guest.GuestID == guestID).ToList();
         }
 
         // UPDATE
@@ -136,8 +143,8 @@ namespace Floozys_Hotel.Repositories
             existingBooking.CheckInTime = booking.CheckInTime;
             existingBooking.CheckOutTime = booking.CheckOutTime;
             existingBooking.Status = booking.Status;
-            existingBooking.RoomID = booking.RoomID;
-            existingBooking.GuestID = booking.GuestID;
+            existingBooking.Room = booking.Room;
+            existingBooking.Guest = booking.Guest;
         }
 
         // DELETE

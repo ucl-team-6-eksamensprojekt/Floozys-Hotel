@@ -1,13 +1,5 @@
 ﻿using Floozys_Hotel.Models;
 using Floozys_Hotel.Repositories.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Documents;
-using System.Windows.Media.Animation;
-using static Azure.Core.HttpHeader;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Floozys_Hotel.Repositories
 {

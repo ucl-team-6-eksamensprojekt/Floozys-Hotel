@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Floozys_Hotel.Models;
+﻿using Floozys_Hotel.Models;
 using Floozys_Hotel.Repositories.Interfaces;
 
 namespace Floozys_Hotel.Repositories

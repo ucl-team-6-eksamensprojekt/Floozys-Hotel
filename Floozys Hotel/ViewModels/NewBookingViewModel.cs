@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Floozys_Hotel.Commands;
 using Floozys_Hotel.Core;
 using Floozys_Hotel.Models;
@@ -196,7 +194,7 @@ namespace Floozys_Hotel.ViewModels
                 _bookingRepo.Create(booking);  // Repository assigns BookingID after insert
 
                 // STEP 6: SUCCESS - Show confirmation and clear form
-                ErrorMessage = "✅ Booking created successfully!\n" +
+                ErrorMessage = "Booking created successfully! ✅ \n" +
                                "Booking ID: " + booking.BookingID + "\n" +
                                "Guest: " + guest.FirstName + " " + guest.LastName + "\n" +
                                "Check-in: " + booking.StartDate.ToShortDateString() + "\n" +

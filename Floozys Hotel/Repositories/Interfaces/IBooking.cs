@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿
 using Floozys_Hotel.Models;
 
 namespace Floozys_Hotel.Repositories.Interfaces

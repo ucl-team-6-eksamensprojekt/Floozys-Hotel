@@ -1,267 +1,349 @@
-﻿<Window x:Class="Floozys_Hotel.Views.NewBookingView"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Floozys_Hotel.Views"
-        mc:Ignorable="d"
-        Title="New Booking - Floozy's Hotel" 
-        Height="800" 
-        Width="850"
-        MinHeight="600"
-        MinWidth="650"
-        Background="#F5F5F5"
-        WindowStartupLocation="CenterScreen"
-        ResizeMode="CanResize">
+﻿<Window
+    x:Class="Floozys_Hotel.Views.NewBookingView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Floozys_Hotel.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="New Booking - Floozy's Hotel"
+    Width="850"
+    Height="800"
+    MinWidth="650"
+    MinHeight="600"
+    Background="#F5F5F5"
+    ResizeMode="CanResize"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
 
-    <!-- 
-    MARGIN USAGE PRINCIPLE:
-    * We use Grid/StackPanel for structure (where things ARE)
-    * We use Margin for spacing (air between things, not toolbox positionering)
-    * Toolbox positionering is not easy to maintenain and use according to Jan Brown clip.
+    <!--
+        MARGIN USAGE PRINCIPLE:
+        * We use Grid/StackPanel for structure (where things ARE)
+        * We use Margin for spacing (air between things, not toolbox positionering)
+        * Toolbox positionering is not easy to maintenain and use according to Jan Brown clip.
     -->
 
-    <!-- ScrollViewer makes content scrollable if window is too small, kind of responsive design -->
-    <ScrollViewer VerticalScrollBarVisibility="Auto" 
-                  HorizontalScrollBarVisibility="Disabled">
+    <!--  ScrollViewer makes content scrollable if window is too small, kind of responsive design  -->
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
         <Grid Margin="20">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <!-- Check-in & Check-out DatePickers -->
+            <!--  Check-in & Check-out DatePickers  -->
             <Grid Grid.Row="0" Margin="0,0,0,20">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" MinWidth="200"/>
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="*" MinWidth="200"/>
+                    <ColumnDefinition Width="*" MinWidth="200" />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="*" MinWidth="200" />
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" 
-                        Background="#C8E6C9" 
-                        CornerRadius="8" 
-                        Padding="15">
+                <Border
+                    Grid.Column="0"
+                    Padding="15"
+                    Background="#C8E6C9"
+                    CornerRadius="8">
                     <StackPanel>
-                        <TextBlock Text="Check-In Date" 
-                                   FontSize="16" 
-                                   FontWeight="Bold" 
-                                   Margin="0,0,0,10"
-                                   HorizontalAlignment="Center"/>
-                        <DatePicker SelectedDate="{Binding CheckInDate, Mode=TwoWay}" 
-                                    FontSize="18"
-                                    Height="40"
-                                    HorizontalAlignment="Stretch"/>
+                        <TextBlock
+                            Margin="0,0,0,10"
+                            HorizontalAlignment="Center"
+                            FontSize="16"
+                            FontWeight="Bold"
+                            Text="Check-In Date" />
+                        <DatePicker
+                            Height="40"
+                            HorizontalAlignment="Stretch"
+                            FontSize="18"
+                            SelectedDate="{Binding CheckInDate, Mode=TwoWay}" />
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="2" 
-                        Background="#C8E6C9" 
-                        CornerRadius="8" 
-                        Padding="15">
+                <Border
+                    Grid.Column="2"
+                    Padding="15"
+                    Background="#C8E6C9"
+                    CornerRadius="8">
                     <StackPanel>
-                        <TextBlock Text="Check-Out Date" 
-                                   FontSize="16" 
-                                   FontWeight="Bold" 
-                                   Margin="0,0,0,10"
-                                   HorizontalAlignment="Center"/>
-                        <DatePicker SelectedDate="{Binding CheckOutDate, Mode=TwoWay}" 
-                                    FontSize="18"
-                                    Height="40"
-                                    HorizontalAlignment="Stretch"/>
+                        <TextBlock
+                            Margin="0,0,0,10"
+                            HorizontalAlignment="Center"
+                            FontSize="16"
+                            FontWeight="Bold"
+                            Text="Check-Out Date" />
+                        <DatePicker
+                            Height="40"
+                            HorizontalAlignment="Stretch"
+                            FontSize="18"
+                            SelectedDate="{Binding CheckOutDate, Mode=TwoWay}" />
                     </StackPanel>
                 </Border>
             </Grid>
 
-            <!-- Room Selection -->
+            <!--  Room Selection  -->
             <StackPanel Grid.Row="1" Margin="0,0,0,20">
-                <TextBlock Text="Pick desired room" 
-                           FontSize="18" 
-                           FontWeight="Bold" 
-                           Margin="0,0,0,10"/>
-                
-                <!-- TODO: Waiting on Team member Nickolai on Room update -->
-                <ListBox MinHeight="160"
-                         MaxHeight="200"
-                         FontSize="14"
-                         Background="White"
-                         BorderBrush="#CCCCCC"
-                         BorderThickness="1">
+                <TextBlock
+                    Margin="0,0,0,10"
+                    FontSize="18"
+                    FontWeight="Bold"
+                    Text="Pick desired room" />
+
+                <!--  TODO: Waiting on Team member Nickolai on Room update  -->
+                <ListBox
+                    MinHeight="160"
+                    MaxHeight="200"
+                    Background="White"
+                    BorderBrush="#CCCCCC"
+                    BorderThickness="1"
+                    FontSize="14">
                     <ListBoxItem Padding="10">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="#1, 2nd floor, Large Room" TextWrapping="Wrap"/>
-                            <TextBlock Grid.Column="1" Text="25.00$" FontWeight="Bold" Margin="10,0,0,0"/>
+                            <TextBlock
+                                Grid.Column="0"
+                                Text="#1, 2nd floor, Large Room"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Margin="10,0,0,0"
+                                FontWeight="Bold"
+                                Text="25.00$" />
                         </Grid>
                     </ListBoxItem>
                     <ListBoxItem Padding="10">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="#2, 2nd floor, Small Room" TextWrapping="Wrap"/>
-                            <TextBlock Grid.Column="1" Text="20.00$" FontWeight="Bold" Margin="10,0,0,0"/>
+                            <TextBlock
+                                Grid.Column="0"
+                                Text="#2, 2nd floor, Small Room"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Margin="10,0,0,0"
+                                FontWeight="Bold"
+                                Text="20.00$" />
                         </Grid>
                     </ListBoxItem>
                     <ListBoxItem Padding="10">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="#3, 2nd floor, Small Room" TextWrapping="Wrap"/>
-                            <TextBlock Grid.Column="1" Text="20.00$" FontWeight="Bold" Margin="10,0,0,0"/>
+                            <TextBlock
+                                Grid.Column="0"
+                                Text="#3, 2nd floor, Small Room"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Margin="10,0,0,0"
+                                FontWeight="Bold"
+                                Text="20.00$" />
                         </Grid>
                     </ListBoxItem>
                     <ListBoxItem Padding="10">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="#4, 2nd floor, Large Room" TextWrapping="Wrap"/>
-                            <TextBlock Grid.Column="1" Text="25.00$" FontWeight="Bold" Margin="10,0,0,0"/>
+                            <TextBlock
+                                Grid.Column="0"
+                                Text="#4, 2nd floor, Large Room"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Margin="10,0,0,0"
+                                FontWeight="Bold"
+                                Text="25.00$" />
                         </Grid>
                     </ListBoxItem>
                     <ListBoxItem Padding="10">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="#5, 3rd floor, Large Room" TextWrapping="Wrap"/>
-                            <TextBlock Grid.Column="1" Text="25.00$" FontWeight="Bold" Margin="10,0,0,0"/>
+                            <TextBlock
+                                Grid.Column="0"
+                                Text="#5, 3rd floor, Large Room"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Margin="10,0,0,0"
+                                FontWeight="Bold"
+                                Text="25.00$" />
                         </Grid>
                     </ListBoxItem>
                     <ListBoxItem Padding="10">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="#6, 3rd floor, Small Room" TextWrapping="Wrap"/>
-                            <TextBlock Grid.Column="1" Text="20.00$" FontWeight="Bold" Margin="10,0,0,0"/>
+                            <TextBlock
+                                Grid.Column="0"
+                                Text="#6, 3rd floor, Small Room"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Margin="10,0,0,0"
+                                FontWeight="Bold"
+                                Text="20.00$" />
                         </Grid>
                     </ListBoxItem>
                 </ListBox>
             </StackPanel>
 
-            <!-- Guest Information -->
+            <!--  Guest Information  -->
             <Grid Grid.Row="2" Margin="0,0,0,20">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <!-- Firstname & Lastname -->
+                <!--  Firstname & Lastname  -->
                 <Grid Grid.Row="0" Margin="0,0,0,15">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" MinWidth="150"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="*" MinWidth="150"/>
+                        <ColumnDefinition Width="*" MinWidth="150" />
+                        <ColumnDefinition Width="20" />
+                        <ColumnDefinition Width="*" MinWidth="150" />
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Firstname" FontSize="14" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding FirstName, Mode=TwoWay}" 
-                                 FontSize="14" 
-                                 Height="35" 
-                                 Padding="8"/>
+                        <TextBlock
+                            Margin="0,0,0,5"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Text="Firstname" />
+                        <TextBox
+                            Height="35"
+                            Padding="8"
+                            FontSize="14"
+                            Text="{Binding FirstName, Mode=TwoWay}" />
                     </StackPanel>
 
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="Lastname" FontSize="14" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding LastName, Mode=TwoWay}" 
-                                 FontSize="14" 
-                                 Height="35" 
-                                 Padding="8"/>
+                        <TextBlock
+                            Margin="0,0,0,5"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Text="Lastname" />
+                        <TextBox
+                            Height="35"
+                            Padding="8"
+                            FontSize="14"
+                            Text="{Binding LastName, Mode=TwoWay}" />
                     </StackPanel>
                 </Grid>
 
-                <!-- Email -->
+                <!--  Email  -->
                 <StackPanel Grid.Row="1" Margin="0,0,0,15">
-                    <TextBlock Text="Email" FontSize="14" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <TextBox Text="{Binding Email, Mode=TwoWay}" 
-                             FontSize="14" 
-                             Height="35" 
-                             Padding="8"/>
+                    <TextBlock
+                        Margin="0,0,0,5"
+                        FontSize="14"
+                        FontWeight="Bold"
+                        Text="Email" />
+                    <TextBox
+                        Height="35"
+                        Padding="8"
+                        FontSize="14"
+                        Text="{Binding Email, Mode=TwoWay}" />
                 </StackPanel>
 
-                <!-- Passport number -->
+                <!--  Passport number  -->
                 <StackPanel Grid.Row="2" Margin="0,0,0,15">
-                    <TextBlock Text="Passport number" FontSize="14" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <TextBox Text="{Binding PassportNumber, Mode=TwoWay}" 
-                             FontSize="14" 
-                             Height="35" 
-                             Padding="8"/>
+                    <TextBlock
+                        Margin="0,0,0,5"
+                        FontSize="14"
+                        FontWeight="Bold"
+                        Text="Passport number" />
+                    <TextBox
+                        Height="35"
+                        Padding="8"
+                        FontSize="14"
+                        Text="{Binding PassportNumber, Mode=TwoWay}" />
                 </StackPanel>
 
-                <!-- Phone number & Country -->
+                <!--  Phone number & Country  -->
                 <Grid Grid.Row="3" Margin="0,0,0,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" MinWidth="150"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="*" MinWidth="150"/>
+                        <ColumnDefinition Width="*" MinWidth="150" />
+                        <ColumnDefinition Width="20" />
+                        <ColumnDefinition Width="*" MinWidth="150" />
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Phone number:" FontSize="14" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding PhoneNumber, Mode=TwoWay}" 
-                                 FontSize="14" 
-                                 Height="35" 
-                                 Padding="8"/>
+                        <TextBlock
+                            Margin="0,0,0,5"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Text="Phone number:" />
+                        <TextBox
+                            Height="35"
+                            Padding="8"
+                            FontSize="14"
+                            Text="{Binding PhoneNumber, Mode=TwoWay}" />
                     </StackPanel>
 
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="Country:" FontSize="14" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding Country, Mode=TwoWay}" 
-                                 FontSize="14" 
-                                 Height="35" 
-                                 Padding="8"/>
+                        <TextBlock
+                            Margin="0,0,0,5"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Text="Country:" />
+                        <TextBox
+                            Height="35"
+                            Padding="8"
+                            FontSize="14"
+                            Text="{Binding Country, Mode=TwoWay}" />
                     </StackPanel>
                 </Grid>
             </Grid>
 
-            <!-- Confirm Button -->
-            <Button Grid.Row="3" 
-                    Content="Confirm Booking"
-                    Command="{Binding ConfirmBookingCommand}"
-                    Background="#A5D6A7" 
-                    FontSize="16" 
-                    FontWeight="Bold"
-                    Height="50"
-                    MinWidth="180"
-                    MaxWidth="250"
-                    HorizontalAlignment="Right"
-                    BorderThickness="0"
-                    Cursor="Hand"
-                    Margin="0,0,0,20">
+            <!--  Confirm Button  -->
+            <Button
+                Grid.Row="3"
+                Height="50"
+                MinWidth="180"
+                MaxWidth="250"
+                Margin="0,0,0,20"
+                HorizontalAlignment="Right"
+                Background="#A5D6A7"
+                BorderThickness="0"
+                Command="{Binding ConfirmBookingCommand}"
+                Content="Confirm Booking"
+                Cursor="Hand"
+                FontSize="16"
+                FontWeight="Bold">
                 <Button.Resources>
                     <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="8"/>
+                        <Setter Property="CornerRadius" Value="8" />
                     </Style>
                 </Button.Resources>
             </Button>
 
-            <!-- Error Message Display -->
-            <TextBlock Grid.Row="4"
-                       Text="{Binding ErrorMessage, Mode=OneWay}"
-                       Foreground="Red"
-                       FontSize="14"
-                       FontWeight="Bold"
-                       TextWrapping="Wrap"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Top"
-                       Margin="0,0,0,20"/>
+            <!--  Error Message Display  -->
+            <TextBlock
+                Grid.Row="4"
+                Margin="0,0,0,20"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                FontSize="14"
+                FontWeight="Bold"
+                Foreground="Red"
+                Text="{Binding ErrorMessage, Mode=OneWay}"
+                TextWrapping="Wrap" />
 
         </Grid>
     </ScrollViewer>

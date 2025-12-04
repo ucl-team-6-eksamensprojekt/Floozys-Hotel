@@ -1,11 +1,11 @@
-﻿using Floozys_Hotel.Commands;
+﻿using System;
+using System.Linq;
+using System.Windows.Input;
+using Floozys_Hotel.Commands;
 using Floozys_Hotel.Core;
 using Floozys_Hotel.Models;
 using Floozys_Hotel.Repositories;
-using System;
-using System.Linq;
-using System.Windows.Input;
-using System.Windows.Media.Animation;
+using Floozys_Hotel.Repositories.Interfaces;
 
 namespace Floozys_Hotel.ViewModels
 {
@@ -23,7 +23,7 @@ namespace Floozys_Hotel.ViewModels
         private string _errorMessage;
 
         // REPOSITORY
-        private readonly BookingRepo _bookingRepo;
+        private readonly IBooking _bookingRepo;  // Depends on interface, not concrete class
 
         // PROPERTIES
 
@@ -121,11 +121,15 @@ namespace Floozys_Hotel.ViewModels
 
         public ICommand ConfirmBookingCommand { get; }
 
-        // CONSTRUCTOR
+        // CONSTRUCTORS
 
-        public NewBookingViewModel()
+        public NewBookingViewModel() : this(new BookingRepo())  // Parameterless for XAML - calls overloaded constructor
         {
-            _bookingRepo = new BookingRepo();
+        }
+
+        public NewBookingViewModel(IBooking bookingRepo)  // For dependency injection (testing)
+        {
+            _bookingRepo = bookingRepo;
             ConfirmBookingCommand = new RelayCommand(CreateBooking);
         }
 
@@ -188,7 +192,7 @@ namespace Floozys_Hotel.ViewModels
                     GuestID = 1  // Temporary hardcoded - will be real GuestID when Anna completes GuestRepo
                 };
 
-                // STEP 5: SAVE TO DATABASE
+                // STEP 5: SAVE TO REPOSITORY
                 _bookingRepo.Create(booking);  // Repository assigns BookingID after insert
 
                 // STEP 6: SUCCESS - Show confirmation and clear form

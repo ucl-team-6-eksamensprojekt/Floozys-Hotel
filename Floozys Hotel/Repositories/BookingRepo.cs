@@ -1,13 +1,12 @@
-﻿using Floozys_Hotel.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Interop;
-using System.Windows.Media.Animation;
+using Floozys_Hotel.Models;
+using Floozys_Hotel.Repositories.Interfaces;
 
 namespace Floozys_Hotel.Repositories
 {
-    public class BookingRepo
+    public class BookingRepo : IBooking
     {
         private List<Booking> _bookings;  // In-memory storage simulates database
         private int _nextBookingID;  // Simulates database auto-increment
@@ -75,7 +74,7 @@ namespace Floozys_Hotel.Repositories
                 }
             };
 
-            _nextBookingID = _bookings.Max(b => b.BookingID) + 1;  // Start from 6
+            _nextBookingID = _bookings.Max(b => b.BookingID) + 1;
         }
 
         // CREATE
@@ -87,7 +86,7 @@ namespace Floozys_Hotel.Repositories
                 throw new ArgumentNullException(nameof(booking), "Booking cannot be null");
             }
 
-            booking.BookingID = _nextBookingID;  // Assign new ID (simulates database auto-increment)
+            booking.BookingID = _nextBookingID;
             _nextBookingID++;
             _bookings.Add(booking);
         }

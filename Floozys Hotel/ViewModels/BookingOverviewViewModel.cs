@@ -250,7 +250,7 @@ namespace Floozys_Hotel.ViewModels
             }
 
             var matching = Bookings.FirstOrDefault(b =>
-                $"Guest {b.GuestID}".Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+                $"Guest {b.Guest.GuestID}".Contains(SearchText, StringComparison.OrdinalIgnoreCase));
 
             if (matching != null)
             {

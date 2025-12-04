@@ -36,6 +36,12 @@ namespace Floozys_Hotel.Repositories
             return new List<Room>(_rooms);  // Return copy to prevent external modification
         }
 
+        // Method to get all rooms by availability
+        public List<Room> GetAllByAvailability()
+        {
+            return _rooms.Where(r => r.Status == RoomStatus.Available).ToList();
+        }
+
         public Room GetById(int roomId)
         {
             return _rooms.FirstOrDefault(r => r.RoomId == roomId);
@@ -85,5 +91,7 @@ namespace Floozys_Hotel.Repositories
             _rooms.Remove(room);
             return true;
         }
+
+
     }
 }

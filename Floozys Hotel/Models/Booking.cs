@@ -1,4 +1,7 @@
-﻿namespace Floozys_Hotel.Models
+﻿using System;
+using System.Collections.Generic;
+
+namespace Floozys_Hotel.Models
 {
     public class Booking
     {
@@ -16,22 +19,11 @@
 
         public BookingStatus Status { get; set; }
 
-        public int RoomID { get; set; }
+        public Room Room { get; set; }
 
-        public int GuestID { get; set; }
+        public Guest Guest { get; set; }
 
         // CALCULATED PROPERTIES
-
-        public TimeSpan Duration
-        {
-            get
-            {
-                if (StartDate == default || EndDate == default)
-                    return TimeSpan.Zero;
-
-                return EndDate - StartDate;
-            }
-        }
 
         public int NumberOfNights
         {
@@ -62,10 +54,10 @@
             if (StartDate != default && StartDate.Date < DateTime.Now.Date)
                 errors.Add("Start date cannot be in the past");
 
-            if (RoomID <= 0)
+            if (Room == null)
                 errors.Add("Room is required");
 
-            if (GuestID <= 0)
+            if (Guest == null)
                 errors.Add("Guest is required");
 
             if (CheckOutTime.HasValue && CheckInTime.HasValue && CheckOutTime.Value <= CheckInTime.Value)

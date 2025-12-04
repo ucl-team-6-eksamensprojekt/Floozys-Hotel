@@ -85,124 +85,38 @@
             <!--  Room Selection  -->
             <StackPanel Grid.Row="1" Margin="0,0,0,20">
                 <TextBlock
-                    Margin="0,0,0,10"
-                    FontSize="18"
-                    FontWeight="Bold"
-                    Text="Pick desired room" />
+        Margin="0,0,0,10"
+        FontSize="18"
+        FontWeight="Bold"
+        Text="Pick desired room" />
 
-                <!--  TODO: Waiting on Team member Nickolai on Room update  -->
-                <ListBox
-                    MinHeight="160"
-                    MaxHeight="200"
-                    Background="White"
-                    BorderBrush="#CCCCCC"
-                    BorderThickness="1"
-                    FontSize="14">
-                    <ListBoxItem Padding="10">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock
-                                Grid.Column="0"
-                                Text="#1, 2nd floor, Large Room"
-                                TextWrapping="Wrap" />
-                            <TextBlock
-                                Grid.Column="1"
-                                Margin="10,0,0,0"
-                                FontWeight="Bold"
-                                Text="25.00$" />
-                        </Grid>
-                    </ListBoxItem>
-                    <ListBoxItem Padding="10">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock
-                                Grid.Column="0"
-                                Text="#2, 2nd floor, Small Room"
-                                TextWrapping="Wrap" />
-                            <TextBlock
-                                Grid.Column="1"
-                                Margin="10,0,0,0"
-                                FontWeight="Bold"
-                                Text="20.00$" />
-                        </Grid>
-                    </ListBoxItem>
-                    <ListBoxItem Padding="10">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock
-                                Grid.Column="0"
-                                Text="#3, 2nd floor, Small Room"
-                                TextWrapping="Wrap" />
-                            <TextBlock
-                                Grid.Column="1"
-                                Margin="10,0,0,0"
-                                FontWeight="Bold"
-                                Text="20.00$" />
-                        </Grid>
-                    </ListBoxItem>
-                    <ListBoxItem Padding="10">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock
-                                Grid.Column="0"
-                                Text="#4, 2nd floor, Large Room"
-                                TextWrapping="Wrap" />
-                            <TextBlock
-                                Grid.Column="1"
-                                Margin="10,0,0,0"
-                                FontWeight="Bold"
-                                Text="25.00$" />
-                        </Grid>
-                    </ListBoxItem>
-                    <ListBoxItem Padding="10">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock
-                                Grid.Column="0"
-                                Text="#5, 3rd floor, Large Room"
-                                TextWrapping="Wrap" />
-                            <TextBlock
-                                Grid.Column="1"
-                                Margin="10,0,0,0"
-                                FontWeight="Bold"
-                                Text="25.00$" />
-                        </Grid>
-                    </ListBoxItem>
-                    <ListBoxItem Padding="10">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock
-                                Grid.Column="0"
-                                Text="#6, 3rd floor, Small Room"
-                                TextWrapping="Wrap" />
-                            <TextBlock
-                                Grid.Column="1"
-                                Margin="10,0,0,0"
-                                FontWeight="Bold"
-                                Text="20.00$" />
-                        </Grid>
-                    </ListBoxItem>
-                </ListBox>
+                <ListView
+        x:Name="RoomListView"
+        Height="200"
+        ItemsSource="{Binding NewBookingRoomList}"
+        SelectedItem="{Binding SelectedRoom, Mode=TwoWay}">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn
+                    Width="100"
+                    DisplayMemberBinding="{Binding RoomNumber}"
+                    Header="Room" />
+                            <GridViewColumn
+                    Width="80"
+                    DisplayMemberBinding="{Binding Floor}"
+                    Header="Floor" />
+                            <GridViewColumn
+                    Width="100"
+                    DisplayMemberBinding="{Binding RoomSize}"
+                    Header="Size" />
+                            <GridViewColumn
+                    Width="100"
+                    DisplayMemberBinding="{Binding Capacity}"
+                    Header="Capacity" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
             </StackPanel>
-
             <!--  Guest Information  -->
             <Grid Grid.Row="2" Margin="0,0,0,20">
                 <Grid.RowDefinitions>

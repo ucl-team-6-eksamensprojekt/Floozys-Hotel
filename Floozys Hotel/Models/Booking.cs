@@ -140,6 +140,18 @@ namespace Floozys_Hotel.Models
             }
         }
 
+        // Navigation property
+        private Guest _guest;
+        public Guest Guest
+        {
+            get => _guest;
+            set
+            {
+                _guest = value;
+                OnPropertyChanged();
+            }
+        }
+
         // Calculated property - duration of stay (based on dates)
         public TimeSpan Duration
         {

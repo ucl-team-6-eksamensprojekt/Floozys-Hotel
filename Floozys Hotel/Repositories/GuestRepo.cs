@@ -37,6 +37,7 @@ namespace Floozys_Hotel.Repositories
                             GuestID = reader.GetInt32(0),
                             FirstName = reader.GetString(1),
                             LastName = reader.GetString(2),
+                            // PassportNumber er nullable, konverterer DBNull til null.
                             PassportNumber = reader.IsDBNull(3) ? null : reader.GetString(3),
                             Email = reader.GetString(4),
                             Country = reader.GetString(5),
@@ -103,6 +104,7 @@ namespace Floozys_Hotel.Repositories
                 {
                     command.Parameters.AddWithValue("@FirstName", guest.FirstName);
                     command.Parameters.AddWithValue("@LastName", guest.LastName);
+                    // Håndterer nullable PassportNumber ved at konvertere til DBNull hvis null.
                     command.Parameters.AddWithValue("@PassportNumber", (object?)guest.PassportNumber ?? DBNull.Value);
                     command.Parameters.AddWithValue("@Email", guest.Email);
                     command.Parameters.AddWithValue("@Country", guest.Country);

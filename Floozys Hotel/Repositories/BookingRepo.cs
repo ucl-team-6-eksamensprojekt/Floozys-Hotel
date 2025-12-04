@@ -15,7 +15,7 @@ namespace Floozys_Hotel.Repositories
         }
 
         /// <summary>
-        /// Henter alle bookinger fra databasen.
+        /// Henter alle bookinger fra databasen inklusiv gæsteoplysninger.
         /// </summary>
         public List<Booking> GetAllBookings()
         {
@@ -25,14 +25,19 @@ namespace Floozys_Hotel.Repositories
             {
                 connection.Open();
                 
-                string query = "SELECT BookingID, StartDate, EndDate, CheckInTime, CheckOutTime, Status, RoomID, GuestID FROM BOOKING";
+                string query = @"
+                    SELECT 
+                        b.BookingID, b.StartDate, b.EndDate, b.CheckInTime, b.CheckOutTime, b.Status, b.RoomID, b.GuestID,
+                        g.FirstName, g.LastName, g.Email, g.PhoneNumber, g.Country, g.PassportNumber
+                    FROM BOOKING b
+                    LEFT JOIN GUEST g ON b.GuestID = g.GuestID";
                 
                 using (var command = new SqlCommand(query, connection))
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        bookings.Add(new Booking
+                        var booking = new Booking
                         {
                             BookingID = reader.GetInt32(0),
                             StartDate = reader.GetDateTime(1),
@@ -42,7 +47,24 @@ namespace Floozys_Hotel.Repositories
                             Status = (BookingStatus)reader.GetInt32(5),
                             RoomID = reader.GetInt32(6),
                             GuestID = reader.GetInt32(7)
-                        });
+                        };
+
+                        // Tjekker om gæst-data findes, og populerer Guest-objektet hvis ja.
+                        if (!reader.IsDBNull(7))
+                        {
+                            booking.Guest = new Guest
+                            {
+                                GuestID = reader.GetInt32(7),
+                                FirstName = reader.GetString(8),
+                                LastName = reader.GetString(9),
+                                Email = reader.GetString(10),
+                                PhoneNumber = reader.GetString(11),
+                                Country = reader.GetString(12),
+                                PassportNumber = reader.IsDBNull(13) ? null : reader.GetString(13)
+                            };
+                        }
+
+                        bookings.Add(booking);
                     }
                 }
             }
@@ -51,7 +73,7 @@ namespace Floozys_Hotel.Repositories
         }
 
         /// <summary>
-        /// Henter en enkelt booking baseret på BookingID.
+        /// Henter en enkelt booking baseret på BookingID inklusiv gæsteoplysninger.
         /// </summary>
         public Booking? GetBookingById(int bookingId)
         {
@@ -59,7 +81,13 @@ namespace Floozys_Hotel.Repositories
             {
                 connection.Open();
                 
-                string query = "SELECT BookingID, StartDate, EndDate, CheckInTime, CheckOutTime, Status, RoomID, GuestID FROM BOOKING WHERE BookingID = @BookingID";
+                string query = @"
+                    SELECT 
+                        b.BookingID, b.StartDate, b.EndDate, b.CheckInTime, b.CheckOutTime, b.Status, b.RoomID, b.GuestID,
+                        g.FirstName, g.LastName, g.Email, g.PhoneNumber, g.Country, g.PassportNumber
+                    FROM BOOKING b
+                    LEFT JOIN GUEST g ON b.GuestID = g.GuestID
+                    WHERE b.BookingID = @BookingID";
                 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -69,7 +97,7 @@ namespace Floozys_Hotel.Repositories
                     {
                         if (reader.Read())
                         {
-                            return new Booking
+                            var booking = new Booking
                             {
                                 BookingID = reader.GetInt32(0),
                                 StartDate = reader.GetDateTime(1),
@@ -80,6 +108,23 @@ namespace Floozys_Hotel.Repositories
                                 RoomID = reader.GetInt32(6),
                                 GuestID = reader.GetInt32(7)
                             };
+
+                            // Populerer gæsteinformation fra JOIN.
+                            if (!reader.IsDBNull(7))
+                            {
+                                booking.Guest = new Guest
+                                {
+                                    GuestID = reader.GetInt32(7),
+                                    FirstName = reader.GetString(8),
+                                    LastName = reader.GetString(9),
+                                    Email = reader.GetString(10),
+                                    PhoneNumber = reader.GetString(11),
+                                    Country = reader.GetString(12),
+                                    PassportNumber = reader.IsDBNull(13) ? null : reader.GetString(13)
+                                };
+                            }
+
+                            return booking;
                         }
                     }
                 }
@@ -89,7 +134,7 @@ namespace Floozys_Hotel.Repositories
         }
 
         /// <summary>
-        /// Henter bookinger for et specifikt værelse.
+        /// Henter bookinger for et specifikt værelse inklusiv gæsteoplysninger.
         /// </summary>
         public List<Booking> GetBookingsByRoomId(int roomId)
         {
@@ -99,7 +144,13 @@ namespace Floozys_Hotel.Repositories
             {
                 connection.Open();
                 
-                string query = "SELECT BookingID, StartDate, EndDate, CheckInTime, CheckOutTime, Status, RoomID, GuestID FROM BOOKING WHERE RoomID = @RoomID";
+                string query = @"
+                    SELECT 
+                        b.BookingID, b.StartDate, b.EndDate, b.CheckInTime, b.CheckOutTime, b.Status, b.RoomID, b.GuestID,
+                        g.FirstName, g.LastName, g.Email, g.PhoneNumber, g.Country, g.PassportNumber
+                    FROM BOOKING b
+                    LEFT JOIN GUEST g ON b.GuestID = g.GuestID
+                    WHERE b.RoomID = @RoomID";
                 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -109,7 +160,7 @@ namespace Floozys_Hotel.Repositories
                     {
                         while (reader.Read())
                         {
-                            bookings.Add(new Booking
+                            var booking = new Booking
                             {
                                 BookingID = reader.GetInt32(0),
                                 StartDate = reader.GetDateTime(1),
@@ -119,7 +170,24 @@ namespace Floozys_Hotel.Repositories
                                 Status = (BookingStatus)reader.GetInt32(5),
                                 RoomID = reader.GetInt32(6),
                                 GuestID = reader.GetInt32(7)
-                            });
+                            };
+
+                            // Populerer gæsteinformation fra JOIN.
+                            if (!reader.IsDBNull(7))
+                            {
+                                booking.Guest = new Guest
+                                {
+                                    GuestID = reader.GetInt32(7),
+                                    FirstName = reader.GetString(8),
+                                    LastName = reader.GetString(9),
+                                    Email = reader.GetString(10),
+                                    PhoneNumber = reader.GetString(11),
+                                    Country = reader.GetString(12),
+                                    PassportNumber = reader.IsDBNull(13) ? null : reader.GetString(13)
+                                };
+                            }
+
+                            bookings.Add(booking);
                         }
                     }
                 }

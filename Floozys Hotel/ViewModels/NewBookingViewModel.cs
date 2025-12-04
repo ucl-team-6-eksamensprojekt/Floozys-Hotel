@@ -1,4 +1,6 @@
-﻿using System.Windows.Input;
+﻿using System;
+using System.Linq;
+using System.Windows.Input;
 using Floozys_Hotel.Commands;
 using Floozys_Hotel.Core;
 using Floozys_Hotel.Models;
@@ -21,11 +23,11 @@ namespace Floozys_Hotel.ViewModels
         private string _errorMessage;
 
         // REPOSITORY
-        private readonly IBooking _bookingRepo;  // Depends on interface, not concrete class
+        private readonly IBooking _bookingRepo;
 
         // PROPERTIES
 
-        public DateTime? CheckInDate  // Nullable because DatePicker starts with no selection
+        public DateTime? CheckInDate
         {
             get => _checkInDate;
             set
@@ -35,7 +37,7 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        public DateTime? CheckOutDate  // Nullable because DatePicker starts with no selection
+        public DateTime? CheckOutDate
         {
             get => _checkOutDate;
             set
@@ -105,7 +107,7 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        public string ErrorMessage  // Displays validation errors or success messages to user
+        public string ErrorMessage
         {
             get => _errorMessage;
             set
@@ -121,11 +123,11 @@ namespace Floozys_Hotel.ViewModels
 
         // CONSTRUCTORS
 
-        public NewBookingViewModel() : this(new BookingRepo())  // Parameterless for XAML - calls overloaded constructor
+        public NewBookingViewModel() : this(new BookingRepo())
         {
         }
 
-        public NewBookingViewModel(IBooking bookingRepo)  // For dependency injection (testing)
+        public NewBookingViewModel(IBooking bookingRepo)
         {
             _bookingRepo = bookingRepo;
             ConfirmBookingCommand = new RelayCommand(CreateBooking);
@@ -172,13 +174,13 @@ namespace Floozys_Hotel.ViewModels
 
                 var guestErrors = guest.Validate();
 
-                if (guestErrors.Any())  // Show first error for better UX
+                if (guestErrors.Any())
                 {
                     throw new ArgumentException(guestErrors.First());
                 }
 
                 // STEP 3: VALIDATE ROOM SELECTION
-                int selectedRoomID = 1;  // Temporary hardcoded - waiting on Nickolaj's Room implementation
+                int selectedRoomID = 1;
 
                 // STEP 4: CREATE BOOKING
                 var booking = new Booking
@@ -187,33 +189,28 @@ namespace Floozys_Hotel.ViewModels
                     EndDate = CheckOutDate.Value,
                     Status = BookingStatus.Pending,
                     RoomID = selectedRoomID,
-                    GuestID = 1  // Temporary hardcoded - will be real GuestID when Anna completes GuestRepo
+                    GuestID = 1
                 };
 
                 // STEP 5: SAVE TO REPOSITORY
-                _bookingRepo.Create(booking);  // Repository assigns BookingID after insert
+                _bookingRepo.Create(booking);
 
-                // STEP 6: SUCCESS - Show confirmation and clear form
-                ErrorMessage = "Booking created successfully! ✅ \n" +
-                               "Booking ID: " + booking.BookingID + "\n" +
-                               "Guest: " + guest.FirstName + " " + guest.LastName + "\n" +
-                               "Check-in: " + booking.StartDate.ToShortDateString() + "\n" +
-                               "Check-out: " + booking.EndDate.ToShortDateString() + "\n" +
-                               "Nights: " + booking.NumberOfNights;
+                // STEP 6: SUCCESS - Display message
+                ErrorMessage = $"✅ Booking #{booking.BookingID} created successfully for {guest.FirstName} {guest.LastName}!";
 
                 ClearForm();
             }
-            catch (ArgumentException ex)  // Expected validation errors
+            catch (ArgumentException ex)
             {
                 ErrorMessage = ex.Message;
             }
-            catch (Exception ex)  // Unexpected errors (database, null reference, etc.)
+            catch (Exception ex)
             {
                 ErrorMessage = "An unexpected error occurred: " + ex.Message;
             }
         }
 
-        private void ClearForm()  // Resets form for next booking
+        private void ClearForm()
         {
             CheckInDate = null;
             CheckOutDate = null;

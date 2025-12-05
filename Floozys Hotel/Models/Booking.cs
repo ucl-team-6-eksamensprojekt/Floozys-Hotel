@@ -17,6 +17,7 @@ namespace Floozys_Hotel.Models
 
         public DateTime? CheckOutTime { get; set; }  // Nullable because guest may not have checked out yet
 
+        // ENUM
         public BookingStatus Status { get; set; }
 
         public Room Room { get; set; }

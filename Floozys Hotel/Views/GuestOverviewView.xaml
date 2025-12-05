@@ -62,7 +62,7 @@
                         <GridViewColumn Header="Last name" 
                                         DisplayMemberBinding="{Binding LastName}"/>
                         <GridViewColumn Header="Phone" 
-                                        DisplayMemberBinding="{Binding Phone}"/>
+                                        DisplayMemberBinding="{Binding PhoneNumber}"/>
                         <GridViewColumn Header="Country" 
                                         DisplayMemberBinding="{Binding Country}"/>
                     </GridView>

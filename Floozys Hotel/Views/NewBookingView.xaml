@@ -85,34 +85,34 @@
             <!--  Room Selection  -->
             <StackPanel Grid.Row="1" Margin="0,0,0,20">
                 <TextBlock
-        Margin="0,0,0,10"
-        FontSize="18"
-        FontWeight="Bold"
-        Text="Pick desired room" />
+                    Margin="0,0,0,10"
+                    FontSize="18"
+                    FontWeight="Bold"
+                    Text="Pick desired room" />
 
                 <ListView
-        x:Name="RoomListView"
-        Height="200"
-        ItemsSource="{Binding NewBookingRoomList}"
-        SelectedItem="{Binding SelectedRoom, Mode=TwoWay}">
+                    x:Name="RoomListView"
+                    Height="200"
+                    ItemsSource="{Binding NewBookingRoomList}"
+                    SelectedItem="{Binding SelectedRoom, Mode=TwoWay}">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn
-                    Width="100"
-                    DisplayMemberBinding="{Binding RoomNumber}"
-                    Header="Room" />
+                                Width="100"
+                                DisplayMemberBinding="{Binding RoomNumber}"
+                                Header="Room" />
                             <GridViewColumn
-                    Width="80"
-                    DisplayMemberBinding="{Binding Floor}"
-                    Header="Floor" />
+                                Width="80"
+                                DisplayMemberBinding="{Binding Floor}"
+                                Header="Floor" />
                             <GridViewColumn
-                    Width="100"
-                    DisplayMemberBinding="{Binding RoomSize}"
-                    Header="Size" />
+                                Width="100"
+                                DisplayMemberBinding="{Binding RoomSize}"
+                                Header="Size" />
                             <GridViewColumn
-                    Width="100"
-                    DisplayMemberBinding="{Binding Capacity}"
-                    Header="Capacity" />
+                                Width="100"
+                                DisplayMemberBinding="{Binding Capacity}"
+                                Header="Capacity" />
                         </GridView>
                     </ListView.View>
                 </ListView>

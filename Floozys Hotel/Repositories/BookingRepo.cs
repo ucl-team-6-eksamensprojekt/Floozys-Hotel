@@ -49,7 +49,7 @@ namespace Floozys_Hotel.Repositories
                             GuestID = reader.GetInt32(7)
                         };
 
-                        // Tjekker om gæst-data findes, og populerer Guest-objektet hvis ja.
+                        // Tjekker om gæst-data findes, og populerer Guest-objektet i bekræftende fald.
                         if (!reader.IsDBNull(7))
                         {
                             booking.Guest = new Guest
@@ -274,7 +274,7 @@ namespace Floozys_Hotel.Repositories
         }
 
         /// <summary>
-        /// Alias for AddBooking() for backward compatibility.
+        /// Alias for AddBooking() grundet bagudkompatibilitet.
         /// </summary>
         public void Create(Booking booking)
         {
@@ -282,7 +282,7 @@ namespace Floozys_Hotel.Repositories
         }
 
         /// <summary>
-        /// Alias methods for backward compatibility with test code from main branch.
+        /// Alias-metoder grundet bagudkompatibilitet med testkode fra main branch.
         /// </summary>
         public List<Booking> GetAll() => GetAllBookings();
         

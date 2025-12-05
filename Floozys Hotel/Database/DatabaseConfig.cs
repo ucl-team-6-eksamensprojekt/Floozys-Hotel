@@ -22,10 +22,10 @@ namespace Floozys_Hotel.Database
             {
                 if (string.IsNullOrEmpty(_connectionString))
                 {
-                    // Prøv at hente fra App.config
+                    // Forsøger at hente fra App.config
                     _connectionString = ConfigurationManager.ConnectionStrings["HotelBooking"]?.ConnectionString;
 
-                    // Hvis ikke fundet i config, brug environment variable (sikrest til produktion)
+                    // Anvender environment variable, hvis ikke fundet i config (sikrest til produktion)
                     if (string.IsNullOrEmpty(_connectionString))
                     {
                         _connectionString = Environment.GetEnvironmentVariable("HOTEL_BOOKING_CONN_STRING");

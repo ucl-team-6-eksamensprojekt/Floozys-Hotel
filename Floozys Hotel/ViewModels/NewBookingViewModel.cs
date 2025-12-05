@@ -1,20 +1,51 @@
-﻿using Floozys_Hotel.Commands;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows.Input;
+using Floozys_Hotel.Commands;
 using Floozys_Hotel.Core;
 using Floozys_Hotel.Models;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Floozys_Hotel.Repositories;
 
 namespace Floozys_Hotel.ViewModels
 {
-    class NewBookingViewModel : ObservableObject
+    public class NewBookingViewModel : ObservableObject
     {
-        // Date Properties
+        // BACKING FIELDS
         private DateTime? _checkInDate;
+        private DateTime? _checkOutDate;
+        private string _firstName;
+        private string _lastName;
+        private string _email;
+        private string _passportNumber;
+        private string _phoneNumber;
+        private string _country;
+        private string _errorMessage;
+        private ObservableCollection<Room> _newBookingRoomList;
+        private Room _selectedRoom;
+
+        // PROPERTIES
+
+        public ObservableCollection<Room> NewBookingRoomList
+        {
+            get => _newBookingRoomList;
+            set
+            {
+                _newBookingRoomList = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Room SelectedRoom
+        {
+            get => _selectedRoom;
+            set
+            {
+                _selectedRoom = value;
+                OnPropertyChanged();
+            }
+        }
+
         public DateTime? CheckInDate
         {
             get => _checkInDate;
@@ -25,7 +56,6 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        private DateTime? _checkOutDate;
         public DateTime? CheckOutDate
         {
             get => _checkOutDate;
@@ -36,8 +66,6 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        // Guest Information
-        private string _firstName;
         public string FirstName
         {
             get => _firstName;
@@ -48,7 +76,6 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        private string _lastName;
         public string LastName
         {
             get => _lastName;
@@ -59,7 +86,6 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        private string _email;
         public string Email
         {
             get => _email;
@@ -70,7 +96,6 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        private string _passportNumber;
         public string PassportNumber
         {
             get => _passportNumber;
@@ -81,8 +106,7 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        private string _phoneNumber;
-        public string PhoneNumber  // Stored as string to preserve formatting (+45, spaces)
+        public string PhoneNumber
         {
             get => _phoneNumber;
             set
@@ -92,7 +116,6 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        private string _country;
         public string Country
         {
             get => _country;
@@ -103,8 +126,6 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        // Error Handling
-        private string _errorMessage;
         public string ErrorMessage
         {
             get => _errorMessage;
@@ -115,41 +136,122 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        // Commands
-        public RelayCommand ConfirmBookingCommand { get; set; }
+        // COMMAND
 
-        // Constructor
+        public ICommand ConfirmBookingCommand { get; }
+
+        // CONSTRUCTOR
+
         public NewBookingViewModel()
         {
-            ConfirmBookingCommand = new RelayCommand(
-                execute: o => ConfirmBooking(),
-                canExecute: o => CanConfirmBooking()
-            );
+            ConfirmBookingCommand = new RelayCommand(CreateBooking);
+
+            // Initialize ObservableCollection
+            NewBookingRoomList = new ObservableCollection<Room>();
+
+            // Load available rooms
+            RoomRepo roomRepo = new RoomRepo();
+            List<Room> rooms = roomRepo.GetAllByAvailability();
+
+            foreach (Room room in rooms)
+            {
+                NewBookingRoomList.Add(room);  // Add each room to ObservableCollection
+            }
         }
 
-        // Command Methods
-        private bool CanConfirmBooking()
-        {
-            // Button is always enabled for now
-            return true;
-        }
+        // METHODS
 
-        private void ConfirmBooking()
+        private void CreateBooking(object parameter)
         {
             try
             {
-                // TODO: Validate dates
-                // TODO: Create Guest object
-                // TODO: Create Booking object
-                // TODO: Save to database via Repository
+                ErrorMessage = string.Empty;
 
-                ErrorMessage = "Booking functionality not yet implemented";
+                // STEP 1: VALIDATE DATES
+                if (!CheckInDate.HasValue)
+                {
+                    throw new ArgumentException("Check-in date is required");
+                }
+
+                if (!CheckOutDate.HasValue)
+                {
+                    throw new ArgumentException("Check-out date is required");
+                }
+
+                if (CheckOutDate.Value <= CheckInDate.Value)
+                {
+                    throw new ArgumentException("Check-out date must be after check-in date");
+                }
+
+                if (CheckInDate.Value.Date < DateTime.Now.Date)
+                {
+                    throw new ArgumentException("Check-in date cannot be in the past");
+                }
+
+                // STEP 2: CREATE AND VALIDATE GUEST
+                var guest = new Guest(
+                    firstName: FirstName,
+                    lastName: LastName,
+                    email: Email,
+                    phoneNumber: PhoneNumber,
+                    country: Country,
+                    passportNumber: PassportNumber
+                );
+
+                var guestErrors = guest.Validate();
+
+                if (guestErrors.Any())
+                {
+                    throw new ArgumentException(guestErrors.First());
+                }
+
+                // STEP 3: VALIDATE ROOM SELECTION
+                if (SelectedRoom == null)
+                {
+                    throw new ArgumentException("Please select a room");
+                }
+
+                // STEP 4: CREATE BOOKING
+                BookingRepo bookingRepo = new BookingRepo();
+
+                var booking = new Booking
+                {
+                    StartDate = CheckInDate.Value,
+                    EndDate = CheckOutDate.Value,
+                    Status = BookingStatus.Pending,
+                    Room = SelectedRoom,
+                    Guest = guest
+                };
+
+                // STEP 5: SAVE TO REPOSITORY
+                bookingRepo.Create(booking);
+
+                // STEP 6: SUCCESS
+                ErrorMessage = $"✅ Booking #{booking.BookingID} created for {guest.FirstName} {guest.LastName} ({booking.NumberOfNights} nights)!";
+
+                ClearForm();
+            }
+            catch (ArgumentException ex)
+            {
+                ErrorMessage = ex.Message;
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Error: {ex.Message}";
+                ErrorMessage = "An unexpected error occurred: " + ex.Message;
             }
         }
 
+        private void ClearForm()
+        {
+            CheckInDate = null;
+            CheckOutDate = null;
+            FirstName = string.Empty;
+            LastName = string.Empty;
+            Email = string.Empty;
+            PassportNumber = string.Empty;
+            PhoneNumber = string.Empty;
+            Country = string.Empty;
+            SelectedRoom = null;
+        }
     }
 }

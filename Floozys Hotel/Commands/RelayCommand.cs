@@ -13,7 +13,7 @@ namespace Floozys_Hotel.Commands
         private Action<object> _execute;
         private Func<object, bool> _canExecute;
 
-        public event EventHandler CanExecuteChanged
+        public event EventHandler? CanExecuteChanged // Added ? for nullable
         {
             add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }

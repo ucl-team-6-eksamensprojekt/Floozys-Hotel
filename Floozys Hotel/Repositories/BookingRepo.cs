@@ -272,5 +272,24 @@ namespace Floozys_Hotel.Repositories
                 }
             }
         }
+
+        /// <summary>
+        /// Alias for AddBooking() for backward compatibility.
+        /// </summary>
+        public void Create(Booking booking)
+        {
+            AddBooking(booking);
+        }
+
+        /// <summary>
+        /// Alias methods for backward compatibility with test code from main branch.
+        /// </summary>
+        public List<Booking> GetAll() => GetAllBookings();
+        
+        public Booking GetById(int bookingId) => GetBookingById(bookingId);
+        
+        public void Update(Booking booking) => UpdateBooking(booking);
+        
+        public void Delete(int bookingId) => DeleteBooking(bookingId);
     }
 }

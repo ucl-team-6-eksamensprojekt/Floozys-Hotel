@@ -158,5 +158,14 @@ namespace Floozys_Hotel.Repositories
                 }
             }
         }
+
+        /// <summary>
+        /// Henter alle ledige værelser.
+        /// </summary>
+        public List<Room> GetAllByAvailability()
+        {
+            var allRooms = GetAllRooms();
+            return allRooms.Where(r => r.Status == RoomStatus.Available).ToList();
+        }
     }
 }

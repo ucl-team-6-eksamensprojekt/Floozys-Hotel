@@ -8,12 +8,12 @@ using Floozys_Hotel.Models;
 
 namespace Floozys_Hotel.Converters
 {
-    // Calculates where a booking should be positioned horizontally in the calendar
+    // Beregner horisontal placering af en booking i kalenderen
     public class BookingLeftMarginConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            // Verify all required values are present: StartDate, ViewStartDate, ActualWidth, DayCount
+            // Verificerer at alle nødvendige værdier er til stede: StartDate, ViewStartDate, ActualWidth, DayCount
             // values[0] = StartDate, values[1] = ViewStartDate, values[2] = ActualWidth, values[3] = DayCount
             if (values.Length < 4 || values[0] == null || values[1] == null || values[2] == null || values[3] == null)
                 return 0.0;
@@ -21,22 +21,22 @@ namespace Floozys_Hotel.Converters
             if (values[0] is DateTime startDate && values[1] is DateTime viewStartDate &&
                 values[2] is double actualWidth && values[3] is int dayCount)
             {
-                // If there are no days or width is 0, nothing should be drawn
+                // Tegner intet hvis der ingen dage er, eller bredden er 0
                 if (dayCount == 0 || actualWidth == 0) return 0.0;
 
-                // Calculate the difference in days between booking start and calendar start
+                // Beregner forskellen i dage mellem bookingstart og kalenderstart
                 var daysOffset = (startDate - viewStartDate).Days;
 
-                // If booking starts before the visible period, set margin to 0
+                // Sætter margin til 0, hvis bookingen starter før den synlige periode
                 if (daysOffset < 0)
                 {
                     return 0.0;
                 }
 
-                // Find the width of one day in pixels
+                // Finder bredden af én dag i pixels
                 double dayWidth = actualWidth / dayCount;
 
-                // Multiply number of days by width to find the left margin
+                // Ganger antal dage med bredden for at finde venstre margin
                 double left = (double)(daysOffset * dayWidth);
                 return new Thickness(left, 5, 0, 0);
             }
@@ -50,29 +50,29 @@ namespace Floozys_Hotel.Converters
         }
     }
 
-    // Determines how wide a booking box should be
+    // Bestemmer bredden af en booking-boks
     public class BookingWidthConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            // Ensure all data is present: Booking, ViewStartDate, ActualWidth, DayCount
+            // Sikrer at alle data er til stede: Booking, ViewStartDate, ActualWidth, DayCount
             // values[0] = Booking, values[1] = ViewStartDate, values[2] = ActualWidth, values[3] = DayCount
             if (values.Length >= 4 && values[0] is Booking booking && values[1] is DateTime viewStartDate &&
                 values[2] is double actualWidth && values[3] is int dayCount)
             {
-                // If there are no days or width is 0, nothing should be drawn
+                // Tegner intet hvis der ingen dage er, eller bredden er 0
                 if (dayCount == 0 || actualWidth == 0) return 0.0;
 
-                // If booking starts before the view, clip the start to the view start date
+                // Klipper startdatoen til visningens startdato, hvis bookingen starter før visningen
                 var effectiveStart = booking.StartDate < viewStartDate ? viewStartDate : booking.StartDate;
 
-                // Calculate duration in days (add 1 to include both start and end day)
+                // Beregner varighed i dage (tilføjer 1 for at inkludere både start- og slutdag)
                 var days = (booking.EndDate - effectiveStart).Days + 1;
 
-                // Negative days means booking is outside visible range
+                // Negative dage betyder, at bookingen er uden for det synlige område
                 if (days < 0) return 0.0;
 
-                // Multiply number of days by day width to get total width
+                // Ganger antal dage med dagsbredden for at få total bredde
                 double dayWidth = actualWidth / dayCount;
                 return days * dayWidth;
             }
@@ -85,14 +85,14 @@ namespace Floozys_Hotel.Converters
         }
     }
 
-    // Displays the date as a simple number (e.g. "1" or "15")
+    // Viser datoen som et simpelt tal (f.eks. "1" eller "15")
     public class DateHeaderConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is int day)
             {
-                // Convert the integer to text for display
+                // Konverterer heltallet til tekst til visning
                 return day.ToString();
             }
             return "";
@@ -104,17 +104,16 @@ namespace Floozys_Hotel.Converters
         }
     }
 
-    // Filters bookings so only those for the current room are shown
+    // Filtrerer bookinger, så kun dem for det aktuelle værelse vises
     public class RoomBookingsConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            // Receives Room ID and list of all bookings to filter
+            // Modtager værelses-ID og liste over alle bookinger til filtrering
             if (values.Length >= 2 && values[0] is int roomId && values[1] is IEnumerable<Booking> allBookings)
             {
-                // Null check prevents crash if Room object is not assigned to booking
-                // Filter returns only bookings that match the RoomId
-                return allBookings.Where(b => b.Room != null && b.Room.RoomId == roomId).ToList();
+                // Filtrerer kun på RoomID, da Room-objektet muligvis ikke er udfyldt
+                return allBookings.Where(b => b.RoomID == roomId).ToList();
             }
             return null;
         }

@@ -1,123 +1,71 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Data.SqlClient;
 using Floozys_Hotel.Models;
-using Floozys_Hotel.Repositories.Interfaces;
-using Microsoft.Data.SqlClient;
-using Microsoft.VisualBasic;
+using System;
+using System.Collections.Generic;
 
 namespace Floozys_Hotel.Repositories
 {
-    public class GuestRepo : IGuestRepo
+    public class GuestRepo
     {
-        // TODO: Store connection strings securely(e.g., in appsettings.json or Azure Key Vault), and inject them via configuration or dependency injection.
-        
-        private readonly string _cs;
-        public GuestRepo(string connectionString)
+        private readonly string _connectionString;
+
+        public GuestRepo()
         {
-            _cs = connectionString; // TODO: Correct the connection to the Database / Azure SQL
+            _connectionString = Database.DatabaseConfig.ConnectionString;
         }
 
-        // CREATE
-        public void CreateGuest(Guest guest)
+        /// <summary>
+        /// Henter alle gæster fra databasen.
+        /// </summary>
+        public List<Guest> GetAllGuests()
         {
-            // TODO: Check if this is the right way to insert data into the Database
+            var guests = new List<Guest>();
 
-            using (var conn = new SqlConnection(_cs))
+            using (var connection = new SqlConnection(_connectionString))
             {
-                conn.Open();
-                var sql = "INSERT INTO GUEST (FirstName, LastName, Email, PhoneNumber, Country, PassportNumber) VALUES (@FirstName, @LastName, @Email, @PhoneNumber, @Country, @PassportNumber)";
-                using (var cmd = new SqlCommand(sql, conn))
+                connection.Open();
+                
+                string query = "SELECT GuestID, FirstName, LastName, PassportNumber, Email, Country, PhoneNumber FROM GUEST";
+                
+                using (var command = new SqlCommand(query, connection))
+                using (var reader = command.ExecuteReader())
                 {
-                    cmd.Parameters.AddWithValue("@FirstName", guest.FirstName);
-                    cmd.Parameters.AddWithValue("@LastName", guest.LastName);
-                    cmd.Parameters.AddWithValue("@Email", guest.Email);
-                    cmd.Parameters.AddWithValue("@PhoneNumber", guest.PhoneNumber);
-                    cmd.Parameters.AddWithValue("@Country", guest.Country);
-                    cmd.Parameters.AddWithValue("@PassportNumber", guest.PassportNumber);
-                    cmd.ExecuteNonQuery();
+                    while (reader.Read())
+                    {
+                        guests.Add(new Guest
+                        {
+                            GuestID = reader.GetInt32(0),
+                            FirstName = reader.GetString(1),
+                            LastName = reader.GetString(2),
+                            // PassportNumber er nullable, konverterer DBNull til null.
+                            PassportNumber = reader.IsDBNull(3) ? null : reader.GetString(3),
+                            Email = reader.GetString(4),
+                            Country = reader.GetString(5),
+                            PhoneNumber = reader.GetString(6)
+                        });
+                    }
                 }
             }
+
+            return guests;
         }
 
-        // READ
-        public List<Guest> GetAll()
+        /// <summary>
+        /// Henter en enkelt gæst baseret på GuestID.
+        /// </summary>
+        public Guest? GetGuestById(int guestId)
         {
-            // TODO: Check if this is the right way to READ data from the Database
-
-            var list = new List<Guest>();
-            const string sql = "SELECT GuestID, FirstName, LastName, Email, PhoneNumber, Country, PassportNumber FROM GUEST ORDER BY GuestID";
-
-            using var conn = new SqlConnection(_cs);
-            conn.Open();
-            using var cmd = new SqlCommand(sql, conn);
-            using var reader = cmd.ExecuteReader();
-            while (reader.Read())
+            using (var connection = new SqlConnection(_connectionString))
             {
-                list.Add(new Guest
+                connection.Open();
+                
+                string query = "SELECT GuestID, FirstName, LastName, PassportNumber, Email, Country, PhoneNumber FROM GUEST WHERE GuestID = @GuestID";
+                
+                using (var command = new SqlCommand(query, connection))
                 {
-                    GuestID = reader.GetInt32(0),
-                    FirstName = reader.GetString(1),
-                    LastName = reader.GetString(2),
-                    Email = reader.GetString(3),
-                    PhoneNumber = reader.GetString(4),
-                    Country = reader.GetString(5),
-                    PassportNumber = reader.GetString(6)
-                });
-            }
-            return list;
-
-        }
-
-        public List<Guest> GetAllByName(string name)
-        {
-            // TODO: Check if this is the right way to READ data from the Database
-
-            var list = new List<Guest>();
-            // Search on both first and last name, case-insensitive, partial match
-            const string sql = @"
-                SELECT GuestID, FirstName, LastName, Email, PhoneNumber, Country, PassportNumber
-                FROM GUEST
-                WHERE FirstName LIKE @Name OR LastName LIKE @Name
-                ORDER BY GuestID";
-
-            using var conn = new SqlConnection(_cs);
-            conn.Open();
-            using var cmd = new SqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@Name", $"%{name}%");
-            using var reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                list.Add(new Guest
-                {
-                    GuestID = reader.GetInt32(0),
-                    FirstName = reader.GetString(1),
-                    LastName = reader.GetString(2),
-                    Email = reader.GetString(3),
-                    PhoneNumber = reader.GetString(4),
-                    Country = reader.GetString(5),
-                    PassportNumber = reader.GetString(6)
-                });
-            }
-            return list;
-        }
-
-        public Guest GetByID(int id)
-        {
-            // TODO: Check if this is the right way to READ data from the Database
-
-            using (var conn = new SqlConnection(_cs))
-            {
-                conn.Open();
-                var sql = "SELECT GuestID, FirstName, LastName, Email, PhoneNumber, Country, PassportNumber FROM GUEST WHERE GuestID = @GuestID";
-                using (var cmd = new SqlCommand(sql, conn))
-                {
-                    cmd.Parameters.AddWithValue("@GuestID", id);
-                    using (var reader = cmd.ExecuteReader())
+                    command.Parameters.AddWithValue("@GuestID", guestId);
+                    
+                    using (var reader = command.ExecuteReader())
                     {
                         if (reader.Read())
                         {
@@ -126,52 +74,91 @@ namespace Floozys_Hotel.Repositories
                                 GuestID = reader.GetInt32(0),
                                 FirstName = reader.GetString(1),
                                 LastName = reader.GetString(2),
-                                Email = reader.GetString(3),
-                                PhoneNumber = reader.GetString(4),
+                                PassportNumber = reader.IsDBNull(3) ? null : reader.GetString(3),
+                                Email = reader.GetString(4),
                                 Country = reader.GetString(5),
-                                PassportNumber = reader.GetString(6)
+                                PhoneNumber = reader.GetString(6)
                             };
                         }
                     }
                 }
             }
+
             return null;
         }
 
-        // UPDATE
-        public void UpdateGuest(Guest guest)
+        /// <summary>
+        /// Tilføjer en ny gæst til databasen.
+        /// </summary>
+        public int AddGuest(Guest guest)
         {
-            // TODO: Check if this is the right way to UPDATE data in the Database
-            using (var conn = new SqlConnection(_cs))
+            using (var connection = new SqlConnection(_connectionString))
             {
-                conn.Open();
-                var sql = "UPDATE GUEST SET FirstName = @FirstName, LastName = @LastName, Email = @Email, PhoneNumber = @PhoneNumber, Country = @Country, PassportNumber = @PassportNumber WHERE GuestID = @GuestID";
-                using (var cmd = new SqlCommand(sql, conn))
+                connection.Open();
+                
+                string query = @"INSERT INTO GUEST (FirstName, LastName, PassportNumber, Email, Country, PhoneNumber) 
+                                VALUES (@FirstName, @LastName, @PassportNumber, @Email, @Country, @PhoneNumber);
+                                SELECT CAST(SCOPE_IDENTITY() as int);";
+                
+                using (var command = new SqlCommand(query, connection))
                 {
-                    cmd.Parameters.AddWithValue("@Id", guest.GuestID);
-                    cmd.Parameters.AddWithValue("@FirstName", guest.FirstName);
-                    cmd.Parameters.AddWithValue("@LastName", guest.LastName);
-                    cmd.Parameters.AddWithValue("@Email", guest.Email);
-                    cmd.Parameters.AddWithValue("@PhoneNumber", guest.PhoneNumber);
-                    cmd.Parameters.AddWithValue("@Country", guest.Country);
-                    cmd.Parameters.AddWithValue("@PassportNumber", guest.PassportNumber);
-                    cmd.ExecuteNonQuery();
+                    command.Parameters.AddWithValue("@FirstName", guest.FirstName);
+                    command.Parameters.AddWithValue("@LastName", guest.LastName);
+                    // Håndterer nullable PassportNumber ved at konvertere til DBNull hvis null.
+                    command.Parameters.AddWithValue("@PassportNumber", (object?)guest.PassportNumber ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@Email", guest.Email);
+                    command.Parameters.AddWithValue("@Country", guest.Country);
+                    command.Parameters.AddWithValue("@PhoneNumber", guest.PhoneNumber);
+                    
+                    return (int)command.ExecuteScalar();
                 }
             }
         }
 
-        // DELETE
-        public void DeleteGuest(int id)
+        /// <summary>
+        /// Opdaterer en eksisterende gæst.
+        /// </summary>
+        public void UpdateGuest(Guest guest)
         {
-            // TODO: Check if this is the right way to DELETE data in the Database
-            using (var conn = new SqlConnection(_cs))
+            using (var connection = new SqlConnection(_connectionString))
             {
-                conn.Open();
-                var sql = "DELETE FROM GUEST WHERE GuestID = @GuestID";
-                using (var cmd = new SqlCommand(sql, conn))
+                connection.Open();
+                
+                string query = @"UPDATE GUEST 
+                                SET FirstName = @FirstName, LastName = @LastName, PassportNumber = @PassportNumber, 
+                                    Email = @Email, Country = @Country, PhoneNumber = @PhoneNumber
+                                WHERE GuestID = @GuestID";
+                
+                using (var command = new SqlCommand(query, connection))
                 {
-                    cmd.Parameters.AddWithValue("@GuestID", id);
-                    cmd.ExecuteNonQuery();
+                    command.Parameters.AddWithValue("@GuestID", guest.GuestID);
+                    command.Parameters.AddWithValue("@FirstName", guest.FirstName);
+                    command.Parameters.AddWithValue("@LastName", guest.LastName);
+                    command.Parameters.AddWithValue("@PassportNumber", (object?)guest.PassportNumber ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@Email", guest.Email);
+                    command.Parameters.AddWithValue("@Country", guest.Country);
+                    command.Parameters.AddWithValue("@PhoneNumber", guest.PhoneNumber);
+                    
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sletter en gæst fra databasen.
+        /// </summary>
+        public void DeleteGuest(int guestId)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                
+                string query = "DELETE FROM GUEST WHERE GuestID = @GuestID";
+                
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@GuestID", guestId);
+                    command.ExecuteNonQuery();
                 }
             }
         }

@@ -1,37 +1,36 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows.Input;
 using Floozys_Hotel.Commands;
 using Floozys_Hotel.Core;
 using Floozys_Hotel.Models;
 using Floozys_Hotel.Repositories;
-using Floozys_Hotel.Repositories.Interfaces;
 using Floozys_Hotel.Views;
 
 namespace Floozys_Hotel.ViewModels
 {
-    public class BookingOverviewViewModel : ObservableObject
+    class BookingOverviewViewModel : ObservableObject
     {
-        // REPOSITORIES
-        private readonly IBooking _bookingRepo;  // Depends on interface
-        private readonly IRoom _roomRepo;  // Depends on interface
-
-        // BACKING FIELDS
+        private readonly BookingRepo _bookingRepo;
+        private readonly RoomRepo _roomRepo;
         private DateTime _currentMonth;
         private decimal _revenueThisMonth;
         private string _searchText = "";
         private string _viewDuration = "Month";
-        private Booking _selectedBooking;
+        private string _sortColumn = "";
+        private bool _sortAscending = true;
 
-        // COLLECTIONS
-
+        // Lister til data som Viewet binder til.
         public ObservableCollection<Room> Rooms { get; set; }
         public ObservableCollection<Booking> Bookings { get; set; }
         public ObservableCollection<Booking> FilteredBookings { get; set; }
         public ObservableCollection<int> DaysInMonth { get; set; }
 
-        // PROPERTIES
-
         public int DayCount => DaysInMonth.Count;
 
+        // Finder startdatoen for den viste periode (starten af ugen eller måneden).
+        // Vigtigt for korrekt placering af bookinger.
         public DateTime ViewStartDate
         {
             get
@@ -47,7 +46,9 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        public Booking SelectedBooking  // Selected booking for displaying details
+        private Booking _selectedBooking;
+        // Gemmer den valgte booking, så detaljer kan vises.
+        public Booking SelectedBooking
         {
             get => _selectedBooking;
             set
@@ -57,7 +58,8 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        public string SearchText  // Bound to search field, triggers filtering
+        // Binder til søgefeltet. Opdaterer automatisk søgningen ved ændringer.
+        public string SearchText
         {
             get => _searchText;
             set
@@ -68,7 +70,8 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        public string ViewDuration  // Controls display mode: Week, Month, or Year
+        // Styrer visningen: "Week", "Month" eller "Year". Opdaterer visningen ved ændring.
+        public string ViewDuration
         {
             get => _viewDuration;
             set
@@ -83,6 +86,17 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
+        // Kommandoer som knapperne i Viewet bruger.
+        public RelayCommand NewBookingCommand { get; set; }
+        public RelayCommand NextMonthCommand { get; set; }
+        public RelayCommand PreviousMonthCommand { get; set; }
+        public RelayCommand SelectBookingCommand { get; set; }
+        public RelayCommand SetWeekViewCommand { get; set; }
+        public RelayCommand SetMonthViewCommand { get; set; }
+        public RelayCommand SetYearViewCommand { get; set; }
+        public RelayCommand SortBookingsCommand { get; set; }
+
+        // Holder styr på den aktuelle dato/måned.
         public DateTime CurrentMonth
         {
             get => _currentMonth;
@@ -97,7 +111,8 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        public string CurrentMonthDisplay  // Displays readable header like "December 2025" or "Week 48, 2025"
+        // Viser en læsbar overskrift, f.eks. "December 2025" eller "Week 48, 2025".
+        public string CurrentMonthDisplay
         {
             get
             {
@@ -131,26 +146,11 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        // COMMANDS
-
-        public RelayCommand NewBookingCommand { get; set; }
-        public RelayCommand NextMonthCommand { get; set; }
-        public RelayCommand PreviousMonthCommand { get; set; }
-        public RelayCommand SelectBookingCommand { get; set; }
-        public RelayCommand SetWeekViewCommand { get; set; }
-        public RelayCommand SetMonthViewCommand { get; set; }
-        public RelayCommand SetYearViewCommand { get; set; }
-
-        // CONSTRUCTORS
-
-        public BookingOverviewViewModel() : this(new BookingRepo(), new RoomRepo())  // Parameterless for XAML - calls overloaded constructor
+        // Initialiserer repositories, lister og kommandoer.
+        public BookingOverviewViewModel()
         {
-        }
-
-        public BookingOverviewViewModel(IBooking bookingRepo, IRoom roomRepo)  // For dependency injection (testing)
-        {
-            _bookingRepo = bookingRepo;
-            _roomRepo = roomRepo;
+            _bookingRepo = new BookingRepo();
+            _roomRepo = new RoomRepo();
 
             Rooms = new ObservableCollection<Room>();
             Bookings = new ObservableCollection<Booking>();
@@ -166,22 +166,22 @@ namespace Floozys_Hotel.ViewModels
             SetWeekViewCommand = new RelayCommand(w => ViewDuration = "Week");
             SetMonthViewCommand = new RelayCommand(m => ViewDuration = "Month");
             SetYearViewCommand = new RelayCommand(y => ViewDuration = "Year");
+            SortBookingsCommand = new RelayCommand(SortBookings);
 
             LoadData();
         }
 
-        // METHODS
-
-        private void LoadData()  // Fetches data from repositories
+        // Henter værelser og bookinger fra databasen og lægger dem i listerne.
+        private void LoadData()
         {
-            var rooms = _roomRepo.GetAll();
+            var rooms = _roomRepo.GetAllRooms();
             Rooms.Clear();
             foreach (var room in rooms)
             {
                 Rooms.Add(room);
             }
 
-            var bookings = _bookingRepo.GetAll();
+            var bookings = _bookingRepo.GetAllBookings();
             Bookings.Clear();
             foreach (var booking in bookings)
             {
@@ -193,7 +193,8 @@ namespace Floozys_Hotel.ViewModels
             UpdateDaysInMonth();
         }
 
-        private void ChangeMonth(int months)  // Navigates forward/backward in time
+        // Går frem eller tilbage i tid, afhængigt af visningen.
+        private void ChangeMonth(int months)
         {
             if (ViewDuration == "Week")
             {
@@ -210,10 +211,11 @@ namespace Floozys_Hotel.ViewModels
             UpdateDaysInMonth();
         }
 
-        private void UpdateDaysInMonth()  // Calculates which days to display in header
+        // Beregner hvilke dage der skal vises i headeren.
+        private void UpdateDaysInMonth()
         {
             DaysInMonth.Clear();
-
+            
             if (ViewDuration == "Week")
             {
                 var startOfWeek = CurrentMonth.AddDays(-(int)CurrentMonth.DayOfWeek);
@@ -237,28 +239,44 @@ namespace Floozys_Hotel.ViewModels
                     DaysInMonth.Add(i);
                 }
             }
-
+            
             OnPropertyChanged(nameof(DayCount));
         }
 
-        private void ApplySearchFilter()  // Filters bookings based on search text
+        // Forbedret filtrering baseret på søgetekst. Søger på tværs af gæsteoplysninger.
+        private void ApplySearchFilter()
         {
+            FilteredBookings.Clear();
+
             if (string.IsNullOrWhiteSpace(SearchText))
             {
-                SelectedBooking = null;
+                // Viser alle bookinger fra perioden ved manglende søgetekst
+                FilterBookings();
                 return;
             }
 
-            var matching = Bookings.FirstOrDefault(b =>
-                $"Guest {b.Guest.GuestID}".Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+            // Søger på tværs af gæstefelter
+            var matching = Bookings.Where(b =>
+                (b.Guest?.FirstName?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true) ||
+                (b.Guest?.LastName?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true) ||
+                (b.Guest?.Country?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true) ||
+                (b.Guest?.Email?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true) ||
+                (b.Guest?.PhoneNumber?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true) ||
+                b.GuestID.ToString().Contains(SearchText) ||
+                b.RoomID.ToString().Contains(SearchText)
+            ).ToList();
 
-            if (matching != null)
+            foreach (var booking in matching)
             {
-                SelectedBooking = matching;
+                FilteredBookings.Add(booking);
             }
+
+            // Anvender sortering, hvis aktiv
+            ApplySorting();
         }
 
-        private void FilterBookings()  // Ensures only bookings within selected period are shown
+        // Sikrer at kun bookinger inden for den valgte periode vises.
+        private void FilterBookings()
         {
             FilteredBookings.Clear();
 
@@ -275,13 +293,13 @@ namespace Floozys_Hotel.ViewModels
                 startPeriod = CurrentMonth.AddDays(-(int)CurrentMonth.DayOfWeek);
                 endPeriod = startPeriod.AddDays(6);
             }
-            else
+            else // Month
             {
                 startPeriod = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
                 endPeriod = startPeriod.AddMonths(1).AddDays(-1);
             }
 
-            var filtered = Bookings.Where(b =>
+            var filtered = Bookings.Where(b => 
                 b.StartDate <= endPeriod && b.EndDate >= startPeriod);
 
             foreach (var booking in filtered)
@@ -292,11 +310,70 @@ namespace Floozys_Hotel.ViewModels
 
         private void UpdateRevenue()
         {
-            // TODO: Calculate revenue when pricing is implemented
+            // TODO: Beregner omsætning når prissætning er implementeret
             RevenueThisMonth = 0;
         }
 
-        private void OpenNewBooking()  // Opens new booking window and refreshes data
+        // Sorterer bookinger baseret på valgt kolonne.
+        private void SortBookings(object parameter)
+        {
+            string column = parameter as string;
+            if (string.IsNullOrEmpty(column)) return;
+
+            // Skifter sorteringsretning ved valg af samme kolonne
+            if (_sortColumn == column)
+                _sortAscending = !_sortAscending;
+            else
+            {
+                _sortColumn = column;
+                _sortAscending = true;
+            }
+
+            ApplySorting();
+        }
+
+        // Anvender sortering på FilteredBookings.
+        private void ApplySorting()
+        {
+            if (string.IsNullOrEmpty(_sortColumn) || FilteredBookings.Count == 0) return;
+
+            var sorted = FilteredBookings.ToList();
+
+            sorted = _sortColumn switch
+            {
+                "Name" => _sortAscending
+                    ? sorted.OrderBy(b => b.Guest?.FirstName).ThenBy(b => b.Guest?.LastName).ToList()
+                    : sorted.OrderByDescending(b => b.Guest?.FirstName).ThenByDescending(b => b.Guest?.LastName).ToList(),
+                "Country" => _sortAscending
+                    ? sorted.OrderBy(b => b.Guest?.Country).ToList()
+                    : sorted.OrderByDescending(b => b.Guest?.Country).ToList(),
+                "Email" => _sortAscending
+                    ? sorted.OrderBy(b => b.Guest?.Email).ToList()
+                    : sorted.OrderByDescending(b => b.Guest?.Email).ToList(),
+                "Phone" => _sortAscending
+                    ? sorted.OrderBy(b => b.Guest?.PhoneNumber).ToList()
+                    : sorted.OrderByDescending(b => b.Guest?.PhoneNumber).ToList(),
+                "Room" => _sortAscending
+                    ? sorted.OrderBy(b => b.RoomID).ToList()
+                    : sorted.OrderByDescending(b => b.RoomID).ToList(),
+                "StartDate" => _sortAscending
+                    ? sorted.OrderBy(b => b.StartDate).ToList()
+                    : sorted.OrderByDescending(b => b.StartDate).ToList(),
+                "EndDate" => _sortAscending
+                    ? sorted.OrderBy(b => b.EndDate).ToList()
+                    : sorted.OrderByDescending(b => b.EndDate).ToList(),
+                _ => sorted
+            };
+
+            FilteredBookings.Clear();
+            foreach (var booking in sorted)
+            {
+                FilteredBookings.Add(booking);
+            }
+        }
+
+        // Åbner vindue til ny booking og genindlæser data.
+        private void OpenNewBooking()
         {
             var newBookingWindow = new NewBookingView();
             newBookingWindow.ShowDialog();

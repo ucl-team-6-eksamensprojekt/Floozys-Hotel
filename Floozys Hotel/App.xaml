@@ -5,6 +5,7 @@
     xmlns:local="clr-namespace:Floozys_Hotel"
     xmlns:view="clr-namespace:Floozys_Hotel.Views"
     xmlns:viewModel="clr-namespace:Floozys_Hotel.ViewModels"
+    xmlns:converters="clr-namespace:Floozys_Hotel.Converters"
     StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
@@ -35,6 +36,10 @@
                 <view:GuestPolicyView />
             </DataTemplate>
 
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter"/>
+            
         </ResourceDictionary>
     </Application.Resources>
 </Application>

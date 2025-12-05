@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Floozys_Hotel.Views"
+             xmlns:views="clr-namespace:Floozys_Hotel.Views"
+             xmlns:converters="clr-namespace:Floozys_Hotel.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 
@@ -29,8 +30,9 @@
             FontWeight="ExtraBold"
             Text="Guest Overview"/>
 
+        <!-- TODO: Make Search guest work (e.g. searh for name) -->
         <Button
-            Command="{Binding NewGuestCommand}"
+            Command="{Binding SearchGuestCommand}" 
             Grid.Row="0"
             Grid.Column="2"
             Width="180"
@@ -39,7 +41,7 @@
             Background="#90EE90"
             BorderBrush="#32CD32"
             BorderThickness="2"
-            Content="New guest"
+            Content="Search guest"
             FontSize="16"
             FontWeight="SemiBold"
             Foreground="Black" 
@@ -59,10 +61,10 @@
                       VerticalAlignment="Stretch">
                 <ListView.View>
                     <GridView>
+                        <GridViewColumn Header="First name" 
+                                        DisplayMemberBinding="{Binding FirstName}"/>
                         <GridViewColumn Header="Last name" 
                                         DisplayMemberBinding="{Binding LastName}"/>
-                        <GridViewColumn Header="Phone" 
-                                        DisplayMemberBinding="{Binding Phone}"/>
                         <GridViewColumn Header="Country" 
                                         DisplayMemberBinding="{Binding Country}"/>
                     </GridView>
@@ -79,34 +81,71 @@
             BorderThickness="1">
             <StackPanel>
                 <TextBlock Text="Guest Details" FontWeight="Bold" FontSize="18" Margin="0,0,0,10"/>
+                <TextBlock Text="Fields marked with * are required." FontStyle="Italic" Foreground="Gray" Margin="0,0,0,10"/>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="First name:" Width="100"/>
-                    <TextBox Text="{Binding SelectedGuest.FirstName, Mode=TwoWay}" Width="200"/>
+                    <TextBlock Width="100">
+                        <Run Text="First name" Foreground="Black"/>
+                        <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <TextBox Text="{Binding SelectedGuest.FirstName, Mode=TwoWay}" Width="200" 
+                             IsReadOnly="{Binding IsEditing, Converter={StaticResource InverseBoolConverter}}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Last name:" Width="100"/>
-                    <TextBox Text="{Binding SelectedGuest.LastName, Mode=TwoWay}" Width="200"/>
+                    <TextBlock Width="100">
+                        <Run Text="Last name" Foreground="Black"/>
+                        <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <TextBox Text="{Binding SelectedGuest.LastName, Mode=TwoWay}" Width="200" 
+                             IsReadOnly="{Binding IsEditing, Converter={StaticResource InverseBoolConverter}}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Phone:" Width="100"/>
-                    <TextBox Text="{Binding SelectedGuest.PhoneNumber, Mode=TwoWay}" Width="200"/>
+                    <TextBlock Width="100">
+                        <Run Text="Phone" Foreground="Black"/>
+                        <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <TextBox Text="{Binding SelectedGuest.PhoneNumber, Mode=TwoWay}" Width="200" 
+                             IsReadOnly="{Binding IsEditing, Converter={StaticResource InverseBoolConverter}}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Email:" Width="100"/>
-                    <TextBox Text="{Binding SelectedGuest.Email, Mode=TwoWay}" Width="200"/>
+                    <TextBlock Width="100">
+                        <Run Text="Email" Foreground="Black"/>
+                        <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <TextBox Text="{Binding SelectedGuest.Email, Mode=TwoWay}" Width="200" 
+                             IsReadOnly="{Binding IsEditing, Converter={StaticResource InverseBoolConverter}}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Country:" Width="100"/>
-                    <TextBox Text="{Binding SelectedGuest.Country, Mode=TwoWay}" Width="200"/>
+                    <TextBlock Width="100">
+                        <Run Text="Country" Foreground="Black"/>
+                        <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <TextBox Text="{Binding SelectedGuest.Country, Mode=TwoWay}" Width="200"
+                             IsReadOnly="{Binding IsEditing, Converter={StaticResource InverseBoolConverter}}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Passport number:" Width="100"/>
-                    <TextBox Text="{Binding SelectedGuest.PassportNumber, Mode=TwoWay}" Width="200"/>
+                    <TextBox Text="{Binding SelectedGuest.PassportNumber, Mode=TwoWay}" Width="200"
+                             IsReadOnly="{Binding IsEditing, Converter={StaticResource InverseBoolConverter}}"/>
                 </StackPanel>
                 <Button Content="Edit Guest"
-                    Command="{Binding EditGuestCommand}"
-                    Margin="0,10,0,0"
-                    Width="120"/>
+                        Command="{Binding EditGuestCommand}"
+                        Margin="0,10,0,0"
+                        Width="120"
+                        IsEnabled="{Binding SelectedGuest,Converter={StaticResource NotNullToBoolConverter}}"/>
+                <Button Content="New Guest"
+                        Command="{Binding NewGuestCommand}"
+                        Margin="0,10,0,0"
+                        Width="120"/>
+                <Button Content="Save"
+                        Command="{Binding SaveGuestCommand}"
+                        Margin="0,10,0,0"
+                        Width="120"
+                        Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <Button Content="Clear" 
+                        Command="{Binding ClearGuestCommand}" 
+                        Margin="0,10,0,0" 
+                        Width="120"/>
+
             </StackPanel>
         </Border>
     </Grid>

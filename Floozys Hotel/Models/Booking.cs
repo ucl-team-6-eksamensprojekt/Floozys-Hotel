@@ -1,4 +1,4 @@
-using Floozys_Hotel.Core;
+﻿using Floozys_Hotel.Core;
 using Floozys_Hotel.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -90,7 +90,7 @@ namespace Floozys_Hotel.Models
                 {
                     throw new ArgumentException("Check-out time must be after check-in time");
                 }
-               _checkOutTime = value;
+                _checkOutTime = value;
                 OnPropertyChanged();
             }
         }
@@ -140,18 +140,7 @@ namespace Floozys_Hotel.Models
             }
         }
 
-        // Navigation properties
-        private Room _room;
-        public Room Room
-        {
-            get => _room;
-            set
-            {
-                _room = value;
-                OnPropertyChanged();
-            }
-        }
-
+        // Navigation property
         private Guest _guest;
         public Guest Guest
         {

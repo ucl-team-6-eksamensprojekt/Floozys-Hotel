@@ -250,12 +250,12 @@ namespace Floozys_Hotel.ViewModels
 
             if (string.IsNullOrWhiteSpace(SearchText))
             {
-                // Viser alle bookinger fra perioden ved manglende søgetekst
+                // Hvis ingen søgetekst, vis alle bookinger fra perioden
                 FilterBookings();
                 return;
             }
 
-            // Søger på tværs af gæstefelter
+            // Søg på tværs af gæstefelter
             var matching = Bookings.Where(b =>
                 (b.Guest?.FirstName?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true) ||
                 (b.Guest?.LastName?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true) ||
@@ -271,7 +271,7 @@ namespace Floozys_Hotel.ViewModels
                 FilteredBookings.Add(booking);
             }
 
-            // Anvender sortering, hvis aktiv
+            // Anvend sortering hvis aktiv
             ApplySorting();
         }
 
@@ -310,7 +310,7 @@ namespace Floozys_Hotel.ViewModels
 
         private void UpdateRevenue()
         {
-            // TODO: Beregner omsætning når prissætning er implementeret
+            // TODO: Calculate revenue when pricing is implemented
             RevenueThisMonth = 0;
         }
 
@@ -320,7 +320,7 @@ namespace Floozys_Hotel.ViewModels
             string column = parameter as string;
             if (string.IsNullOrEmpty(column)) return;
 
-            // Skifter sorteringsretning ved valg af samme kolonne
+            // Toggle hvis samme kolonne
             if (_sortColumn == column)
                 _sortAscending = !_sortAscending;
             else

@@ -12,24 +12,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Floozys_Hotel.ViewModels;
 
-namespace Floozys_Hotel.Views
+namespace Floozys_Hotel.Views.Forms
 {
     /// <summary>
-    /// Interaction logic for RoomOverviewView.xaml
+    /// Interaction logic for RoomFormView.xaml
     /// </summary>
-    public partial class RoomOverviewView : UserControl
+    public partial class RoomFormView : UserControl
     {
-        public RoomOverviewView()
+        public RoomFormView()
         {
             InitializeComponent();
-            DataContext = new RoomOverviewViewModel();
-        }
-
-        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
         }
     }
 }

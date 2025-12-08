@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,8 +7,6 @@ using System.Windows;
 using Floozys_Hotel.Commands;
 using Floozys_Hotel.Core;
 using Floozys_Hotel.Models;
-using Floozys_Hotel.Repositories;
-using Floozys_Hotel.Views;
 
 namespace Floozys_Hotel.ViewModels
 {
@@ -17,22 +14,6 @@ namespace Floozys_Hotel.ViewModels
     {
         public RelayCommand NewGuestCommand { get; set; }
         public RelayCommand EditGuestCommand { get; set; }
-        public RelayCommand SaveGuestCommand { get; set; }
-        public RelayCommand ClearGuestCommand { get; set; }
-
-        private bool _isEditing;
-        public bool IsEditing
-        {
-            get => _isEditing; 
-            set { _isEditing = value; OnPropertyChanged(); }
-        }
-
-        private bool _isNewGuest;
-        public bool IsNewGuest
-        {
-            get => _isNewGuest;
-            set { _isNewGuest = value; OnPropertyChanged(); }
-        }
 
         private List<Guest> _guests;
         public List<Guest> Guests
@@ -48,107 +29,40 @@ namespace Floozys_Hotel.ViewModels
             set { _selectedGuest = value; OnPropertyChanged(); }
         }
 
-        private readonly GuestRepo _guestRepo;
-        
         public GuestOverviewViewModel()
         {
             // Dummy data for demonstration
             Guests = new List<Guest>
             {
                 new Guest { FirstName = "Anna", LastName = "Smith", PhoneNumber = "+4512345678", Email = "anna.smith@mail.com", Country = "Denmark" },
-                new Guest { FirstName = "John", LastName = "Doe", PhoneNumber = "+4598765432", Email = "john.doe@mail.com", Country = "Sweden" },
-                new Guest { FirstName = "Sreymom", LastName = "Sok", PhoneNumber = "+85593847584", Email = "sreysok@hotmail.com", Country = "Cambodia", PassportNumber = "N83749573"}
+                new Guest { FirstName = "John", LastName = "Doe", PhoneNumber = "+4598765432", Email = "john.doe@mail.com", Country = "Sweden" }
             };
 
-            // TODO: Use correct connection string 
-            _guestRepo = new GuestRepo("your_connection_string_here");
-
-            NewGuestCommand = new RelayCommand(_ => NewGuest());
-            EditGuestCommand = new RelayCommand(_ => EditGuest(), _ => SelectedGuest != null);
-            SaveGuestCommand = new RelayCommand(_ => SaveGuest());
-            ClearGuestCommand = new RelayCommand(_ => ClearGuest());
-                        
-            IsEditing = false;
-            IsNewGuest = false;
+            NewGuestCommand = new RelayCommand(n => CreateGuest());
+            EditGuestCommand = new RelayCommand(e => EditGuest(), e => SelectedGuest != null);
         }
 
-        private void NewGuest()
+        private void CreateGuest()
         {
-            var window = new NewGuestView(null, false, guest =>
-            {
-                Guests.Add(guest);
-                Guests = new List<Guest>(Guests); // For at opdatere UI
-            });
-            window.Owner = Application.Current.MainWindow;
-            window.ShowDialog();
+            // Open new guest window/dialog
+            // Example: var window = new NewGuestView(); window.Show();
         }
 
         private void EditGuest()
         {
-            if (SelectedGuest == null)
-            {
-                MessageBox.Show("You must select a guest to edit.", "No guest selected", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-            // Make a copy, so we don't change directly
-            var guestCopy = new Guest(
-                SelectedGuest.FirstName,
-                SelectedGuest.LastName,
-                SelectedGuest.Email,
-                SelectedGuest.PhoneNumber,
-                SelectedGuest.Country,
-                SelectedGuest.PassportNumber
-            );
-            var window = new NewGuestView(guestCopy, true, guest =>
-            {
-                // Update SelectedGuest with new values
-                SelectedGuest.FirstName = guest.FirstName;
-                SelectedGuest.LastName = guest.LastName;
-                SelectedGuest.Email = guest.Email;
-                SelectedGuest.PhoneNumber = guest.PhoneNumber;
-                SelectedGuest.Country = guest.Country;
-                SelectedGuest.PassportNumber = guest.PassportNumber;
-                Guests = new List<Guest>(Guests); // To update UI
-            });
-            window.Owner = Application.Current.MainWindow;
-            window.ShowDialog();
-        }
-
-        private void SaveGuest()
-        {
-            if (SelectedGuest == null) return;
-
-            var errors = SelectedGuest.Validate();
-            if (errors.Any()) 
+            List<string> errors = _selectedGuest.Validate();
+            if (errors.Any())
             {
                 string message = string.Join("\n", errors);
                 MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (IsNewGuest)
-            {
-                // _guestRepo.CreateGuest(SelectedGuest); // Remove comment for real DB
-                Guests.Add(SelectedGuest);
             }
             else
             {
-                // _guestRepo.UpdateGuest(SelectedGuest); // Remove comment for real DB
-                // Update the list if neccessary
+                // TODO: Save changes
             }
 
-            // Update the list (to update UI)
-            Guests = new List<Guest>(Guests);
-
-            IsEditing = false;
-            IsNewGuest = false;
-        }
-
-        private void ClearGuest()
-        {
-            SelectedGuest = new Guest();
-            IsEditing = false;
-            IsNewGuest = false;
+            // Open edit guest window/dialog for SelectedGuest
+            // Example: var window = new EditGuestView(SelectedGuest); window.Show();
         }
     }
 }

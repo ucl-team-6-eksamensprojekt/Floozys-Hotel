@@ -39,7 +39,6 @@ namespace Floozys_Hotel.Repositories
                             Floor = reader.GetInt32(2),
                             RoomSize = reader.GetString(3),
                             Capacity = reader.GetInt32(4),
-                            // Konverterer int fra database til RoomStatus enum.
                             Status = (RoomStatus)reader.GetInt32(5)
                         });
                     }
@@ -104,7 +103,6 @@ namespace Floozys_Hotel.Repositories
                     command.Parameters.AddWithValue("@Floor", room.Floor);
                     command.Parameters.AddWithValue("@RoomSize", room.RoomSize);
                     command.Parameters.AddWithValue("@Capacity", room.Capacity);
-                    // Konverterer RoomStatus enum til int for database-lagring.
                     command.Parameters.AddWithValue("@Status", (int)room.Status);
                     
                     return (int)command.ExecuteScalar();

@@ -1,9 +1,9 @@
 -- ============================================================
--- Testdata til Floozys Hotel Booking System
+-- Test Data for Floozys Hotel Booking System
 -- ============================================================
 
 -- ============================================================
--- Indsætter ROOM testdata (værelser)
+-- Insert ROOM test data
 -- ============================================================
 INSERT INTO ROOM (RoomNumber, Floor, RoomSize, Capacity, Status) VALUES
 (101, 1, 'Single', 1, 0),      -- Available
@@ -17,7 +17,7 @@ INSERT INTO ROOM (RoomNumber, Floor, RoomSize, Capacity, Status) VALUES
 GO
 
 -- ============================================================
--- Indsætter GUEST testdata (gæster)
+-- Insert GUEST test data
 -- ============================================================
 INSERT INTO GUEST (FirstName, LastName, PassportNumber, Email, Country, PhoneNumber) VALUES
 ('Anna', 'Smith', 'DK1234567', 'anna.smith@mail.com', 'Denmark', '+4512345678'),
@@ -28,26 +28,26 @@ INSERT INTO GUEST (FirstName, LastName, PassportNumber, Email, Country, PhoneNum
 GO
 
 -- ============================================================
--- Indsætter BOOKING testdata (bookinger)
+-- Insert BOOKING test data
 -- ============================================================
 INSERT INTO BOOKING (StartDate, EndDate, CheckInTime, CheckOutTime, Status, RoomID, GuestID) VALUES
--- Bekræftede bookinger med check-in/out
+-- Confirmed bookings with check-in/out
 ('2024-12-01', '2024-12-05', '2024-12-01 14:00:00', NULL, 2, 1, 1),              -- Checked In
 ('2024-12-03', '2024-12-07', '2024-12-03 15:30:00', '2024-12-07 11:00:00', 3, 2, 2),  -- Checked Out
 
--- Fremtidige bookinger (bekræftet)
+-- Future bookings (confirmed)
 ('2024-12-10', '2024-12-15', NULL, NULL, 1, 3, 3),  -- Confirmed
 ('2024-12-12', '2024-12-18', NULL, NULL, 1, 4, 4),  -- Confirmed
 ('2024-12-20', '2024-12-25', NULL, NULL, 1, 5, 5),  -- Confirmed
 
--- Afventende booking
+-- Pending booking
 ('2024-12-08', '2024-12-10', NULL, NULL, 0, 7, 1),  -- Pending
 
--- Annulleret booking
+-- Cancelled booking
 ('2024-11-25', '2024-11-30', NULL, NULL, 4, 8, 3);  -- Cancelled
 GO
 
-PRINT 'Testdata indsat succesfuldt!';
-PRINT 'Antal værelser: 8';
-PRINT 'Antal gæster: 5';
-PRINT 'Antal bookinger: 7';
+PRINT 'Test data inserted successfully!';
+PRINT 'Total Rooms: 8';
+PRINT 'Total Guests: 5';
+PRINT 'Total Bookings: 7';

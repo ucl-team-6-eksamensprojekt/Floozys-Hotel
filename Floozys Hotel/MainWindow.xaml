@@ -17,11 +17,11 @@
     </Window.DataContext>
 
     <Border Background="#FFEFEFEF">
-        <!--  lidt lys grå baggrund på hele vinduet  -->
+        <!--  slightly grayed out background  -->
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="220" />
-                <!--  lidt bredere til menu  -->
+                <!--  making the menu a little wider  -->
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
@@ -30,7 +30,7 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
 
-            <!--  SIDE-MENU-KORT MED SHADOW  -->
+            <!--  SIDE-MENU with drop shadow  -->
             <Border
                 Grid.RowSpan="2"
                 Grid.Column="0"
@@ -100,7 +100,7 @@
             </Border>
 
 
-            <!--  INDHOLD  -->
+            <!--  content that is being rendered  -->
             <ContentControl
                 Grid.Row="0"
                 Grid.RowSpan="2"

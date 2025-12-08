@@ -4,10 +4,22 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Floozys_Hotel.Views"
+
+             xmlns:vmForms="clr-namespace:Floozys_Hotel.ViewModels.FormsViewModel"
+              xmlns:viewsForms="clr-namespace:Floozys_Hotel.Views.Forms"
+             
+             
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
 
+        <DataTemplate DataType="{x:Type vmForms:RoomFormViewModel}">
+            <viewsForms:RoomFormView/>
+        </DataTemplate>
+        
+    </UserControl.Resources>
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -33,6 +45,7 @@
                 HorizontalAlignment="right"
                 VerticalAlignment="Center"
                 Margin="0,0,0,5"
+                Command="{Binding OpenCreateRoomCommand}"
                 />
 
 
@@ -75,13 +88,39 @@
                   CellStyle="{StaticResource FlatDataGridCellStyle}">
 
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Room"/>
-                <DataGridTextColumn Header="Floor" />
-                <DataGridTextColumn Header="Room Size"/>
-                <DataGridTextColumn Header="Capacity" />
-                <DataGridTextColumn Header="Status"/>
-                <DataGridTextColumn Header="Edit"/>
-                <DataGridTextColumn Header="Delete"/>
+                <DataGridTextColumn Header="Room"
+                                    Binding="{Binding RoomNumber}"/>
+                <DataGridTextColumn Header="Floor" 
+                                    Binding="{Binding Floor}"/>
+                <DataGridTextColumn Header="Room Size"
+                                    Binding="{Binding RoomSize}"/>
+                <DataGridTextColumn Header="Capacity" 
+                                    Binding="{Binding Capacity}"/>
+                <DataGridTextColumn Header="Status"
+                                    Binding="{Binding Status}"/>
+                        <DataGridTemplateColumn Header="Edit">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Edit"
+                                            Padding="4,0"
+                                            Command="{Binding DataContext.OpenEditRoomCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+
+                        <DataGridTemplateColumn Header="Delete">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Delete"
+                                            Padding="4,0"
+                                            Command="{Binding DataContext.DeleteRoomCommand, 
+                                                        RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                 </DataGrid.Columns>
             
             </DataGrid>
@@ -89,33 +128,16 @@
 
             </Border>
         </Grid>
-        <Border Grid.Row="1" Grid.Column="1"
+        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
                 Margin="20,0,0,0"
                 Background="White"
                 CornerRadius="8"
                 Padding="16"
                 BorderBrush="#DDD"
                 BorderThickness="1"
-                Visibility="Collapsed">
-            <!-- Senere: bind Visibility til fx IsRoomFormOpen -->
-            <StackPanel>
-                <TextBlock Text="Pick a floor"/>
-                <ComboBox Margin="0,4,0,12"/>
+                Visibility="{Binding IsRoomFormOpen, Converter={StaticResource BooleanToVisibility}}">
 
-                <TextBlock Text="Pick a size"/>
-                <ComboBox Margin="0,4,0,12"/>
-
-                <TextBlock Text="How much room capacity?"/>
-                <TextBox Margin="0,4,0,12"/>
-
-                <TextBlock Text="Room status"/>
-                <ComboBox Margin="0,4,0,20"/>
-
-                <Button Content="Confirm Room"
-                        Width="140"
-                        Height="32"
-                        HorizontalAlignment="Right"/>
-            </StackPanel>
+            <ContentControl Content="{Binding CurrentSideContent}" />
         </Border>
     </Grid>
 </UserControl>

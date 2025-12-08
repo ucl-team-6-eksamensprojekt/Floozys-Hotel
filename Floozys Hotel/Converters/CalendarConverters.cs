@@ -112,8 +112,9 @@ namespace Floozys_Hotel.Converters
             // Receives Room ID and list of all bookings to filter
             if (values.Length >= 2 && values[0] is int roomId && values[1] is IEnumerable<Booking> allBookings)
             {
-                // Filter only by RoomID since the Room object might not be populated
-                return allBookings.Where(b => b.RoomID == roomId).ToList();
+                // Null check prevents crash if Room object is not assigned to booking
+                // Filter returns only bookings that match the RoomId
+                return allBookings.Where(b => b.Room != null && b.Room.RoomId == roomId).ToList();
             }
             return null;
         }

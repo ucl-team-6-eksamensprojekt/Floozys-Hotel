@@ -61,7 +61,7 @@ namespace Floozys_Hotel.ViewModels
             };
 
             // TODO: Use correct connection string 
-            _guestRepo = new GuestRepo();
+            _guestRepo = new GuestRepo("your_connection_string_here");
 
             NewGuestCommand = new RelayCommand(_ => NewGuest());
             EditGuestCommand = new RelayCommand(_ => EditGuest(), _ => SelectedGuest != null);

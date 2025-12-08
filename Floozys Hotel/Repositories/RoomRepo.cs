@@ -1,160 +1,97 @@
-﻿using Microsoft.Data.SqlClient;
-using Floozys_Hotel.Models;
-using System;
-using System.Collections.Generic;
+﻿using Floozys_Hotel.Models;
+using Floozys_Hotel.Repositories.Interfaces;
 
 namespace Floozys_Hotel.Repositories
 {
-    public class RoomRepo
+    public class RoomRepo : IRoom
     {
-        private readonly string _connectionString;
+        private List<Room> _rooms;  // In-memory storage simulates database
 
         public RoomRepo()
         {
-            _connectionString = Database.DatabaseConfig.ConnectionString;
+            _rooms = new List<Room>
+            {
+                new Room { RoomId = 1, RoomNumber = "101", Floor = 1, RoomSize = "Small", Capacity = 2, Status = RoomStatus.Available },
+                new Room { RoomId = 2, RoomNumber = "102", Floor = 1, RoomSize = "Large", Capacity = 4, Status = RoomStatus.Available },
+                new Room { RoomId = 3, RoomNumber = "103", Floor = 1, RoomSize = "Small", Capacity = 2, Status = RoomStatus.Available },
+                new Room { RoomId = 4, RoomNumber = "201", Floor = 2, RoomSize = "Large", Capacity = 4, Status = RoomStatus.Available },
+                new Room { RoomId = 5, RoomNumber = "202", Floor = 2, RoomSize = "Small", Capacity = 2, Status = RoomStatus.Available },
+            };
         }
 
-        /// <summary>
-        /// Henter alle værelser fra databasen.
-        /// </summary>
-        public List<Room> GetAllRooms()
+        // CREATE
+        public void CreateRoom(Room room)
         {
-            var rooms = new List<Room>();
-
-            using (var connection = new SqlConnection(_connectionString))
+            if (room == null)
             {
-               connection.Open();
-                
-                string query = "SELECT RoomID, RoomNumber, Floor, RoomSize, Capacity, Status FROM ROOM";
-                
-                using (var command = new SqlCommand(query, connection))
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        rooms.Add(new Room
-                        {
-                            RoomId = reader.GetInt32(0),
-                            RoomNumber = reader.GetInt32(1).ToString(),
-                            Floor = reader.GetInt32(2),
-                            RoomSize = reader.GetString(3),
-                            Capacity = reader.GetInt32(4),
-                            Status = (RoomStatus)reader.GetInt32(5)
-                        });
-                    }
-                }
+                throw new ArgumentNullException(nameof(room), "Room cannot be null");
             }
 
-            return rooms;
+            _rooms.Add(room);
         }
 
-        /// <summary>
-        /// Henter et enkelt værelse baseret på RoomID.
-        /// </summary>
-        public Room? GetRoomById(int roomId)
+        // READ
+        public List<Room> GetAll()  // ✅ Implement interface method
         {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-                
-                string query = "SELECT RoomID, RoomNumber, Floor, RoomSize, Capacity, Status FROM ROOM WHERE RoomID = @RoomID";
-                
-                using (var command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@RoomID", roomId);
-                    
-                    using (var reader = command.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            return new Room
-                            {
-                                RoomId = reader.GetInt32(0),
-                                RoomNumber = reader.GetInt32(1).ToString(),
-                                Floor = reader.GetInt32(2),
-                                RoomSize = reader.GetString(3),
-                                Capacity = reader.GetInt32(4),
-                                Status = (RoomStatus)reader.GetInt32(5)
-                            };
-                        }
-                    }
-                }
-            }
-
-            return null;
+            return new List<Room>(_rooms);  // Return copy to prevent external modification
         }
 
-        /// <summary>
-        /// Tilføjer et nyt værelse til databasen.
-        /// </summary>
-        public int AddRoom(Room room)
+        // Method to get all rooms by availability
+        public List<Room> GetAllByAvailability()
         {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-                
-                string query = @"INSERT INTO ROOM (RoomNumber, Floor, RoomSize, Capacity, Status) 
-                                VALUES (@RoomNumber, @Floor, @RoomSize, @Capacity, @Status);
-                                SELECT CAST(SCOPE_IDENTITY() as int);";
-                
-                using (var command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@RoomNumber", int.Parse(room.RoomNumber));
-                    command.Parameters.AddWithValue("@Floor", room.Floor);
-                    command.Parameters.AddWithValue("@RoomSize", room.RoomSize);
-                    command.Parameters.AddWithValue("@Capacity", room.Capacity);
-                    command.Parameters.AddWithValue("@Status", (int)room.Status);
-                    
-                    return (int)command.ExecuteScalar();
-                }
-            }
+            return _rooms.Where(r => r.Status == RoomStatus.Available).ToList();
         }
 
-        /// <summary>
-        /// Opdaterer et eksisterende værelse.
-        /// </summary>
+        public Room GetById(int roomId)
+        {
+            return _rooms.FirstOrDefault(r => r.RoomId == roomId);
+        }
+
+        public List<Room> GetRoomsFromCriteria(int? floor, string roomSize, RoomStatus? status)
+        {
+            return _rooms.Where(r =>
+                (!floor.HasValue || r.Floor == floor.Value) &&
+                (string.IsNullOrEmpty(roomSize) || r.RoomSize == roomSize) &&
+                (!status.HasValue || r.Status == status.Value)
+            ).ToList();
+        }
+
+        // UPDATE
         public void UpdateRoom(Room room)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            if (room == null)
             {
-                connection.Open();
-                
-                string query = @"UPDATE ROOM 
-                                SET RoomNumber = @RoomNumber, Floor = @Floor, RoomSize = @RoomSize, 
-                                    Capacity = @Capacity, Status = @Status
-                                WHERE RoomID = @RoomID";
-                
-                using (var command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@RoomID", room.RoomId);
-                    command.Parameters.AddWithValue("@RoomNumber", int.Parse(room.RoomNumber));
-                    command.Parameters.AddWithValue("@Floor", room.Floor);
-                    command.Parameters.AddWithValue("@RoomSize", room.RoomSize);
-                    command.Parameters.AddWithValue("@Capacity", room.Capacity);
-                    command.Parameters.AddWithValue("@Status", (int)room.Status);
-                    
-                    command.ExecuteNonQuery();
-                }
+                throw new ArgumentNullException(nameof(room), "Room cannot be null");
             }
+
+            var existingRoom = _rooms.FirstOrDefault(r => r.RoomId == room.RoomId);
+
+            if (existingRoom == null)
+            {
+                throw new ArgumentException($"Room with ID {room.RoomId} not found");
+            }
+
+            existingRoom.RoomNumber = room.RoomNumber;
+            existingRoom.Floor = room.Floor;
+            existingRoom.RoomSize = room.RoomSize;
+            existingRoom.Capacity = room.Capacity;
+            existingRoom.Status = room.Status;
         }
 
-        /// <summary>
-        /// Sletter et værelse fra databasen.
-        /// </summary>
-        public void DeleteRoom(int roomId)
+        // DELETE
+        public bool DeleteRoom(int roomId)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            var room = _rooms.FirstOrDefault(r => r.RoomId == roomId);
+
+            if (room == null)
             {
-                connection.Open();
-                
-                string query = "DELETE FROM ROOM WHERE RoomID = @RoomID";
-                
-                using (var command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@RoomID", roomId);
-                    command.ExecuteNonQuery();
-                }
+                return false;
             }
+
+            _rooms.Remove(room);
+            return true;
         }
+
+
     }
 }

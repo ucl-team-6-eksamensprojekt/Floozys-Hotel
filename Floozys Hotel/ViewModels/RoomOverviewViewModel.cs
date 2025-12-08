@@ -9,7 +9,7 @@ using System.Windows.Input;
 
 namespace Floozys_Hotel.ViewModels
 {
-    class RoomOverviewViewModel : ObservableObject
+    class RoomOverviewViewModel
     {
         private readonly RoomRepo _roomRepo;
 

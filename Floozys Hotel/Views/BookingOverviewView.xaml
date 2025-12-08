@@ -11,14 +11,14 @@
     mc:Ignorable="d">
 
     <UserControl.Resources>
-        <!-- Definerer convertere til senere brug i XAML. -->
+        <!-- Her definerer jeg mine converters, så jeg kan bruge dem i XAML'en længere nede. -->
         <converters:BookingLeftMarginConverter x:Key="BookingLeftMarginConverter" />
         <converters:BookingWidthConverter x:Key="BookingWidthConverter" />
         <converters:RoomBookingsConverter x:Key="RoomBookingsConverter" />
         <converters:DateHeaderConverter x:Key="DateHeaderConverter" />
     </UserControl.Resources>
 
-    <!-- Anvender et Grid til at opdele skærmen i 3 kolonner: Header/Venstre, Kalender/Midte, Detaljer/Højre. -->
+    <!-- Jeg bruger et Grid til at opdele skærmen i 3 kolonner: Header/Venstre, Kalender/Midte, Detaljer/Højre. -->
     <Grid Margin="20">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -41,7 +41,7 @@
             FontWeight="ExtraBold"
             Text="Booking Overview" />
 
-        <!-- Knap til oprettelse af ny booking. Binder til NewBookingCommand i ViewModelen. -->
+        <!-- Knappen til at oprette en ny booking. Den binder til NewBookingCommand i ViewModelen. -->
         <Button
             Command="{Binding NewBookingCommand}"
             Grid.Row="0"
@@ -59,7 +59,7 @@
             Foreground="Black" />
 
         <!--  Calendar  -->
-        <!-- Hovedområde for kalenderen. -->
+        <!-- Dette er hovedområdet for kalenderen. -->
         <Border
             Grid.Row="1"
             Grid.Column="0"
@@ -75,7 +75,7 @@
                 </Grid.RowDefinitions>
 
                 <!--  Controls  -->
-                <!-- Knapper til navigation (frem/tilbage) og skift af visning (Uge/Måned/År). -->
+                <!-- Her er knapperne til at navigere (frem/tilbage) og skifte visning (Uge/Måned/År). -->
                 <Grid Grid.Row="0" Margin="15">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -83,7 +83,7 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- Søgefelt der binder til SearchText. UpdateSourceTrigger=PropertyChanged sikrer søgning under indtastning. -->
+                    <!-- Søgefeltet binder til SearchText. UpdateSourceTrigger=PropertyChanged gør, at søgningen sker mens man skriver. -->
                     <TextBox
                         Grid.Column="0"
                         Width="200"
@@ -113,14 +113,14 @@
                     </TextBox>
 
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal">
-                        <!-- Knapper til tidsskift -->
+                        <!-- Knapper til at gå frem og tilbage i tid. -->
                         <Button Command="{Binding PreviousMonthCommand}" Width="30" Height="30" Margin="0,0,10,0" Content="&lt;" FontSize="16" />
                         <TextBlock VerticalAlignment="Center" FontSize="18" FontWeight="SemiBold" Text="{Binding CurrentMonthDisplay}" />
                         <Button Command="{Binding NextMonthCommand}" Width="30" Height="30" Margin="10,0,0,0" Content="&gt;" FontSize="16" />
                     </StackPanel>
 
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
-                        <!-- Knapper til visningsskift mellem Uge, Måned og År. -->
+                        <!-- Knapper til at skifte mellem Uge, Måned og År. -->
                         <Button Command="{Binding SetWeekViewCommand}" Width="60" Height="30" Margin="0,0,2,0" Content="Week">
                             <Button.Style>
                                 <Style TargetType="Button">
@@ -163,7 +163,7 @@
                 <!--  Content  -->
                 <Grid Grid.Row="1">
                     <!-- Calendar View -->
-                    <!-- Anvender ScrollViewer for at muliggøre scrolling ved mange værelser. -->
+                    <!-- Her bruger jeg en ScrollViewer, så man kan scrolle hvis der er mange værelser. -->
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <ScrollViewer.Style>
                             <Style TargetType="ScrollViewer">
@@ -193,7 +193,7 @@
                             </Border>
 
                             <!-- Days Header - Responsive -->
-                            <!-- Viser datoer eller ugedage i toppen. ItemsControl genererer en liste baseret på DaysInMonth. -->
+                            <!-- Her viser jeg datoerne (1, 2, 3...) eller ugedagene i toppen. ItemsControl laver en liste baseret på DaysInMonth. -->
                             <ItemsControl Grid.Row="0" Grid.Column="1" ItemsSource="{Binding DaysInMonth}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -210,7 +210,7 @@
                             </ItemsControl>
 
                             <!-- Rooms -->
-                            <!-- Lister alle værelser vertikalt. Der genereres en række pr. værelse. -->
+                            <!-- Her lister jeg alle værelserne nedad. For hvert værelse laver jeg en række. -->
                             <ItemsControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Rooms}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
@@ -233,7 +233,7 @@
                                             <Border Grid.Column="1" BorderBrush="LightGray" BorderThickness="0,0,0,1" x:Name="TimelineBorder">
                                                 <Grid>
                                                     <!-- Background Grid Lines -->
-                                                    <!-- Tegner lodrette streger til adskillelse af dage. -->
+                                                    <!-- Her tegner jeg de lodrette streger, der adskiller dagene. -->
                                                     <ItemsControl ItemsSource="{Binding DataContext.DaysInMonth, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                         <ItemsControl.ItemsPanel>
                                                             <ItemsPanelTemplate>
@@ -282,14 +282,7 @@
                                                                     <Border.InputBindings>
                                                                         <MouseBinding Gesture="LeftClick" Command="{Binding DataContext.SelectBookingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
                                                                     </Border.InputBindings>
-                                                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                                                        <TextBlock FontSize="10" FontWeight="Bold" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis">
-                                                                            <Run Text="{Binding Guest.FirstName}"/>
-                                                                            <Run Text=" "/>
-                                                                            <Run Text="{Binding Guest.LastName}"/>
-                                                                        </TextBlock>
-                                                                        <TextBlock Text="{Binding Guest.Country}" FontSize="9" HorizontalAlignment="Center" Foreground="#4B0082"/>
-                                                                    </StackPanel>
+                                                                    <TextBlock Text="{Binding GuestID, StringFormat='Guest {0}'}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="10"/>
                                                                 </Border>
                                                             </DataTemplate>
                                                         </ItemsControl.ItemTemplate>
@@ -304,7 +297,7 @@
                     </ScrollViewer>
                     
                     <!-- Year View -->
-                    <ListView ItemsSource="{Binding FilteredBookings}" Margin="10" SelectedItem="{Binding SelectedBooking}">
+                    <ListView ItemsSource="{Binding FilteredBookings}" Margin="10">
                         <ListView.Style>
                             <Style TargetType="ListView">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -317,93 +310,10 @@
                         </ListView.Style>
                         <ListView.View>
                             <GridView>
-                                <!-- Guest Name -->
-                                <GridViewColumn Width="150">
-                                    <GridViewColumn.Header>
-                                        <GridViewColumnHeader Content="Guest Name" Command="{Binding SortBookingsCommand}" CommandParameter="Name"/>
-                                    </GridViewColumn.Header>
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock>
-                                                <Run Text="{Binding Guest.FirstName}"/>
-                                                <Run Text=" "/>
-                                                <Run Text="{Binding Guest.LastName}"/>
-                                            </TextBlock>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                
-                                <!-- Country -->
-                                <GridViewColumn Width="100">
-                                    <GridViewColumn.Header>
-                                        <GridViewColumnHeader Content="Country" Command="{Binding SortBookingsCommand}" CommandParameter="Country"/>
-                                    </GridViewColumn.Header>
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Guest.Country}"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                
-                                <!-- Email -->
-                                <GridViewColumn Width="180">
-                                    <GridViewColumn.Header>
-                                        <GridViewColumnHeader Content="Email" Command="{Binding SortBookingsCommand}" CommandParameter="Email"/>
-                                    </GridViewColumn.Header>
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Guest.Email}"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                
-                                <!-- Phone -->
-                                <GridViewColumn Width="120">
-                                    <GridViewColumn.Header>
-                                        <GridViewColumnHeader Content="Phone" Command="{Binding SortBookingsCommand}" CommandParameter="Phone"/>
-                                    </GridViewColumn.Header>
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Guest.PhoneNumber}"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                
-                                <!-- Room -->
-                                <GridViewColumn Width="80">
-                                    <GridViewColumn.Header>
-                                        <GridViewColumnHeader Content="Room" Command="{Binding SortBookingsCommand}" CommandParameter="Room"/>
-                                    </GridViewColumn.Header>
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding RoomID, StringFormat='Room {0}'}"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                
-                                <!-- Start Date -->
-                                <GridViewColumn Width="100">
-                                    <GridViewColumn.Header>
-                                        <GridViewColumnHeader Content="Start Date" Command="{Binding SortBookingsCommand}" CommandParameter="StartDate"/>
-                                    </GridViewColumn.Header>
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding StartDate, StringFormat='{}{0:dd/MM/yyyy}'}"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                
-                                <!-- End Date -->
-                                <GridViewColumn Width="100">
-                                    <GridViewColumn.Header>
-                                        <GridViewColumnHeader Content="End Date" Command="{Binding SortBookingsCommand}" CommandParameter="EndDate"/>
-                                    </GridViewColumn.Header>
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding EndDate, StringFormat='{}{0:dd/MM/yyyy}'}"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
+                                <GridViewColumn Header="Guest ID" Width="100" DisplayMemberBinding="{Binding GuestID}"/>
+                                <GridViewColumn Header="Room" Width="100" DisplayMemberBinding="{Binding RoomID}"/>
+                                <GridViewColumn Header="Start Date" Width="150" DisplayMemberBinding="{Binding StartDate, StringFormat='{}{0:dd/MM/yyyy}'}"/>
+                                <GridViewColumn Header="End Date" Width="150" DisplayMemberBinding="{Binding EndDate, StringFormat='{}{0:dd/MM/yyyy}'}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
@@ -456,39 +366,15 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        
-                        <!-- Guest Info -->
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" FontWeight="SemiBold" Margin="0,0,10,5"/>
-                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,5">
-                            <TextBlock Text="{Binding SelectedBooking.Guest.FirstName}" Margin="0,0,5,0"/>
-                            <TextBlock Text="{Binding SelectedBooking.Guest.LastName}"/>
-                        </StackPanel>
-
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Country:" FontWeight="SemiBold" Margin="0,0,10,5"/>
-                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedBooking.Guest.Country}" Margin="0,0,0,5"/>
-
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Email:" FontWeight="SemiBold" Margin="0,0,10,5"/>
-                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedBooking.Guest.Email}" Margin="0,0,0,5" TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedBooking.Guest.Email}"/>
-
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Phone:" FontWeight="SemiBold" Margin="0,0,10,5"/>
-                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedBooking.Guest.PhoneNumber}" Margin="0,0,0,5"/>
-
-                        <Separator Grid.Row="4" Grid.ColumnSpan="2" Margin="0,10"/>
-
-                        <!-- Booking Info -->
-                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Room:" FontWeight="SemiBold" Margin="0,0,10,5"/>
-                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedBooking.RoomID, StringFormat='Room {0}'}" Margin="0,0,0,5"/>
-
-                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Check-in:" FontWeight="SemiBold" Margin="0,0,10,5"/>
-                        <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding SelectedBooking.StartDate, StringFormat='{}{0:dd/MM/yyyy}'}" Margin="0,0,0,5"/>
-
-                        <TextBlock Grid.Row="7" Grid.Column="0" Text="Check-out:" FontWeight="SemiBold" Margin="0,0,10,5"/>
-                        <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding SelectedBooking.EndDate, StringFormat='{}{0:dd/MM/yyyy}'}" Margin="0,0,0,5"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Guest ID:" FontWeight="SemiBold" Margin="0,0,10,5"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedBooking.GuestID}" Margin="0,0,0,5"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Room ID:" FontWeight="SemiBold" Margin="0,0,10,5"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedBooking.RoomID}" Margin="0,0,0,5"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Start Date:" FontWeight="SemiBold" Margin="0,0,10,5"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedBooking.StartDate, StringFormat='{}{0:dd/MM/yyyy}'}" Margin="0,0,0,5"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="End Date:" FontWeight="SemiBold" Margin="0,0,10,5"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedBooking.EndDate, StringFormat='{}{0:dd/MM/yyyy}'}" Margin="0,0,0,5"/>
                     </Grid>
                     <TextBlock Text="Select a booking to view details." FontStyle="Italic" Foreground="Gray">
                         <TextBlock.Style>

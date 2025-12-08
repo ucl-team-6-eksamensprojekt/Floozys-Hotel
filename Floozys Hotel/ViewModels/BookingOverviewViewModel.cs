@@ -1,34 +1,37 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Windows.Input;
+﻿using System.Collections.ObjectModel;
 using Floozys_Hotel.Commands;
 using Floozys_Hotel.Core;
 using Floozys_Hotel.Models;
 using Floozys_Hotel.Repositories;
+using Floozys_Hotel.Repositories.Interfaces;
 using Floozys_Hotel.Views;
 
 namespace Floozys_Hotel.ViewModels
 {
-    class BookingOverviewViewModel : ObservableObject
+    public class BookingOverviewViewModel : ObservableObject
     {
-        private readonly BookingRepo _bookingRepo;
-        private readonly RoomRepo _roomRepo;
+        // REPOSITORIES
+        private readonly IBooking _bookingRepo;  // Depends on interface
+        private readonly IRoom _roomRepo;  // Depends on interface
+
+        // BACKING FIELDS
         private DateTime _currentMonth;
         private decimal _revenueThisMonth;
         private string _searchText = "";
         private string _viewDuration = "Month";
+        private Booking _selectedBooking;
 
-        // Lister til data som Viewet binder til.
+        // COLLECTIONS
+
         public ObservableCollection<Room> Rooms { get; set; }
         public ObservableCollection<Booking> Bookings { get; set; }
         public ObservableCollection<Booking> FilteredBookings { get; set; }
         public ObservableCollection<int> DaysInMonth { get; set; }
 
+        // PROPERTIES
+
         public int DayCount => DaysInMonth.Count;
 
-        // Finder startdatoen for den viste periode (starten af ugen eller måneden).
-        // Vigtigt for korrekt placering af bookinger.
         public DateTime ViewStartDate
         {
             get
@@ -44,9 +47,7 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        private Booking _selectedBooking;
-        // Gemmer den valgte booking, så detaljer kan vises.
-        public Booking SelectedBooking
+        public Booking SelectedBooking  // Selected booking for displaying details
         {
             get => _selectedBooking;
             set
@@ -56,8 +57,7 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        // Binder til søgefeltet. Opdaterer automatisk søgningen ved ændringer.
-        public string SearchText
+        public string SearchText  // Bound to search field, triggers filtering
         {
             get => _searchText;
             set
@@ -68,8 +68,7 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        // Styrer visningen: "Week", "Month" eller "Year". Opdaterer visningen ved ændring.
-        public string ViewDuration
+        public string ViewDuration  // Controls display mode: Week, Month, or Year
         {
             get => _viewDuration;
             set
@@ -84,16 +83,6 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        // Kommandoer som knapperne i Viewet bruger.
-        public RelayCommand NewBookingCommand { get; set; }
-        public RelayCommand NextMonthCommand { get; set; }
-        public RelayCommand PreviousMonthCommand { get; set; }
-        public RelayCommand SelectBookingCommand { get; set; }
-        public RelayCommand SetWeekViewCommand { get; set; }
-        public RelayCommand SetMonthViewCommand { get; set; }
-        public RelayCommand SetYearViewCommand { get; set; }
-
-        // Holder styr på den aktuelle dato/måned.
         public DateTime CurrentMonth
         {
             get => _currentMonth;
@@ -108,8 +97,7 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        // Viser en læsbar overskrift, f.eks. "December 2025" eller "Week 48, 2025".
-        public string CurrentMonthDisplay
+        public string CurrentMonthDisplay  // Displays readable header like "December 2025" or "Week 48, 2025"
         {
             get
             {
@@ -143,11 +131,26 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        // Initialiserer repositories, lister og kommandoer.
-        public BookingOverviewViewModel()
+        // COMMANDS
+
+        public RelayCommand NewBookingCommand { get; set; }
+        public RelayCommand NextMonthCommand { get; set; }
+        public RelayCommand PreviousMonthCommand { get; set; }
+        public RelayCommand SelectBookingCommand { get; set; }
+        public RelayCommand SetWeekViewCommand { get; set; }
+        public RelayCommand SetMonthViewCommand { get; set; }
+        public RelayCommand SetYearViewCommand { get; set; }
+
+        // CONSTRUCTORS
+
+        public BookingOverviewViewModel() : this(new BookingRepo(), new RoomRepo())  // Parameterless for XAML - calls overloaded constructor
         {
-            _bookingRepo = new BookingRepo();
-            _roomRepo = new RoomRepo();
+        }
+
+        public BookingOverviewViewModel(IBooking bookingRepo, IRoom roomRepo)  // For dependency injection (testing)
+        {
+            _bookingRepo = bookingRepo;
+            _roomRepo = roomRepo;
 
             Rooms = new ObservableCollection<Room>();
             Bookings = new ObservableCollection<Booking>();
@@ -167,17 +170,18 @@ namespace Floozys_Hotel.ViewModels
             LoadData();
         }
 
-        // Henter værelser og bookinger fra databasen og lægger dem i listerne.
-        private void LoadData()
+        // METHODS
+
+        private void LoadData()  // Fetches data from repositories
         {
-            var rooms = _roomRepo.GetAllRooms();
+            var rooms = _roomRepo.GetAll();
             Rooms.Clear();
             foreach (var room in rooms)
             {
                 Rooms.Add(room);
             }
 
-            var bookings = _bookingRepo.GetAllBookings();
+            var bookings = _bookingRepo.GetAll();
             Bookings.Clear();
             foreach (var booking in bookings)
             {
@@ -189,8 +193,7 @@ namespace Floozys_Hotel.ViewModels
             UpdateDaysInMonth();
         }
 
-        // Går frem eller tilbage i tid, afhængigt af visningen.
-        private void ChangeMonth(int months)
+        private void ChangeMonth(int months)  // Navigates forward/backward in time
         {
             if (ViewDuration == "Week")
             {
@@ -207,11 +210,10 @@ namespace Floozys_Hotel.ViewModels
             UpdateDaysInMonth();
         }
 
-        // Beregner hvilke dage der skal vises i headeren.
-        private void UpdateDaysInMonth()
+        private void UpdateDaysInMonth()  // Calculates which days to display in header
         {
             DaysInMonth.Clear();
-            
+
             if (ViewDuration == "Week")
             {
                 var startOfWeek = CurrentMonth.AddDays(-(int)CurrentMonth.DayOfWeek);
@@ -235,12 +237,11 @@ namespace Floozys_Hotel.ViewModels
                     DaysInMonth.Add(i);
                 }
             }
-            
+
             OnPropertyChanged(nameof(DayCount));
         }
 
-        // Filtrerer bookinger baseret på søgetekst. Vælger booking ved match.
-        private void ApplySearchFilter()
+        private void ApplySearchFilter()  // Filters bookings based on search text
         {
             if (string.IsNullOrWhiteSpace(SearchText))
             {
@@ -248,17 +249,16 @@ namespace Floozys_Hotel.ViewModels
                 return;
             }
 
-            var matching = Bookings.FirstOrDefault(b => 
-                $"Guest {b.GuestID}".Contains(SearchText, StringComparison.OrdinalIgnoreCase));
-            
+            var matching = Bookings.FirstOrDefault(b =>
+                $"Guest {b.Guest.GuestID}".Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+
             if (matching != null)
             {
                 SelectedBooking = matching;
             }
         }
 
-        // Sikrer at kun bookinger inden for den valgte periode vises.
-        private void FilterBookings()
+        private void FilterBookings()  // Ensures only bookings within selected period are shown
         {
             FilteredBookings.Clear();
 
@@ -275,13 +275,13 @@ namespace Floozys_Hotel.ViewModels
                 startPeriod = CurrentMonth.AddDays(-(int)CurrentMonth.DayOfWeek);
                 endPeriod = startPeriod.AddDays(6);
             }
-            else // Month
+            else
             {
                 startPeriod = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
                 endPeriod = startPeriod.AddMonths(1).AddDays(-1);
             }
 
-            var filtered = Bookings.Where(b => 
+            var filtered = Bookings.Where(b =>
                 b.StartDate <= endPeriod && b.EndDate >= startPeriod);
 
             foreach (var booking in filtered)
@@ -296,8 +296,7 @@ namespace Floozys_Hotel.ViewModels
             RevenueThisMonth = 0;
         }
 
-        // Åbner vindue til ny booking og genindlæser data.
-        private void OpenNewBooking()
+        private void OpenNewBooking()  // Opens new booking window and refreshes data
         {
             var newBookingWindow = new NewBookingView();
             newBookingWindow.ShowDialog();

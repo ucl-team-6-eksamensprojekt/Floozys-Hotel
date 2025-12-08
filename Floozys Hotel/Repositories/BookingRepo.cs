@@ -1,208 +1,164 @@
-﻿using Microsoft.Data.SqlClient;
-using Floozys_Hotel.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Floozys_Hotel.Models;
+using Floozys_Hotel.Repositories.Interfaces;
 
 namespace Floozys_Hotel.Repositories
 {
-    public class BookingRepo
+    public class BookingRepo : IBooking
     {
-        private readonly string _connectionString;
+        private List<Booking> _bookings;  // In-memory storage simulates database
+        private int _nextBookingID;  // Simulates database auto-increment
+
+        // CONSTRUCTOR
 
         public BookingRepo()
         {
-            _connectionString = Database.DatabaseConfig.ConnectionString;
+            // Get sample rooms and guests for test data
+            var roomRepo = new RoomRepo();
+            var rooms = roomRepo.GetAll();
+
+            _bookings = new List<Booking>
+            {
+                new Booking
+                {
+                    BookingID = 1,
+                    Room = rooms.FirstOrDefault(r => r.RoomId == 1),
+                    Guest = new Guest { GuestID = 1, FirstName = "John", LastName = "Doe", Email = "john@example.com", PhoneNumber = "+4512345678", Country = "Denmark" },
+                    StartDate = DateTime.Today.AddDays(-2),
+                    EndDate = DateTime.Today.AddDays(3),
+                    CheckInTime = DateTime.Now.AddDays(-2),
+                    CheckOutTime = null,
+                    Status = BookingStatus.CheckedIn
+                },
+                new Booking
+                {
+                    BookingID = 2,
+                    Room = rooms.FirstOrDefault(r => r.RoomId == 2),
+                    Guest = new Guest { GuestID = 2, FirstName = "Jane", LastName = "Smith", Email = "jane@example.com", PhoneNumber = "+4587654321", Country = "Sweden" },
+                    StartDate = DateTime.Today.AddDays(5),
+                    EndDate = DateTime.Today.AddDays(10),
+                    CheckInTime = null,
+                    CheckOutTime = null,
+                    Status = BookingStatus.Confirmed
+                },
+                new Booking
+                {
+                    BookingID = 3,
+                    Room = rooms.FirstOrDefault(r => r.RoomId == 1),
+                    Guest = new Guest { GuestID = 3, FirstName = "Bob", LastName = "Johnson", Email = "bob@example.com", PhoneNumber = "+4511223344", Country = "Norway" },
+                    StartDate = DateTime.Today.AddDays(12),
+                    EndDate = DateTime.Today.AddDays(15),
+                    CheckInTime = null,
+                    CheckOutTime = null,
+                    Status = BookingStatus.Pending
+                },
+                new Booking
+                {
+                    BookingID = 4,
+                    Room = rooms.FirstOrDefault(r => r.RoomId == 4),
+                    Guest = new Guest { GuestID = 4, FirstName = "Alice", LastName = "Brown", Email = "alice@example.com", PhoneNumber = "+4599887766", Country = "Finland" },
+                    StartDate = DateTime.Today.AddDays(-5),
+                    EndDate = DateTime.Today.AddDays(-1),
+                    CheckInTime = DateTime.Now.AddDays(-5),
+                    CheckOutTime = DateTime.Now.AddDays(-1),
+                    Status = BookingStatus.CheckedOut
+                },
+                new Booking
+                {
+                    BookingID = 5,
+                    Room = rooms.FirstOrDefault(r => r.RoomId == 5),
+                    Guest = new Guest { GuestID = 5, FirstName = "Charlie", LastName = "Wilson", Email = "charlie@example.com", PhoneNumber = "+4544332211", Country = "Iceland" },
+                    StartDate = DateTime.Today,
+                    EndDate = DateTime.Today.AddDays(5),
+                    CheckInTime = DateTime.Now,
+                    CheckOutTime = null,
+                    Status = BookingStatus.CheckedIn
+                }
+            };
+
+            _nextBookingID = _bookings.Max(b => b.BookingID) + 1;
         }
 
-        /// <summary>
-        /// Henter alle bookinger fra databasen.
-        /// </summary>
-        public List<Booking> GetAllBookings()
-        {
-            var bookings = new List<Booking>();
+        // CREATE
 
-            using (var connection = new SqlConnection(_connectionString))
+        public void Create(Booking booking)  // Adds new booking and assigns ID
+        {
+            if (booking == null)
             {
-                connection.Open();
-                
-                string query = "SELECT BookingID, StartDate, EndDate, CheckInTime, CheckOutTime, Status, RoomID, GuestID FROM BOOKING";
-                
-                using (var command = new SqlCommand(query, connection))
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        bookings.Add(new Booking
-                        {
-                            BookingID = reader.GetInt32(0),
-                            StartDate = reader.GetDateTime(1),
-                            EndDate = reader.GetDateTime(2),
-                            CheckInTime = reader.IsDBNull(3) ? null : reader.GetDateTime(3),
-                            CheckOutTime = reader.IsDBNull(4) ? null : reader.GetDateTime(4),
-                            Status = (BookingStatus)reader.GetInt32(5),
-                            RoomID = reader.GetInt32(6),
-                            GuestID = reader.GetInt32(7)
-                        });
-                    }
-                }
+                throw new ArgumentNullException(nameof(booking), "Booking cannot be null");
             }
 
-            return bookings;
+            booking.BookingID = _nextBookingID;
+            _nextBookingID++;
+            _bookings.Add(booking);
         }
 
-        /// <summary>
-        /// Henter en enkelt booking baseret på BookingID.
-        /// </summary>
-        public Booking? GetBookingById(int bookingId)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-                
-                string query = "SELECT BookingID, StartDate, EndDate, CheckInTime, CheckOutTime, Status, RoomID, GuestID FROM BOOKING WHERE BookingID = @BookingID";
-                
-                using (var command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@BookingID", bookingId);
-                    
-                    using (var reader = command.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            return new Booking
-                            {
-                                BookingID = reader.GetInt32(0),
-                                StartDate = reader.GetDateTime(1),
-                                EndDate = reader.GetDateTime(2),
-                                CheckInTime = reader.IsDBNull(3) ? null : reader.GetDateTime(3),
-                                CheckOutTime = reader.IsDBNull(4) ? null : reader.GetDateTime(4),
-                                Status = (BookingStatus)reader.GetInt32(5),
-                                RoomID = reader.GetInt32(6),
-                                GuestID = reader.GetInt32(7)
-                            };
-                        }
-                    }
-                }
-            }
+        // READ
 
-            return null;
+        public List<Booking> GetAll()  // Returns copy to prevent external modification
+        {
+            return new List<Booking>(_bookings);
         }
 
-        /// <summary>
-        /// Henter bookinger for et specifikt værelse.
-        /// </summary>
-        public List<Booking> GetBookingsByRoomId(int roomId)
+        public Booking GetById(int bookingID)
         {
-            var bookings = new List<Booking>();
-
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-                
-                string query = "SELECT BookingID, StartDate, EndDate, CheckInTime, CheckOutTime, Status, RoomID, GuestID FROM BOOKING WHERE RoomID = @RoomID";
-                
-                using (var command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@RoomID", roomId);
-                    
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            bookings.Add(new Booking
-                            {
-                                BookingID = reader.GetInt32(0),
-                                StartDate = reader.GetDateTime(1),
-                                EndDate = reader.GetDateTime(2),
-                                CheckInTime = reader.IsDBNull(3) ? null : reader.GetDateTime(3),
-                                CheckOutTime = reader.IsDBNull(4) ? null : reader.GetDateTime(4),
-                                Status = (BookingStatus)reader.GetInt32(5),
-                                RoomID = reader.GetInt32(6),
-                                GuestID = reader.GetInt32(7)
-                            });
-                        }
-                    }
-                }
-            }
-
-            return bookings;
+            return _bookings.FirstOrDefault(b => b.BookingID == bookingID);
         }
 
-        /// <summary>
-        /// Tilføjer en ny booking til databasen.
-        /// </summary>
-        public int AddBooking(Booking booking)
+        public List<Booking> GetByStatus(BookingStatus status)  // Filter by status (Pending, Confirmed, etc.)
         {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-                
-                string query = @"INSERT INTO BOOKING (StartDate, EndDate, CheckInTime, CheckOutTime, Status, RoomID, GuestID) 
-                                VALUES (@StartDate, @EndDate, @CheckInTime, @CheckOutTime, @Status, @RoomID, @GuestID);
-                                SELECT CAST(SCOPE_IDENTITY() as int);";
-                
-                using (var command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@StartDate", booking.StartDate);
-                    command.Parameters.AddWithValue("@EndDate", booking.EndDate);
-                    command.Parameters.AddWithValue("@CheckInTime", (object?)booking.CheckInTime ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@CheckOutTime", (object?)booking.CheckOutTime ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@Status", (int)booking.Status);
-                    command.Parameters.AddWithValue("@RoomID", booking.RoomID);
-                    command.Parameters.AddWithValue("@GuestID", booking.GuestID);
-                    
-                    return (int)command.ExecuteScalar();
-                }
-            }
+            return _bookings.Where(b => b.Status == status).ToList();
         }
 
-        /// <summary>
-        /// Opdaterer en eksisterende booking.
-        /// </summary>
-        public void UpdateBooking(Booking booking)
+        public List<Booking> GetByRoomID(int roomID)  // Find all bookings for a room
         {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-                
-                string query = @"UPDATE BOOKING 
-                                SET StartDate = @StartDate, EndDate = @EndDate, CheckInTime = @CheckInTime, 
-                                    CheckOutTime = @CheckOutTime, Status = @Status, RoomID = @RoomID, GuestID = @GuestID
-                                WHERE BookingID = @BookingID";
-                
-                using (var command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@BookingID", booking.BookingID);
-                    command.Parameters.AddWithValue("@StartDate", booking.StartDate);
-                    command.Parameters.AddWithValue("@EndDate", booking.EndDate);
-                    command.Parameters.AddWithValue("@CheckInTime", (object?)booking.CheckInTime ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@CheckOutTime", (object?)booking.CheckOutTime ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@Status", (int)booking.Status);
-                    command.Parameters.AddWithValue("@RoomID", booking.RoomID);
-                    command.Parameters.AddWithValue("@GuestID", booking.GuestID);
-                    
-                    command.ExecuteNonQuery();
-                }
-            }
+            return _bookings.Where(b => b.Room != null && b.Room.RoomId == roomID).ToList();
         }
 
-        /// <summary>
-        /// Sletter en booking fra databasen.
-        /// </summary>
-        public void DeleteBooking(int bookingId)
+        public List<Booking> GetByGuestID(int guestID)  // Find all bookings for a guest
         {
-            using (var connection = new SqlConnection(_connectionString))
+            return _bookings.Where(b => b.Guest != null && b.Guest.GuestID == guestID).ToList();
+        }
+
+        // UPDATE
+
+        public void Update(Booking booking)
+        {
+            if (booking == null)
             {
-                connection.Open();
-                
-                string query = "DELETE FROM BOOKING WHERE BookingID = @BookingID";
-                
-                using (var command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@BookingID", bookingId);
-                    command.ExecuteNonQuery();
-                }
+                throw new ArgumentNullException(nameof(booking), "Booking cannot be null");
             }
+
+            var existingBooking = _bookings.FirstOrDefault(b => b.BookingID == booking.BookingID);
+
+            if (existingBooking == null)
+            {
+                throw new ArgumentException($"Booking with ID {booking.BookingID} not found");
+            }
+
+            existingBooking.StartDate = booking.StartDate;
+            existingBooking.EndDate = booking.EndDate;
+            existingBooking.CheckInTime = booking.CheckInTime;
+            existingBooking.CheckOutTime = booking.CheckOutTime;
+            existingBooking.Status = booking.Status;
+            existingBooking.Room = booking.Room;
+            existingBooking.Guest = booking.Guest;
+        }
+
+        // DELETE
+
+        public void Delete(int bookingID)
+        {
+            var booking = _bookings.FirstOrDefault(b => b.BookingID == bookingID);
+
+            if (booking == null)
+            {
+                throw new ArgumentException($"Booking with ID {bookingID} not found");
+            }
+
+            _bookings.Remove(booking);
         }
     }
 }

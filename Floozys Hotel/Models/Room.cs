@@ -10,69 +10,47 @@ using Floozys_Hotel.Core;
 
 namespace Floozys_Hotel.Models
 {
-    public class Room : ObservableObject
+    public class Room
     {
-        private int _roomId { get; set; }
-        private string _roomNumber { get; set; } = "";
-        private int _floor { get; set; }
-        private string _roomSize { get; set; } = "";
-        private int _capacity { get; set; }
-        private RoomStatus _status = RoomStatus.Available;
+        public int RoomId { get; set; }
+        public string RoomNumber { get; set; } = "";
+        public int Floor { get; set; }
+        public string RoomSize { get; set; } = "";
+        public int Capacity { get; set; }
+        public RoomStatus Status { get; set; } = RoomStatus.Available;
 
-
-        /* 
-            Using => instead of return is just simpler
-        */
-
-        public int RoomId
+        public Room()
         {
-            get => _roomId;
-            set { _roomId = value; OnPropertyChanged(); }
+
         }
 
-        public string RoomNumber
+        public Room(string roomNumber, int floor, string roomSize, int capacity, RoomStatus status)
         {
-            get => _roomNumber;
-            set { _roomNumber = value; OnPropertyChanged(); }
+            RoomNumber = roomNumber;
+            Floor = floor;
+            RoomSize = roomSize;
+            Capacity = capacity;
+            Status = status;
         }
 
-        public int Floor
+        public List<string> Validate()
         {
-            get => _floor;
-            set { _floor = value; OnPropertyChanged(); }
-        }
+            var errors = new List<string>();
 
-        public string RoomSize
-        {
-            get => _roomSize;
-            set { _roomSize = value; OnPropertyChanged(); }
-        }
+            if (string.IsNullOrWhiteSpace(RoomNumber))
+                errors.Add("Room number is required.");
 
-        public int Capacity
-        {
-            get => _capacity;
-            set { _capacity = value; OnPropertyChanged(); }
-        }
-        
-        public RoomStatus Status
-        {
-            get => _status;
-            set { _status = value; OnPropertyChanged(); }
-        }
-
-        public void ValidateForCreate()
-        {
-            if (Floor < 0)
-                throw new ArgumentException("Floor must be over 0");
+            if (Floor <= 0)
+                errors.Add("Floor must be greater than 0.");
 
             if (string.IsNullOrWhiteSpace(RoomSize))
-                throw new ArgumentException("RoomSize is required");
+                errors.Add("Room size is required.");
 
             if (Capacity <= 0)
-                throw new ArgumentException("Capacity must be > 0");
-        }
+                errors.Add("Capacity must be greater than 0.");
 
-        public void ValidateForUpdate() => ValidateForCreate();
+            return errors;
+        }
 
     }
 

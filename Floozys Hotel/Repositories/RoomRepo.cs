@@ -1,97 +1,217 @@
 ﻿using Floozys_Hotel.Models;
 using Floozys_Hotel.Repositories.Interfaces;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Floozys_Hotel.Repositories
 {
     public class RoomRepo : IRoom
     {
-        private List<Room> _rooms;  // In-memory storage simulates database
+        private readonly string _connectionString;
 
         public RoomRepo()
         {
-            _rooms = new List<Room>
-            {
-                new Room { RoomId = 1, RoomNumber = "101", Floor = 1, RoomSize = "Small", Capacity = 2, Status = RoomStatus.Available },
-                new Room { RoomId = 2, RoomNumber = "102", Floor = 1, RoomSize = "Large", Capacity = 4, Status = RoomStatus.Available },
-                new Room { RoomId = 3, RoomNumber = "103", Floor = 1, RoomSize = "Small", Capacity = 2, Status = RoomStatus.Available },
-                new Room { RoomId = 4, RoomNumber = "201", Floor = 2, RoomSize = "Large", Capacity = 4, Status = RoomStatus.Available },
-                new Room { RoomId = 5, RoomNumber = "202", Floor = 2, RoomSize = "Small", Capacity = 2, Status = RoomStatus.Available },
-            };
+            _connectionString = Database.DatabaseConfig.ConnectionString;
         }
+
 
         // CREATE
         public void CreateRoom(Room room)
         {
-            if (room == null)
-            {
-                throw new ArgumentNullException(nameof(room), "Room cannot be null");
-            }
+            var errors = room.Validate();
+            if (errors.Any())
+                throw new ArgumentException(string.Join(Environment.NewLine, errors));
 
-            _rooms.Add(room);
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sql = "uspCreateRoom";
+
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@RoomNumber", room.RoomNumber);
+                    cmd.Parameters.AddWithValue("@Floor", room.Floor);
+                    cmd.Parameters.AddWithValue("@RoomSize", room.RoomSize);
+                    cmd.Parameters.AddWithValue("@Capacity", room.Capacity);
+                    cmd.Parameters.AddWithValue("@Status", (int)room.Status);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
 
         // READ
         public List<Room> GetAll()  // ✅ Implement interface method
         {
-            return new List<Room>(_rooms);  // Return copy to prevent external modification
+            var rooms = new List<Room>();
+
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sql = "uspGetAllRooms";
+
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var room = new Room
+                            {
+                                RoomId = reader.GetInt32(reader.GetOrdinal("RoomId")),
+                                RoomNumber = reader.GetString(reader.GetOrdinal("RoomNumber")),
+                                Floor = reader.GetInt32(reader.GetOrdinal("Floor")),
+                                RoomSize = reader.GetString(reader.GetOrdinal("RoomSize")),
+                                Capacity = reader.GetInt32(reader.GetOrdinal("Capacity")),
+                                Status = (RoomStatus)reader.GetInt32(reader.GetOrdinal("Status"))
+                            };
+
+                            rooms.Add(room);
+                        }
+                    }
+                }
+            }
+
+            return rooms;
         }
 
-        // Method to get all rooms by availability
-        public List<Room> GetAllByAvailability()
-        {
-            return _rooms.Where(r => r.Status == RoomStatus.Available).ToList();
-        }
 
-        public Room GetById(int roomId)
+
+        public Room? GetById(int roomId)
         {
-            return _rooms.FirstOrDefault(r => r.RoomId == roomId);
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sql = "uspGetRoomById";
+
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@RoomID", roomId);
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (!reader.Read())
+                        
+                            return null;
+
+                        var room = new Room
+                        {
+                            RoomId = reader.GetInt32(reader.GetOrdinal("RoomId")),
+                            RoomNumber = reader.GetString(reader.GetOrdinal("RoomNumber")),
+                            Floor = reader.GetInt32(reader.GetOrdinal("Floor")),
+                            RoomSize = reader.GetString(reader.GetOrdinal("RoomSize")),
+                            Capacity = reader.GetInt32(reader.GetOrdinal("Capacity")),
+                            Status = (RoomStatus)reader.GetInt32(reader.GetOrdinal("Status"))
+                        };
+
+                        return room;
+
+                    }
+                }
+            }
         }
 
         public List<Room> GetRoomsFromCriteria(int? floor, string roomSize, RoomStatus? status)
         {
-            return _rooms.Where(r =>
-                (!floor.HasValue || r.Floor == floor.Value) &&
-                (string.IsNullOrEmpty(roomSize) || r.RoomSize == roomSize) &&
-                (!status.HasValue || r.Status == status.Value)
-            ).ToList();
+            var rooms = new List<Room>();
+
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sql = "uspGetRoomsFromCriteria";
+
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@Floor", floor.HasValue ? (object)floor.Value : DBNull.Value);
+
+                    cmd.Parameters.AddWithValue("@RoomSize", !string.IsNullOrWhiteSpace(roomSize) ? (object)roomSize : DBNull.Value);
+
+                    cmd.Parameters.AddWithValue("@Status", status.HasValue ? (object)(int)status.Value : DBNull.Value);
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var room = new Room
+                            {
+                                RoomId = reader.GetInt32(reader.GetOrdinal("RoomId")),
+                                RoomNumber = reader.GetString(reader.GetOrdinal("RoomNumber")),
+                                Floor = reader.GetInt32(reader.GetOrdinal("Floor")),
+                                RoomSize = reader.GetString(reader.GetOrdinal("RoomSize")),
+                                Capacity = reader.GetInt32(reader.GetOrdinal("Capacity")),
+                                Status = (RoomStatus)reader.GetInt32(reader.GetOrdinal("Status"))
+                            };
+
+                            rooms.Add(room);
+                        }
+                    }
+                }
+            }
+            return rooms;
         }
 
         // UPDATE
         public void UpdateRoom(Room room)
         {
-            if (room == null)
+            var errors = room.Validate();
+            if (errors.Any())
+                throw new ArgumentException(string.Join(Environment.NewLine, errors));
+
+            using (var conn = new SqlConnection(_connectionString))
             {
-                throw new ArgumentNullException(nameof(room), "Room cannot be null");
+                conn.Open();
+                var sql = "uspUpdateRoom";
+
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@RoomID", room.RoomId);
+                    cmd.Parameters.AddWithValue("@RoomNumber", room.RoomNumber);
+                    cmd.Parameters.AddWithValue("@Floor", room.Floor);
+                    cmd.Parameters.AddWithValue("@RoomSize", room.RoomSize);
+                    cmd.Parameters.AddWithValue("@Capacity", room.Capacity);
+                    cmd.Parameters.AddWithValue("@Status", (int)room.Status);
+
+                    cmd.ExecuteNonQuery();
+                }
             }
-
-            var existingRoom = _rooms.FirstOrDefault(r => r.RoomId == room.RoomId);
-
-            if (existingRoom == null)
-            {
-                throw new ArgumentException($"Room with ID {room.RoomId} not found");
-            }
-
-            existingRoom.RoomNumber = room.RoomNumber;
-            existingRoom.Floor = room.Floor;
-            existingRoom.RoomSize = room.RoomSize;
-            existingRoom.Capacity = room.Capacity;
-            existingRoom.Status = room.Status;
         }
 
         // DELETE
-        public bool DeleteRoom(int roomId)
+        public void DeleteRoom(int roomId)
         {
-            var room = _rooms.FirstOrDefault(r => r.RoomId == roomId);
-
-            if (room == null)
+            using (var conn = new SqlConnection(_connectionString))
             {
-                return false;
+                conn.Open();
+                var sql = "uspDeleteRoom";
+
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@RoomId", roomId);
+
+                    cmd.ExecuteNonQuery();
+                }
             }
 
-            _rooms.Remove(room);
-            return true;
         }
 
+
+        // Method to get all rooms by availability
+        public List<Room> GetAllByAvailability()
+        {
+            var allRooms = GetAll();
+            return allRooms.Where(r => r.Status == RoomStatus.Available).ToList();
+        }
 
     }
 }

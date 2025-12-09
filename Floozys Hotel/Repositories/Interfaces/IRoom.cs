@@ -18,6 +18,6 @@ namespace Floozys_Hotel.Repositories.Interfaces
 
         void UpdateRoom(Room room);
 
-        bool DeleteRoom(int roomId);
+        void DeleteRoom(int roomId);
     }
 }

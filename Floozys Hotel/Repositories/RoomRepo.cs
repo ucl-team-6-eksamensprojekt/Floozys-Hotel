@@ -62,7 +62,7 @@ namespace Floozys_Hotel.Repositories
                         {
                             var room = new Room
                             {
-                                RoomId = reader.GetInt32(reader.GetOrdinal("RoomId")),
+                                RoomId = reader.GetInt32(reader.GetOrdinal("RoomID")),
                                 RoomNumber = reader.GetString(reader.GetOrdinal("RoomNumber")),
                                 Floor = reader.GetInt32(reader.GetOrdinal("Floor")),
                                 RoomSize = reader.GetString(reader.GetOrdinal("RoomSize")),
@@ -102,7 +102,7 @@ namespace Floozys_Hotel.Repositories
 
                         var room = new Room
                         {
-                            RoomId = reader.GetInt32(reader.GetOrdinal("RoomId")),
+                            RoomId = reader.GetInt32(reader.GetOrdinal("RoomID")),
                             RoomNumber = reader.GetString(reader.GetOrdinal("RoomNumber")),
                             Floor = reader.GetInt32(reader.GetOrdinal("Floor")),
                             RoomSize = reader.GetString(reader.GetOrdinal("RoomSize")),
@@ -142,7 +142,7 @@ namespace Floozys_Hotel.Repositories
                         {
                             var room = new Room
                             {
-                                RoomId = reader.GetInt32(reader.GetOrdinal("RoomId")),
+                                RoomId = reader.GetInt32(reader.GetOrdinal("RoomID")),
                                 RoomNumber = reader.GetString(reader.GetOrdinal("RoomNumber")),
                                 Floor = reader.GetInt32(reader.GetOrdinal("Floor")),
                                 RoomSize = reader.GetString(reader.GetOrdinal("RoomSize")),
@@ -197,7 +197,7 @@ namespace Floozys_Hotel.Repositories
                 using (var cmd = new SqlCommand(sql, conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@RoomId", roomId);
+                    cmd.Parameters.AddWithValue("@RoomID", roomId);
 
                     cmd.ExecuteNonQuery();
                 }

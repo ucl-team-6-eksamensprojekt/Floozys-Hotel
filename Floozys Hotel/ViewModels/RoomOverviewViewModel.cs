@@ -68,7 +68,7 @@ namespace Floozys_Hotel.ViewModels
 
         private void LoadRooms()
         {
-            var rooms = _roomRepo.GetAllRooms();
+            var rooms = _roomRepo.GetAll();
             Rooms.Clear();
             foreach (var room in rooms)
             {

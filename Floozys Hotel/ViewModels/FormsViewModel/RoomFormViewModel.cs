@@ -55,11 +55,10 @@ namespace Floozys_Hotel.ViewModels.FormsViewModel
 
         private void Save()
         {
-            Room.ValidateForCreate();
+            var errors = Room.Validate();
             if (Room.RoomId == 0)
             {
-                var newId = _roomRepo.AddRoom(Room);
-                Room.RoomId = newId;
+                _roomRepo.CreateRoom(Room);
             }
             else
             {

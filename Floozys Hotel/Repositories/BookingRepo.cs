@@ -6,7 +6,7 @@ using Floozys_Hotel.Repositories.Interfaces;
 
 namespace Floozys_Hotel.Repositories
 {
-    public class BookingRepo : IBooking
+    public class BookingRepo : IBookingRepo
     {
         private List<Booking> _bookings;  // In-memory storage simulates database
         private int _nextBookingID;  // Simulates database auto-increment

@@ -11,8 +11,8 @@ namespace Floozys_Hotel.ViewModels
     public class BookingOverviewViewModel : ObservableObject
     {
         // REPOSITORIES
-        private readonly IBooking _bookingRepo;  // Depends on interface
-        private readonly IRoom _roomRepo;  // Depends on interface
+        private readonly IBookingRepo _bookingRepo;  // Depends on interface
+        private readonly IRoomRepo _roomRepo;  // Depends on interface
 
         // BACKING FIELDS
         private DateTime _currentMonth;
@@ -147,7 +147,7 @@ namespace Floozys_Hotel.ViewModels
         {
         }
 
-        public BookingOverviewViewModel(IBooking bookingRepo, IRoom roomRepo)  // For dependency injection (testing)
+        public BookingOverviewViewModel(IBookingRepo bookingRepo, IRoomRepo roomRepo)  // For dependency injection (testing)
         {
             _bookingRepo = bookingRepo;
             _roomRepo = roomRepo;

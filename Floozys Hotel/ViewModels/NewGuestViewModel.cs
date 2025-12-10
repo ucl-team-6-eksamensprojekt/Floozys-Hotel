@@ -6,11 +6,13 @@ using System.Windows.Input;
 using Floozys_Hotel.Commands;
 using Floozys_Hotel.Models;
 using Floozys_Hotel.Core;
+using Floozys_Hotel.Repositories;
 
 namespace Floozys_Hotel.ViewModels
 {
     public class NewGuestViewModel : ObservableObject
     {
+        private readonly GuestRepo _guestRepo = new GuestRepo();
         public string WindowTitle { get; }
         public string FirstName
         {
@@ -162,6 +164,9 @@ namespace Floozys_Hotel.ViewModels
             var guest = new Guest(FirstName, LastName, Email, PhoneNumber, Country, PassportNumber);
             if (MessageBox.Show("Are you sure you want to save the changes??", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
+                int newGuestId = _guestRepo.AddGuest(guest);
+                guest.GuestID = newGuestId;
+
                 _onSave?.Invoke(guest);
                 MessageBox.Show("Succes", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
                 _window.DialogResult = true;

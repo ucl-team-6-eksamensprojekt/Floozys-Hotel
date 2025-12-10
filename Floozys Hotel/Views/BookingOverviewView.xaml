@@ -6,16 +6,22 @@
     xmlns:local="clr-namespace:Floozys_Hotel.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="clr-namespace:Floozys_Hotel.Converters"
+    xmlns:core="clr-namespace:Floozys_Hotel.Core"
     d:DesignHeight="600"
     d:DesignWidth="1000"
     mc:Ignorable="d">
 
     <UserControl.Resources>
+        <!-- Proxy to capture DataContext for GridViewColumns -->
+        <core:BindingProxy x:Key="DataContextProxy" Data="{Binding}" />
+
         <!-- Her definerer jeg mine converters, så jeg kan bruge dem i XAML'en længere nede. -->
         <converters:BookingLeftMarginConverter x:Key="BookingLeftMarginConverter" />
         <converters:BookingWidthConverter x:Key="BookingWidthConverter" />
         <converters:RoomBookingsConverter x:Key="RoomBookingsConverter" />
         <converters:DateHeaderConverter x:Key="DateHeaderConverter" />
+        <converters:BookingStatusColorConverter x:Key="BookingStatusColorConverter"/>
+        <converters:CheckInStatusConverter x:Key="CheckInStatusConverter"/>
     </UserControl.Resources>
 
     <!-- Jeg bruger et Grid til at opdele skærmen i 3 kolonner: Header/Venstre, Kalender/Midte, Detaljer/Højre. -->
@@ -260,9 +266,6 @@
                                                                 <Grid />
                                                             </ItemsPanelTemplate>
                                                         </ItemsControl.ItemsPanel>
-                                                        <ItemsControl.Resources>
-                                                            <converters:BookingStatusColorConverter x:Key="BookingStatusColorConverter"/>
-                                                        </ItemsControl.Resources>
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate>
                                                                 <Border Background="{Binding Status, Converter={StaticResource BookingStatusColorConverter}}" BorderBrush="#9370DB" BorderThickness="1" CornerRadius="3" Height="40" VerticalAlignment="Top" HorizontalAlignment="Left" ToolTip="{Binding GuestID}">
@@ -310,7 +313,7 @@
                     </ScrollViewer>
                     
                     <!-- Year View -->
-                    <ListView ItemsSource="{Binding FilteredBookings}" Margin="10">
+                    <ListView x:Name="BookingsListView" ItemsSource="{Binding FilteredBookings}" SelectedItem="{Binding SelectedBooking}" Margin="10">
                         <ListView.Style>
                             <Style TargetType="ListView">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -323,7 +326,17 @@
                         </ListView.Style>
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Guest Name" Width="150">
+
+                                <!-- Sortable Guest Name -->
+                                <GridViewColumn Width="Auto">
+                                    <GridViewColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Guest Name" VerticalAlignment="Center"/>
+                                            <Button Content="⇅" Margin="5,0,0,0" Background="Transparent" BorderThickness="0" 
+                                                    Command="{Binding Data.SortCommand, Source={StaticResource DataContextProxy}}" 
+                                                    CommandParameter="Guest.FirstName"/>
+                                        </StackPanel>
+                                    </GridViewColumn.Header>
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock>
@@ -337,10 +350,94 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Country" Width="100" DisplayMemberBinding="{Binding Guest.Country}"/>
-                                <GridViewColumn Header="Room" Width="80" DisplayMemberBinding="{Binding Room.RoomNumber}"/>
-                                <GridViewColumn Header="Start Date" Width="100" DisplayMemberBinding="{Binding StartDate, StringFormat='{}{0:dd/MM/yyyy}'}"/>
-                                <GridViewColumn Header="End Date" Width="100" DisplayMemberBinding="{Binding EndDate, StringFormat='{}{0:dd/MM/yyyy}'}"/>
+
+                                <!-- Sortable Country -->
+                                <GridViewColumn Width="Auto" DisplayMemberBinding="{Binding Guest.Country}">
+                                    <GridViewColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Country" VerticalAlignment="Center"/>
+                                            <Button Content="⇅" Margin="5,0,0,0" Background="Transparent" BorderThickness="0" 
+                                                    Command="{Binding Data.SortCommand, Source={StaticResource DataContextProxy}}" 
+                                                    CommandParameter="Guest.Country"/>
+                                        </StackPanel>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+
+                                <!-- Sortable Email -->
+                                <GridViewColumn Width="Auto" DisplayMemberBinding="{Binding Guest.Email}">
+                                     <GridViewColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Email" VerticalAlignment="Center"/>
+                                            <Button Content="⇅" Margin="5,0,0,0" Background="Transparent" BorderThickness="0" 
+                                                    Command="{Binding Data.SortCommand, Source={StaticResource DataContextProxy}}" 
+                                                    CommandParameter="Guest.Email"/>
+                                        </StackPanel>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                
+                                <!-- Sortable Room -->
+                                <GridViewColumn Width="Auto" DisplayMemberBinding="{Binding Room.RoomNumber}">
+                                    <GridViewColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Room" VerticalAlignment="Center"/>
+                                            <Button Content="⇅" Margin="5,0,0,0" Background="Transparent" BorderThickness="0" 
+                                                    Command="{Binding Data.SortCommand, Source={StaticResource DataContextProxy}}" 
+                                                    CommandParameter="Room.RoomNumber"/>
+                                        </StackPanel>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+
+                                <!-- Sortable Status -->
+                                <GridViewColumn Width="Auto" DisplayMemberBinding="{Binding Status}">
+                                     <GridViewColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Status" VerticalAlignment="Center"/>
+                                            <Button Content="⇅" Margin="5,0,0,0" Background="Transparent" BorderThickness="0" 
+                                                    Command="{Binding Data.SortCommand, Source={StaticResource DataContextProxy}}" 
+                                                    CommandParameter="Status"/>
+                                        </StackPanel>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+
+                                <!-- Sortable Start Date -->
+                                <GridViewColumn Width="Auto" DisplayMemberBinding="{Binding StartDate, StringFormat='{}{0:dd/MM/yyyy}'}">
+                                     <GridViewColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Check In Date" VerticalAlignment="Center"/>
+                                            <Button Content="⇅" Margin="5,0,0,0" Background="Transparent" BorderThickness="0" 
+                                                    Command="{Binding Data.SortCommand, Source={StaticResource DataContextProxy}}" 
+                                                    CommandParameter="StartDate"/>
+                                        </StackPanel>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                
+                                <!-- Sortable End Date -->
+                                <GridViewColumn Width="Auto" DisplayMemberBinding="{Binding EndDate, StringFormat='{}{0:dd/MM/yyyy}'}">
+                                     <GridViewColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Check Out Date" VerticalAlignment="Center"/>
+                                            <Button Content="⇅" Margin="5,0,0,0" Background="Transparent" BorderThickness="0" 
+                                                    Command="{Binding Data.SortCommand, Source={StaticResource DataContextProxy}}" 
+                                                    CommandParameter="EndDate"/>
+                                        </StackPanel>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+
+                                <!-- Check-In/Out Status Text (Combined) -->
+                                <GridViewColumn Width="180" Header="Check-I/O Status">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock>
+                                                <TextBlock.Text>
+                                                    <MultiBinding Converter="{StaticResource CheckInStatusConverter}">
+                                                        <Binding Path="CheckInTime" />
+                                                        <Binding Path="CheckOutTime" />
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
                             </GridView>
                         </ListView.View>
                     </ListView>

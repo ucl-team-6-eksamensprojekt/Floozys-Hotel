@@ -15,7 +15,7 @@ namespace Floozys_Hotel.Repositories
         }
 
         /// <summary>
-        /// Henter alle gæster fra databasen.
+        /// Retrieves all guests from the database.
         /// </summary>
         public List<Guest> GetAllGuests()
         {
@@ -50,7 +50,7 @@ namespace Floozys_Hotel.Repositories
         }
 
         /// <summary>
-        /// Henter en enkelt gæst baseret på GuestID.
+        /// Retrieves a single guest based on GuestID.
         /// </summary>
         public Guest? GetGuestById(int guestId)
         {
@@ -87,7 +87,7 @@ namespace Floozys_Hotel.Repositories
         }
 
         /// <summary>
-        /// Tilføjer en ny gæst til databasen.
+        /// Adds a new guest to the database.
         /// </summary>
         public int AddGuest(Guest guest)
         {
@@ -114,7 +114,7 @@ namespace Floozys_Hotel.Repositories
         }
 
         /// <summary>
-        /// Opdaterer en eksisterende gæst.
+        /// Updates an existing guest.
         /// </summary>
         public void UpdateGuest(Guest guest)
         {
@@ -143,7 +143,7 @@ namespace Floozys_Hotel.Repositories
         }
 
         /// <summary>
-        /// Sletter en gæst fra databasen.
+        /// Deletes a guest from the database.
         /// </summary>
         public void DeleteGuest(int guestId)
         {

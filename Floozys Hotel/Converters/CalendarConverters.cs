@@ -16,13 +16,13 @@ namespace Floozys_Hotel.Converters
             // Verify all required values are present: StartDate, ViewStartDate, ActualWidth, DayCount
             // values[0] = StartDate, values[1] = ViewStartDate, values[2] = ActualWidth, values[3] = DayCount
             if (values.Length < 4 || values[0] == null || values[1] == null || values[2] == null || values[3] == null)
-                return 0.0;
+                return new Thickness(0);
 
             if (values[0] is DateTime startDate && values[1] is DateTime viewStartDate &&
                 values[2] is double actualWidth && values[3] is int dayCount)
             {
                 // If there are no days or width is 0, nothing should be drawn
-                if (dayCount == 0 || actualWidth == 0) return 0.0;
+                if (dayCount == 0 || actualWidth == 0) return new Thickness(0);
 
                 // Calculate the difference in days between booking start and calendar start
                 var daysOffset = (startDate - viewStartDate).Days;
@@ -30,7 +30,7 @@ namespace Floozys_Hotel.Converters
                 // If booking starts before the visible period, set margin to 0
                 if (daysOffset < 0)
                 {
-                    return 0.0;
+                    return new Thickness(0);
                 }
 
                 // Find the width of one day in pixels

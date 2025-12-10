@@ -282,7 +282,9 @@ namespace Floozys_Hotel.ViewModels
             }
 
             var filtered = Bookings.Where(b =>
-                b.StartDate <= endPeriod && b.EndDate >= startPeriod);
+                b.StartDate <= endPeriod && 
+                b.EndDate >= startPeriod &&
+                b.Status != BookingStatus.Cancelled);
 
             foreach (var booking in filtered)
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -15,31 +16,17 @@ namespace Floozys_Hotel.ViewModels
 {
     public class GuestOverviewViewModel : ObservableObject
     {
-        public RelayCommand NewGuestCommand { get; set; }
-        public RelayCommand EditGuestCommand { get; set; }
-        public RelayCommand SaveGuestCommand { get; set; }
-        public RelayCommand ClearGuestCommand { get; set; }
+        // Fields and properties
+        private readonly GuestRepo _guestRepo;
 
-        private bool _isEditing;
-        public bool IsEditing
-        {
-            get => _isEditing; 
-            set { _isEditing = value; OnPropertyChanged(); }
-        }
 
-        private bool _isNewGuest;
-        public bool IsNewGuest
-        {
-            get => _isNewGuest;
-            set { _isNewGuest = value; OnPropertyChanged(); }
-        }
-
-        private List<Guest> _guests;
-        public List<Guest> Guests
+        private ObservableCollection<Guest> _guests;
+        public ObservableCollection<Guest> Guests
         {
             get => _guests;
             set { _guests = value; OnPropertyChanged(); }
         }
+
 
         private Guest _selectedGuest;
         public Guest SelectedGuest
@@ -48,45 +35,68 @@ namespace Floozys_Hotel.ViewModels
             set { _selectedGuest = value; OnPropertyChanged(); }
         }
 
-        private readonly GuestRepo _guestRepo;
-        
+
+        private bool _isEditing;
+        public bool IsEditing
+        {
+            get => _isEditing;
+            set { _isEditing = value; OnPropertyChanged(); }
+        }
+
+
+        private bool _isNewGuest;
+        public bool IsNewGuest
+        {
+            get => _isNewGuest;
+            set { _isNewGuest = value; OnPropertyChanged(); }
+        }
+
+
+        public RelayCommand NewGuestCommand { get; set; }
+        public RelayCommand EditGuestCommand { get; set; }
+        public RelayCommand ClearGuestCommand { get; set; }
+       
+
+        // Events for View
+        public event Action<Guest> EditGuestRequested;
+        public event Action NewGuestRequested;
+        public event Action<string, string> ShowInfoDialog;
+
+
+        // Constructor
         public GuestOverviewViewModel()
         {
-            // Dummy data for demonstration
-            Guests = new List<Guest>
+            // Dummy data for demonstration - TODO: Delete when we have guests from Database
+            Guests = new ObservableCollection<Guest>
             {
                 new Guest { FirstName = "Anna", LastName = "Smith", PhoneNumber = "+4512345678", Email = "anna.smith@mail.com", Country = "Denmark" },
                 new Guest { FirstName = "John", LastName = "Doe", PhoneNumber = "+4598765432", Email = "john.doe@mail.com", Country = "Sweden" },
                 new Guest { FirstName = "Sreymom", LastName = "Sok", PhoneNumber = "+85593847584", Email = "sreysok@hotmail.com", Country = "Cambodia", PassportNumber = "N83749573"}
             };
 
-            // TODO: Use correct connection string 
             _guestRepo = new GuestRepo();
 
-            NewGuestCommand = new RelayCommand(_ => NewGuest());
-            EditGuestCommand = new RelayCommand(_ => EditGuest(), _ => SelectedGuest != null);
+            NewGuestCommand = new RelayCommand(_ => OnNewGuest());
+            EditGuestCommand = new RelayCommand(_ => OnEditGuest(), _ => SelectedGuest != null);
             ClearGuestCommand = new RelayCommand(_ => ClearGuest());
                         
             IsEditing = false;
             IsNewGuest = false;
         }
 
-        private void NewGuest()
+
+        // Methods
+        private void OnNewGuest()
         {
-            var window = new NewGuestView(null, false, guest =>
-            {
-                Guests.Add(guest);
-                Guests = new List<Guest>(Guests); // For at opdatere UI
-            });
-            window.Owner = Application.Current.MainWindow;
-            window.ShowDialog();
+            NewGuestRequested?.Invoke();
         }
 
-        private void EditGuest()
+
+        private void OnEditGuest()
         {
             if (SelectedGuest == null)
             {
-                MessageBox.Show("You must select a guest to edit.", "No guest selected", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowInfoDialog?.Invoke("You must select a guest to edit.", "No guest selected");
                 return;
             }
             // Make a copy, so we don't change directly
@@ -98,26 +108,35 @@ namespace Floozys_Hotel.ViewModels
                 SelectedGuest.Country,
                 SelectedGuest.PassportNumber
             );
-            var window = new NewGuestView(guestCopy, true, guest =>
-            {
-                // Update SelectedGuest with new values
-                SelectedGuest.FirstName = guest.FirstName;
-                SelectedGuest.LastName = guest.LastName;
-                SelectedGuest.Email = guest.Email;
-                SelectedGuest.PhoneNumber = guest.PhoneNumber;
-                SelectedGuest.Country = guest.Country;
-                SelectedGuest.PassportNumber = guest.PassportNumber;
-                Guests = new List<Guest>(Guests); // To update UI
-            });
-            window.Owner = Application.Current.MainWindow;
-            window.ShowDialog();
+            EditGuestRequested?.Invoke( guestCopy );
         }
+
 
         private void ClearGuest()
         {
             SelectedGuest = new Guest();
             IsEditing = false;
             IsNewGuest = false;
+        }
+
+
+        // Method to receive new/updated guest (called from View after dialog)
+        public void AddGuestToOverview(Guest newGuest)
+        {
+            Guests.Add(newGuest);
+        }
+
+
+        public void UpdateSelectedGuest(Guest editedGuest)
+        {
+            SelectedGuest.FirstName = editedGuest.FirstName;
+            SelectedGuest.LastName = editedGuest.LastName;
+            SelectedGuest.Email = editedGuest.Email;
+            SelectedGuest.PhoneNumber = editedGuest.PhoneNumber;
+            SelectedGuest.Country = editedGuest.Country;
+            SelectedGuest.PassportNumber = editedGuest.PassportNumber;
+
+            OnPropertyChanged(nameof(Guests)); // Opdate in special edge cases
         }
     }
 }

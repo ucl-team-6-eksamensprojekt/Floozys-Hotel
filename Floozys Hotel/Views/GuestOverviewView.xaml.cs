@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Floozys_Hotel.ViewModels;
 
 namespace Floozys_Hotel.Views
 {
@@ -23,6 +24,7 @@ namespace Floozys_Hotel.Views
         public GuestOverviewView()
         {
             InitializeComponent();
+            DataContext = new GuestOverviewViewModel();
         }
     }
 }

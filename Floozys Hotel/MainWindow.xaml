@@ -63,7 +63,7 @@
                         <RadioButton
                             Height="50"
                             Command="{Binding GuestOverviewViewCommand}"
-                            Content="Guest Overiew"
+                            Content="Guest Overview"
                             FontSize="14"
                             FontWeight="Bold"
                             Foreground="Black"

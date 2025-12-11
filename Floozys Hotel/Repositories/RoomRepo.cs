@@ -5,7 +5,7 @@ using System.Data;
 
 namespace Floozys_Hotel.Repositories
 {
-    public class RoomRepo : IRoom
+    public class RoomRepo : IRoomRepo
     {
         private readonly string _connectionString;
 

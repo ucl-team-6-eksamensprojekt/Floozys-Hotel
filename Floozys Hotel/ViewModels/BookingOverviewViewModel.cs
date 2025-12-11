@@ -64,7 +64,11 @@ namespace Floozys_Hotel.ViewModels
             {
                 _searchText = value;
                 OnPropertyChanged();
-                ApplySearchFilter();
+                if (!string.IsNullOrWhiteSpace(_searchText) && ViewDuration != "Year")
+                {
+                    ViewDuration = "Year";
+                }
+                FilterBookings();
             }
         }
 
@@ -166,6 +170,7 @@ namespace Floozys_Hotel.ViewModels
             SetWeekViewCommand = new RelayCommand(w => ViewDuration = "Week");
             SetMonthViewCommand = new RelayCommand(m => ViewDuration = "Month");
             SetYearViewCommand = new RelayCommand(y => ViewDuration = "Year");
+            SortCommand = new RelayCommand(SortBookings);
 
             LoadData();
         }
@@ -241,21 +246,14 @@ namespace Floozys_Hotel.ViewModels
             OnPropertyChanged(nameof(DayCount));
         }
 
-        private void ApplySearchFilter()  // Filters bookings based on search text
+        private bool MatchesSearch(Booking b)
         {
-            if (string.IsNullOrWhiteSpace(SearchText))
-            {
-                SelectedBooking = null;
-                return;
-            }
-
-            var matching = Bookings.FirstOrDefault(b =>
-                $"Guest {b.Guest.GuestID}".Contains(SearchText, StringComparison.OrdinalIgnoreCase));
-
-            if (matching != null)
-            {
-                SelectedBooking = matching;
-            }
+            if (b.Guest == null || b.Room == null) return false;
+            string search = SearchText.Trim();
+            return (b.Guest.FirstName + " " + b.Guest.LastName).Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                   (b.Guest.Country ?? "").Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                   (b.Guest.Email ?? "").Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                   b.Room.RoomNumber.ToString().Contains(search, StringComparison.OrdinalIgnoreCase);
         }
 
         private void FilterBookings()  // Ensures only bookings within selected period are shown
@@ -282,7 +280,14 @@ namespace Floozys_Hotel.ViewModels
             }
 
             var filtered = Bookings.Where(b =>
-                b.StartDate <= endPeriod && b.EndDate >= startPeriod);
+                b.StartDate <= endPeriod && 
+                b.EndDate >= startPeriod &&
+                b.Status != BookingStatus.Cancelled);
+
+            if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                filtered = filtered.Where(b => MatchesSearch(b));
+            }
 
             foreach (var booking in filtered)
             {
@@ -296,11 +301,57 @@ namespace Floozys_Hotel.ViewModels
             RevenueThisMonth = 0;
         }
 
+        private string _sortColumn;
+        private bool _isAscending;
+
+        public RelayCommand SortCommand { get; set; }
+
         private void OpenNewBooking()  // Opens new booking window and refreshes data
         {
             var newBookingWindow = new NewBookingView();
             newBookingWindow.ShowDialog();
             LoadData();
+        }
+
+        private void SortBookings(object parameter)
+        {
+            var column = parameter as string;
+            if (string.IsNullOrEmpty(column)) return;
+
+            if (_sortColumn == column)
+            {
+                // Toggle direction
+                _isAscending = !_isAscending;
+            }
+            else
+            {
+                // New column, default to ascending
+                _sortColumn = column;
+                _isAscending = true;
+            }
+
+            // Sort the FilteredBookings collection
+            var sorted = _isAscending 
+                ? FilteredBookings.OrderBy(b => GetPropValue(b, _sortColumn)).ToList()
+                : FilteredBookings.OrderByDescending(b => GetPropValue(b, _sortColumn)).ToList();
+
+            FilteredBookings.Clear();
+            foreach (var b in sorted)
+            {
+                FilteredBookings.Add(b);
+            }
+        }
+
+        private object GetPropValue(object src, string propName)
+        {
+            if (src == null) return null;
+            if (propName.Contains("."))
+            {
+                var split = propName.Split(new[] { '.' }, 2);
+                return GetPropValue(GetPropValue(src, split[0]), split[1]);
+            }
+            var prop = src.GetType().GetProperty(propName);
+            return prop != null ? prop.GetValue(src, null) : null;
         }
     }
 }

@@ -20,6 +20,10 @@ namespace Floozys_Hotel.Models
         // ENUM
         public BookingStatus Status { get; set; }
 
+        // FOREIGN KEYS - Added these since we need them to correctly map the data from the database :-)
+        public int RoomID { get; set; }
+        public int GuestID { get; set; }
+
         public Room Room { get; set; }
 
         public Guest Guest { get; set; }

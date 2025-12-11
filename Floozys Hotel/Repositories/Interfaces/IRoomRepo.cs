@@ -7,7 +7,7 @@ using Floozys_Hotel.Models;
 
 namespace Floozys_Hotel.Repositories.Interfaces
 {
-    public interface IRoom
+    public interface IRoomRepo
     {
         void CreateRoom(Room room);
 

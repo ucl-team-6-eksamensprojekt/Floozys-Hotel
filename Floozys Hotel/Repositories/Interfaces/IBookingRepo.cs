@@ -3,7 +3,7 @@ using Floozys_Hotel.Models;
 
 namespace Floozys_Hotel.Repositories.Interfaces
 {
-    public interface IBooking
+    public interface IBookingRepo
     {
         // CREATE
         void Create(Booking booking);

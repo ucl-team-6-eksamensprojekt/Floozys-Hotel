@@ -391,3 +391,7 @@ _nCrunch_*
 .Trashes
 .AppleDouble
 .LSOverride
+
+# Ignore config files with sensitive data
+**/App.config
+**/*.config

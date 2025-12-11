@@ -65,7 +65,6 @@ namespace Floozys_Hotel.ViewModels
 
             NewGuestCommand = new RelayCommand(_ => NewGuest());
             EditGuestCommand = new RelayCommand(_ => EditGuest(), _ => SelectedGuest != null);
-            SaveGuestCommand = new RelayCommand(_ => SaveGuest());
             ClearGuestCommand = new RelayCommand(_ => ClearGuest());
                         
             IsEditing = false;
@@ -114,36 +113,6 @@ namespace Floozys_Hotel.ViewModels
             window.ShowDialog();
         }
 
-        private void SaveGuest()
-        {
-            if (SelectedGuest == null) return;
-
-            var errors = SelectedGuest.Validate();
-            if (errors.Any()) 
-            {
-                string message = string.Join("\n", errors);
-                MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (IsNewGuest)
-            {
-                // _guestRepo.CreateGuest(SelectedGuest); // Remove comment for real DB
-                Guests.Add(SelectedGuest);
-            }
-            else
-            {
-                // _guestRepo.UpdateGuest(SelectedGuest); // Remove comment for real DB
-                // Update the list if neccessary
-            }
-
-            // Update the list (to update UI)
-            Guests = new List<Guest>(Guests);
-
-            IsEditing = false;
-            IsNewGuest = false;
-        }
-
         private void ClearGuest()
         {
             SelectedGuest = new Guest();
@@ -152,3 +121,4 @@ namespace Floozys_Hotel.ViewModels
         }
     }
 }
+

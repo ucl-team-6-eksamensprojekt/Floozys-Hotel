@@ -136,11 +136,6 @@
                         Command="{Binding NewGuestCommand}"
                         Margin="0,10,0,0"
                         Width="120"/>
-                <Button Content="Save"
-                        Command="{Binding SaveGuestCommand}"
-                        Margin="0,10,0,0"
-                        Width="120"
-                        Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 <Button Content="Clear" 
                         Command="{Binding ClearGuestCommand}" 
                         Margin="0,10,0,0" 

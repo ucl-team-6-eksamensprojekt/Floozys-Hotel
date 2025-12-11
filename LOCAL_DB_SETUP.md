@@ -13,7 +13,7 @@ Dette er en guide til, hvordan I får Floozys Hotel databasen til at køre lokal
 1.  Åbn **SQL Server Management Studio**.
 2.  Log ind på jeres lokale server (ofte `(localdb)\MSSQLLocalDB` eller `.\SQLEXPRESS`).
 3.  Klik på knappen **"New Query"** (eller tryk `Ctrl` + `N`).
-4.  Find filen `SQL/01_CreateSchema.sql` i projektmappen.
+4.  Find filen `Floozys Hotel/SQL/01_CreateSchema.sql` i projektmappen.
 5.  Kopier **hele indholdet** af filen og sæt det ind i dit query-vindue i SSMS.
 6.  Tryk på **"Execute"** (eller tast `F5`).
     *   *Resultat:* I bunden skal der stå "Database schema created successfully!".
@@ -21,7 +21,7 @@ Dette er en guide til, hvordan I får Floozys Hotel databasen til at køre lokal
 ## Trin 2: Indsæt Testdata
 
 1.  Slet alt tekst i det nuværende query-vindue (eller åbn et nyt).
-2.  Find filen `SQL/02_InsertTestData.sql` i projektmappen.
+2.  Find filen `Floozys Hotel/SQL/02_InsertTestData.sql` i projektmappen.
 3.  Kopier **hele indholdet** af filen og sæt det ind i SSMS.
 4.  Tryk på **"Execute"** (eller tast `F5`).
     *   *Resultat:* Scriptet kører og indsætter værelser, gæster og bookinger. Der vil stå "Generated bookings for the next 5 years." til sidst.

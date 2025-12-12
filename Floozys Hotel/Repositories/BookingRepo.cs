@@ -218,7 +218,11 @@ namespace Floozys_Hotel.Repositories
                     cmd.Parameters.AddWithValue("@RoomID", (object?)booking.Room?.RoomId ?? (object?)booking.RoomID ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@GuestID", (object?)booking.Guest?.GuestID ?? (object?)booking.GuestID ?? DBNull.Value);
 
-                    cmd.ExecuteNonQuery();
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    if (rowsAffected == 0)
+                    {
+                        throw new ArgumentException("Booking not found");
+                    }
                 }
             }
         }
@@ -233,7 +237,11 @@ namespace Floozys_Hotel.Repositories
                 using (var cmd = new SqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@BookingID", bookingID);
-                    cmd.ExecuteNonQuery();
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    if (rowsAffected == 0)
+                    {
+                        throw new ArgumentException("Booking not found");
+                    }
                 }
             }
         }

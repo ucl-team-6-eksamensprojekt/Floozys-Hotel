@@ -10,38 +10,10 @@ namespace Floozys_Hotel.Database
     /// </summary>
     public static class DatabaseConfig
     {
-        private static string? _connectionString;
-
-        /// <summary>
-        /// Henter connection string fra App.config.
-        /// Hvis ikke fundet, returneres en default connection string (kun til udvikling).
-        /// </summary>
         public static string ConnectionString
         {
-            get
-            {
-                if (string.IsNullOrEmpty(_connectionString))
-                {
-                    // Prøv at hente fra App.config
-                    _connectionString = ConfigurationManager.ConnectionStrings["HotelBooking"]?.ConnectionString;
-
-                    // Hvis ikke fundet i config, brug environment variable (sikrest til produktion)
-                    if (string.IsNullOrEmpty(_connectionString))
-                    {
-                        _connectionString = Environment.GetEnvironmentVariable("HOTEL_BOOKING_CONN_STRING");
-                    }
-
-                    // Fallback: Hvis hverken config eller environment variable findes
-                    if (string.IsNullOrEmpty(_connectionString))
-                    {
-                        throw new InvalidOperationException(
-                            "Database connection string not found. " +
-                            "Please add 'HotelBooking' connection string to App.config or set HOTEL_BOOKING_CONN_STRING environment variable.");
-                    }
-                }
-
-                return _connectionString;
-            }
+            get;
+            set;
         }
 
         /// <summary>

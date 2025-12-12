@@ -1,12 +1,24 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Floozys_Hotel.Database;
 using Floozys_Hotel.Models;
-using System;
+using Microsoft.Extensions.Configuration;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FloozyHotelTests.ModelTests
 {
     [TestClass]
     public class BookingTests
     {
+        public BookingTests() 
+        {
+            var config = new ConfigurationBuilder()
+           .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+           .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+           .Build();
+
+            DatabaseConfig.ConnectionString = config.GetConnectionString("DefaultConnection");
+        }
+
         [TestMethod]
         public void Validate_WhenStartDateIsDefault_ReturnsError()
         {

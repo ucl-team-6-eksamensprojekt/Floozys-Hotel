@@ -1,15 +1,27 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Linq;
+using Floozys_Hotel.Database;
 using Floozys_Hotel.Models;
 using Floozys_Hotel.Repositories;
 using Floozys_Hotel.ViewModels;
-using System;
-using System.Linq;
+using Microsoft.Extensions.Configuration;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FloozyHotelTests.ViewModelTests
 {
     [TestClass]
     public class BookingOverviewViewModelTests
     {
+        public BookingOverviewViewModelTests()
+        {
+            var config = new ConfigurationBuilder()
+           .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+           .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+           .Build();
+
+            DatabaseConfig.ConnectionString = config.GetConnectionString("DefaultConnection");
+        }
+
         [TestMethod]
         public void Constructor_LoadsRoomsAndBookings()
         {

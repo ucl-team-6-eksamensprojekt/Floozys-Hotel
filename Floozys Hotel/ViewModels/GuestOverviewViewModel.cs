@@ -10,6 +10,7 @@ using Floozys_Hotel.Commands;
 using Floozys_Hotel.Core;
 using Floozys_Hotel.Models;
 using Floozys_Hotel.Repositories;
+using Floozys_Hotel.Repositories.Interfaces;
 using Floozys_Hotel.Views;
 
 namespace Floozys_Hotel.ViewModels
@@ -17,7 +18,7 @@ namespace Floozys_Hotel.ViewModels
     public class GuestOverviewViewModel : ObservableObject
     {
         // Fields and properties
-        private readonly GuestRepo _guestRepo;
+        private readonly IGuestRepo _guestRepo;
 
 
         private ObservableCollection<Guest> _guests;

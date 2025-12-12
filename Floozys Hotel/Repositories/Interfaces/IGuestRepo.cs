@@ -13,7 +13,7 @@ namespace Floozys_Hotel.Repositories.Interfaces
          * This contract ensures a consistent interface for handling guest data,
          * supporting maintainability, testability, and clear separation of concerns in the application.
          */
-        void CreateGuest(Guest guest);
+        int AddGuest(Guest guest);
         Guest GetByID (int id);
         List<Guest> GetAll();
         List<Guest> GetAllByName(string name);

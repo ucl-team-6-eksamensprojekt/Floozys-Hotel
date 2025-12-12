@@ -1,7 +1,9 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Configuration;
 using System.Linq;
+using Floozys_Hotel.Database;
+using Microsoft.Extensions.Configuration;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FloozyHotelTests
 {
@@ -11,33 +13,12 @@ namespace FloozyHotelTests
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext context)
         {
-            // Set connection string from App.config to environment variable for all tests
-            var connectionString = ConfigurationManager.ConnectionStrings["HotelBooking"]?.ConnectionString;
+            var config = new ConfigurationBuilder()
+               .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+               .Build();
 
-            // Manual fallback: Read App.config directly if ConfigurationManager fails
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                try 
-                {
-                    var configPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App.config");
-                    if (System.IO.File.Exists(configPath))
-                    {
-                        var doc = System.Xml.Linq.XDocument.Load(configPath);
-                        connectionString = doc.Descendants("add")
-                            .FirstOrDefault(x => (string)x.Attribute("name") == "HotelBooking")
-                            ?.Attribute("connectionString")?.Value;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Failed to manually load App.config: {ex.Message}");
-                }
-            }
-
-            if (!string.IsNullOrEmpty(connectionString))
-            {
-                Environment.SetEnvironmentVariable("HOTEL_BOOKING_CONN_STRING", connectionString);
-            }
+            DatabaseConfig.ConnectionString = config.GetConnectionString("DefaultConnection");
         }
     }
 }

@@ -16,7 +16,6 @@ namespace Floozys_Hotel.Repositories
             _connectionString = Database.DatabaseConfig.ConnectionString;
         }
 
-        // CREATE
         public void Create(Booking booking)
         {
             if (booking == null) throw new ArgumentNullException(nameof(booking));
@@ -34,7 +33,7 @@ namespace Floozys_Hotel.Repositories
                     cmd.Parameters.AddWithValue("@StartDate", booking.StartDate);
                     cmd.Parameters.AddWithValue("@EndDate", booking.EndDate);
                     cmd.Parameters.AddWithValue("@CheckInTime", (object?)booking.CheckInTime ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@CheckOutTime", (object?)booking.CheckOutTime ?? DBNull.Value); 
+                    cmd.Parameters.AddWithValue("@CheckOutTime", (object?)booking.CheckOutTime ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@Status", (int)booking.Status);
                     cmd.Parameters.AddWithValue("@RoomID", (object?)booking.Room?.RoomId ?? (object?)booking.RoomID ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@GuestID", (object?)booking.Guest?.GuestID ?? (object?)booking.GuestID ?? DBNull.Value);
@@ -45,7 +44,6 @@ namespace Floozys_Hotel.Repositories
             }
         }
 
-        // READ
         public List<Booking> GetAll()
         {
             var bookings = new List<Booking>();
@@ -76,7 +74,7 @@ namespace Floozys_Hotel.Repositories
                                 CheckInTime = reader.IsDBNull(reader.GetOrdinal("CheckInTime")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("CheckInTime")),
                                 CheckOutTime = reader.IsDBNull(reader.GetOrdinal("CheckOutTime")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("CheckOutTime")),
                                 Status = (BookingStatus)reader.GetInt32(reader.GetOrdinal("Status")),
-                                
+
                                 Room = new Room
                                 {
                                     RoomId = reader.GetInt32(reader.GetOrdinal("RoomID")),
@@ -95,11 +93,10 @@ namespace Floozys_Hotel.Repositories
                                     Email = reader.GetString(reader.GetOrdinal("Email")),
                                     Country = reader.GetString(reader.GetOrdinal("Country")),
                                     PhoneNumber = reader.GetString(reader.GetOrdinal("PhoneNumber"))
-                                }
+                                },
+                                RoomID = reader.GetInt32(reader.GetOrdinal("RoomID")),
+                                GuestID = reader.GetInt32(reader.GetOrdinal("GuestID"))
                             };
-                            
-                            booking.RoomID = booking.Room.RoomId;
-                            booking.GuestID = booking.Guest.GuestID;
 
                             bookings.Add(booking);
                         }
@@ -111,7 +108,7 @@ namespace Floozys_Hotel.Repositories
 
         public Booking? GetById(int bookingID)
         {
-             using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 conn.Open();
                 string sql = @"
@@ -131,7 +128,7 @@ namespace Floozys_Hotel.Repositories
                     {
                         if (reader.Read())
                         {
-                             var booking = new Booking
+                            var booking = new Booking
                             {
                                 BookingID = reader.GetInt32(reader.GetOrdinal("BookingID")),
                                 StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate")),
@@ -139,7 +136,7 @@ namespace Floozys_Hotel.Repositories
                                 CheckInTime = reader.IsDBNull(reader.GetOrdinal("CheckInTime")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("CheckInTime")),
                                 CheckOutTime = reader.IsDBNull(reader.GetOrdinal("CheckOutTime")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("CheckOutTime")),
                                 Status = (BookingStatus)reader.GetInt32(reader.GetOrdinal("Status")),
-                                
+
                                 Room = new Room
                                 {
                                     RoomId = reader.GetInt32(reader.GetOrdinal("RoomID")),
@@ -158,10 +155,10 @@ namespace Floozys_Hotel.Repositories
                                     Email = reader.GetString(reader.GetOrdinal("Email")),
                                     Country = reader.GetString(reader.GetOrdinal("Country")),
                                     PhoneNumber = reader.GetString(reader.GetOrdinal("PhoneNumber"))
-                                }
+                                },
+                                RoomID = reader.GetInt32(reader.GetOrdinal("RoomID")),
+                                GuestID = reader.GetInt32(reader.GetOrdinal("GuestID"))
                             };
-                            booking.RoomID = booking.Room.RoomId;
-                            booking.GuestID = booking.Guest.GuestID;
                             return booking;
                         }
                     }
@@ -188,10 +185,15 @@ namespace Floozys_Hotel.Repositories
             return all.FindAll(b => b.GuestID == guestID);
         }
 
-        // UPDATE
         public void Update(Booking booking)
         {
             if (booking == null) throw new ArgumentNullException(nameof(booking));
+
+            var existingBooking = GetById(booking.BookingID);
+            if (existingBooking == null)
+            {
+                throw new ArgumentException($"Booking with ID {booking.BookingID} not found", nameof(booking));
+            }
 
             using (var conn = new SqlConnection(_connectionString))
             {
@@ -213,19 +215,29 @@ namespace Floozys_Hotel.Repositories
                     cmd.Parameters.AddWithValue("@StartDate", booking.StartDate);
                     cmd.Parameters.AddWithValue("@EndDate", booking.EndDate);
                     cmd.Parameters.AddWithValue("@CheckInTime", (object?)booking.CheckInTime ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@CheckOutTime", (object?)booking.CheckOutTime ?? DBNull.Value); 
+                    cmd.Parameters.AddWithValue("@CheckOutTime", (object?)booking.CheckOutTime ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@Status", (int)booking.Status);
-                    cmd.Parameters.AddWithValue("@RoomID", (object?)booking.Room?.RoomId ?? (object?)booking.RoomID ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@GuestID", (object?)booking.Guest?.GuestID ?? (object?)booking.GuestID ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@RoomID", booking.Room?.RoomId ?? booking.RoomID);
+                    cmd.Parameters.AddWithValue("@GuestID", booking.Guest?.GuestID ?? booking.GuestID);
 
-                    cmd.ExecuteNonQuery();
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    if (rowsAffected == 0)
+                    {
+                        throw new InvalidOperationException($"Failed to update booking {booking.BookingID}");
+                    }
                 }
             }
         }
 
-        // DELETE
         public void Delete(int bookingID)
         {
+            var booking = GetById(bookingID);
+            if (booking == null)
+            {
+                throw new ArgumentException($"Booking with ID {bookingID} not found", nameof(bookingID));
+            }
+
             using (var conn = new SqlConnection(_connectionString))
             {
                 conn.Open();

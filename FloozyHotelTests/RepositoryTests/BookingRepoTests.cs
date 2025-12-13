@@ -191,7 +191,9 @@ namespace FloozyHotelTests.RepositoryTests
             var repo = new BookingRepo();
             var booking = repo.GetAll().First();
             var originalEndDate = booking.EndDate;
-            booking.EndDate = DateTime.Today.AddDays(10);
+
+            // Add 100 days to ensure it's different from any existing date
+            booking.EndDate = originalEndDate.AddDays(100);
 
             // Act
             repo.Update(booking);
@@ -199,7 +201,7 @@ namespace FloozyHotelTests.RepositoryTests
             // Assert
             var updated = repo.GetById(booking.BookingID);
             Assert.AreNotEqual(originalEndDate, updated.EndDate);
-            Assert.AreEqual(DateTime.Today.AddDays(10), updated.EndDate);
+            Assert.AreEqual(originalEndDate.AddDays(100), updated.EndDate);
         }
 
         [TestMethod]

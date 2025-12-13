@@ -13,19 +13,10 @@ namespace Floozys_Hotel.ViewModels
 {
     public class NewGuestViewModel : ObservableObject
     {
-        // Private fields
+        // Private fields & public properties
         private readonly IGuestRepo _guestRepo;            // Repository as interface (best for testability)
+
         private string _firstName = string.Empty;
-        private string _lastName = string.Empty;
-        private string _phoneNumber = string.Empty;
-        private string _email = string.Empty;
-        private string _country = string.Empty;
-        private string _passportNumber = string.Empty;
-
-
-        // Public properties
-       
-
         public string FirstName
         {
             get => _firstName;
@@ -34,6 +25,8 @@ namespace Floozys_Hotel.ViewModels
                 _firstName = value ?? string.Empty; ValidateFirstName(); UpdateCanSave(); OnPropertyChanged();
             }
         }
+
+        private string _lastName = string.Empty;
         public string LastName
         {
             get => _lastName;
@@ -42,6 +35,8 @@ namespace Floozys_Hotel.ViewModels
                 _lastName = value ?? string.Empty; ValidateLastName(); UpdateCanSave(); OnPropertyChanged();
             }
         }
+
+        private string _phoneNumber = string.Empty;
         public string PhoneNumber
         {
             get => _phoneNumber;
@@ -50,6 +45,8 @@ namespace Floozys_Hotel.ViewModels
                 _phoneNumber = value ?? string.Empty; ValidatePhoneNumber(); UpdateCanSave(); OnPropertyChanged();
             }
         }
+
+        private string _email = string.Empty;
         public string Email
         {
             get => _email;
@@ -58,6 +55,8 @@ namespace Floozys_Hotel.ViewModels
                 _email = value ?? string.Empty; ValidateEmail(); UpdateCanSave(); OnPropertyChanged();
             }
         }
+
+        private string _country = string.Empty;
         public string Country
         {
             get => _country;
@@ -66,6 +65,8 @@ namespace Floozys_Hotel.ViewModels
                 _country = value ?? string.Empty; ValidateCountry(); UpdateCanSave(); OnPropertyChanged();
             }
         }
+
+        private string _passportNumber = string.Empty;
         public string PassportNumber
         {
             get => _passportNumber;
@@ -82,7 +83,7 @@ namespace Floozys_Hotel.ViewModels
             get => _firstNameError;
             set { _firstNameError = value; OnPropertyChanged(); }
         }
-       
+
         private string _lastNameError = string.Empty;
         public string LastNameError
         {
@@ -112,7 +113,6 @@ namespace Floozys_Hotel.ViewModels
         }
 
 
-       
         public Action<Guest> OnSave;
         private readonly bool _isEdit;
         private readonly int _guestId;
@@ -135,7 +135,7 @@ namespace Floozys_Hotel.ViewModels
         public NewGuestViewModel(Guest guest = null, bool isEdit = false, IGuestRepo guestRepo = null)
         {
             _guestRepo = guestRepo ?? new GuestRepo();
-            
+
             _isEdit = isEdit;
 
             WindowTitle = isEdit ? "Edit Guest" : "New Guest";
@@ -203,12 +203,12 @@ namespace Floozys_Hotel.ViewModels
                 && string.IsNullOrEmpty(PhoneNumberError)
                 && string.IsNullOrEmpty(EmailError)
                 && string.IsNullOrEmpty(CountryError);
+            (SaveCommand as RelayCommand)?.RaiseCanExecuteChanged();
         }
 
         private void SaveGuest()
         {
             var guest = new Guest(FirstName, LastName, Email, PhoneNumber, Country, PassportNumber);
-
             if (_isEdit)
                 guest.GuestID = _guestId;
 
@@ -218,6 +218,7 @@ namespace Floozys_Hotel.ViewModels
                 ShowError?.Invoke(string.Join("\n", errors), "Validation Error");
                 return;
             }
+
             var result = ShowConfirmation?.Invoke("Are you sure you want to save the changes?", "Confirm", MessageBoxButton.YesNo) ?? MessageBoxResult.No;
             if (result != MessageBoxResult.Yes)
                 return;

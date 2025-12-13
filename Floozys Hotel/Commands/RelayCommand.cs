@@ -34,5 +34,10 @@ namespace Floozys_Hotel.Commands
         {
             _execute(paramerter);
         }
+
+        public void RaiseCanExecuteChanged()
+        {
+            CommandManager.InvalidateRequerySuggested();
+        }
     }
 }

@@ -21,20 +21,12 @@ namespace Floozys_Hotel.ViewModels
         private string _phoneNumber;
         private string _country;
         private string _errorMessage;
-        private ObservableCollection<Room> _newBookingRoomList;
         private Room _selectedRoom;
 
-        // PROPERTIES
+        // OBSERVABLE COLLECTIONS
+        public ObservableCollection<Room> NewBookingRoomList { get; set; }
 
-        public ObservableCollection<Room> NewBookingRoomList
-        {
-            get => _newBookingRoomList;
-            set
-            {
-                _newBookingRoomList = value;
-                OnPropertyChanged();
-            }
-        }
+        // PROPERTIES
 
         public Room SelectedRoom
         {
@@ -53,6 +45,7 @@ namespace Floozys_Hotel.ViewModels
             {
                 _checkInDate = value;
                 OnPropertyChanged();
+                UpdateAvailableRooms(); // UC01 Step 4: Filter rooms when date changes
             }
         }
 
@@ -63,6 +56,7 @@ namespace Floozys_Hotel.ViewModels
             {
                 _checkOutDate = value;
                 OnPropertyChanged();
+                UpdateAvailableRooms(); // UC01 Step 4: Filter rooms when date changes
             }
         }
 
@@ -137,11 +131,9 @@ namespace Floozys_Hotel.ViewModels
         }
 
         // COMMAND
-
         public ICommand ConfirmBookingCommand { get; }
 
         // CONSTRUCTOR
-
         public NewBookingViewModel()
         {
             ConfirmBookingCommand = new RelayCommand(CreateBooking);
@@ -149,18 +141,91 @@ namespace Floozys_Hotel.ViewModels
             // Initialize ObservableCollection
             NewBookingRoomList = new ObservableCollection<Room>();
 
-            // Load available rooms
-            RoomRepo roomRepo = new RoomRepo();
-            List<Room> rooms = roomRepo.GetAllByAvailability();
-
-            foreach (Room room in rooms)
-            {
-                NewBookingRoomList.Add(room);  // Add each room to ObservableCollection
-            }
+            // Load all available rooms initially (UC01 Step 2)
+            LoadAllAvailableRooms();
         }
 
         // METHODS
 
+        /// <summary>
+        /// UC01 Step 2: Load all available rooms when window opens
+        /// </summary>
+        private void LoadAllAvailableRooms()
+        {
+            RoomRepo roomRepo = new RoomRepo();
+            var rooms = roomRepo.GetAllByAvailability();
+
+            NewBookingRoomList.Clear();
+            foreach (Room room in rooms)
+            {
+                NewBookingRoomList.Add(room);
+            }
+        }
+
+        /// <summary>
+        /// UC01 Step 4: Filter available rooms based on selected dates
+        /// UC01 Alternative Flow A1: Show "No rooms available" message
+        /// </summary>
+        private void UpdateAvailableRooms()
+        {
+            // If no dates selected, show all available rooms
+            if (!CheckInDate.HasValue || !CheckOutDate.HasValue)
+            {
+                LoadAllAvailableRooms();
+                ErrorMessage = string.Empty;
+                return;
+            }
+
+            // Validate dates
+            if (CheckOutDate.Value <= CheckInDate.Value)
+            {
+                NewBookingRoomList.Clear();
+                ErrorMessage = "Check-out date must be after check-in date";
+                return;
+            }
+
+            // Get all available rooms (by status)
+            RoomRepo roomRepo = new RoomRepo();
+            var allAvailableRooms = roomRepo.GetAllByAvailability();
+
+            // Get bookings that overlap with selected period
+            BookingRepo bookingRepo = new BookingRepo();
+            var bookingsInPeriod = bookingRepo.GetAll()
+                .Where(b =>
+                    b.Status != BookingStatus.Cancelled && // Ignore cancelled bookings
+                    b.StartDate < CheckOutDate.Value &&    // Booking starts before our checkout
+                    b.EndDate > CheckInDate.Value)         // Booking ends after our checkin
+                .ToList();
+
+            // Get list of room IDs that ARE booked in this period
+            var bookedRoomIds = bookingsInPeriod.Select(b => b.RoomID).Distinct().ToList();
+
+            // Filter out booked rooms (UC01 Step 4: Show only available rooms)
+            var availableInPeriod = allAvailableRooms
+                .Where(r => !bookedRoomIds.Contains(r.RoomId))
+                .ToList();
+
+            // Update ObservableCollection
+            NewBookingRoomList.Clear();
+            foreach (Room room in availableInPeriod)
+            {
+                NewBookingRoomList.Add(room);
+            }
+
+            // UC01 Alternative Flow A1: No rooms available
+            if (availableInPeriod.Count == 0)
+            {
+                ErrorMessage = "⚠️ No rooms available for the selected period. Please try different dates.";
+            }
+            else
+            {
+                ErrorMessage = string.Empty; // Clear error if rooms found
+            }
+        }
+
+        /// <summary>
+        /// UC01 Step 8-9: Create and save booking
+        /// </summary>
         private void CreateBooking(object parameter)
         {
             try
@@ -188,7 +253,13 @@ namespace Floozys_Hotel.ViewModels
                     throw new ArgumentException("Check-in date cannot be in the past");
                 }
 
-                // STEP 2: CREATE AND VALIDATE GUEST
+                // STEP 2: VALIDATE ROOM SELECTION (UC01 Step 6)
+                if (SelectedRoom == null)
+                {
+                    throw new ArgumentException("Please select a room");
+                }
+
+                // STEP 3: CREATE AND VALIDATE GUEST (UC01 Step 7)
                 var guest = new Guest(
                     firstName: FirstName,
                     lastName: LastName,
@@ -202,34 +273,41 @@ namespace Floozys_Hotel.ViewModels
 
                 if (guestErrors.Any())
                 {
-                    throw new ArgumentException(guestErrors.First());
+                    throw new ArgumentException(guestErrors.First()); // UC01 Alt Flow A2
                 }
 
-                // STEP 3: VALIDATE ROOM SELECTION
-                if (SelectedRoom == null)
-                {
-                    throw new ArgumentException("Please select a room");
-                }
+                // STEP 4: SAVE GUEST TO DATABASE FIRST
+                GuestRepo guestRepo = new GuestRepo();
+                int guestId = guestRepo.AddGuest(guest);
+                guest.GuestID = guestId;
 
-                // STEP 4: CREATE BOOKING
-                BookingRepo bookingRepo = new BookingRepo();
-
+                // STEP 5: CREATE BOOKING
                 var booking = new Booking
                 {
                     StartDate = CheckInDate.Value,
                     EndDate = CheckOutDate.Value,
                     Status = BookingStatus.Pending,
+                    RoomID = SelectedRoom.RoomId,
+                    GuestID = guest.GuestID,
                     Room = SelectedRoom,
                     Guest = guest
                 };
 
-                // STEP 5: SAVE TO REPOSITORY
+                // STEP 6: SAVE BOOKING TO DATABASE (UC01 Step 8)
+                BookingRepo bookingRepo = new BookingRepo();
                 bookingRepo.Create(booking);
 
-                // STEP 6: SUCCESS
-                ErrorMessage = $"✅ Booking #{booking.BookingID} created for {guest.FirstName} {guest.LastName} ({booking.NumberOfNights} nights)!";
+                // STEP 7: SUCCESS MESSAGE (UC01 Step 9)
+                ErrorMessage = $"✅ Booking saved! Booking #{booking.BookingID} created for {guest.FirstName} {guest.LastName} ({booking.NumberOfNights} nights)";
 
-                ClearForm();
+                // STEP 8: Close window after 2 seconds (UC01 Step 9: Return to calendar)
+                System.Threading.Tasks.Task.Delay(2000).ContinueWith(_ =>
+                {
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        CloseWindow();
+                    });
+                });
             }
             catch (ArgumentException ex)
             {
@@ -238,6 +316,19 @@ namespace Floozys_Hotel.ViewModels
             catch (Exception ex)
             {
                 ErrorMessage = "An unexpected error occurred: " + ex.Message;
+            }
+        }
+
+        private void CloseWindow()
+        {
+            // Find and close the NewBookingView window
+            foreach (System.Windows.Window window in System.Windows.Application.Current.Windows)
+            {
+                if (window is Views.NewBookingView)
+                {
+                    window.Close();
+                    break;
+                }
             }
         }
 

@@ -237,6 +237,5 @@ namespace Floozys_Hotel.ViewModels
         {
             RequestClose?.Invoke();
         }
-
     }
 }

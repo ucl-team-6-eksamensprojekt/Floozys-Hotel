@@ -33,7 +33,7 @@ namespace Floozys_Hotel.ViewModels
         public Guest SelectedGuest
         {
             get => _selectedGuest;
-            set { _selectedGuest = value; OnPropertyChanged(); }
+            set { _selectedGuest = value; OnPropertyChanged(); EditGuestCommand?.RaiseCanExecuteChanged(); }
         }
 
 

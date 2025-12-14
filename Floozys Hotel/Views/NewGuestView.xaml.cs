@@ -6,19 +6,19 @@ namespace Floozys_Hotel.Views
 {
     public partial class NewGuestView : Window
     {
-        private NewGuestViewModel _viewModel;
         public NewGuestView(Guest guest, bool isEdit, Action<Guest> onSave)
         {
             InitializeComponent();
-            _viewModel = new NewGuestViewModel(guest, isEdit);
-            _viewModel.OnSave += onSave;
-            _viewModel.OnSave += OnSave;
-            DataContext = _viewModel;
-        }
+            var vm = new NewGuestViewModel(guest, isEdit);
 
-        private void OnSave(Guest guest)
-        { 
+            vm.ShowError += (msg, title) => MessageBox.Show(this, msg, title, MessageBoxButton.OK, MessageBoxImage.Error);
+            vm.ShowInfo += (msg, title) => MessageBox.Show(this, msg, title, MessageBoxButton.OK, MessageBoxImage.Information);
+            vm.ShowConfirmation += (msg, title, buttons) =>
+                MessageBox.Show(this, msg, title, buttons, MessageBoxImage.Question);
+            vm.RequestClose += () => this.Close();
+            vm.OnSave += onSave;
 
+            DataContext = vm;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Floozys_Hotel.ViewModels;
+﻿using Floozys_Hotel.Models;
+using Floozys_Hotel.ViewModels;
 using Microsoft.Extensions.FileSystemGlobbing;
 using System;
 using System.Collections.Generic;
@@ -21,10 +22,10 @@ namespace Floozys_Hotel.Views
     /// </summary>
     public partial class NewBookingView : Window
     {
-        public NewBookingView()
+        public NewBookingView(Guest? selectedGuest = null)
         {
             InitializeComponent();
-            DataContext = new NewBookingViewModel();
+            DataContext = new NewBookingViewModel(selectedGuest);
         }
     }
 }

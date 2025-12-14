@@ -132,6 +132,10 @@
                         Margin="0,10,0,0"
                         Width="120"
                         IsEnabled="{Binding SelectedGuest,Converter={StaticResource NotNullToBoolConverter}}"/>
+                <Button Content="New Booking"
+                        Command="{Binding CreateBookingForGuestCommand}"
+                        Margin="0,10,0,0"
+                        Width="120"/>
                 <Button Content="New Guest"
                         Command="{Binding NewGuestCommand}"
                         Margin="0,10,0,0"

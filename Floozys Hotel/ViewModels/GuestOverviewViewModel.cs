@@ -21,7 +21,7 @@ namespace Floozys_Hotel.ViewModels
         private readonly IGuestRepo _guestRepo;
 
 
-        private ObservableCollection<Guest> _guests;
+        private ObservableCollection<Guest> _guests = new ObservableCollection<Guest>();
         public ObservableCollection<Guest> Guests
         {
             get => _guests;
@@ -69,25 +69,27 @@ namespace Floozys_Hotel.ViewModels
         // Constructor
         public GuestOverviewViewModel()
         {
-            // Dummy data for demonstration - TODO: Delete when we have guests from Database
-            Guests = new ObservableCollection<Guest>
-            {
-                new Guest { FirstName = "Anna", LastName = "Smith", PhoneNumber = "+4512345678", Email = "anna.smith@mail.com", Country = "Denmark" },
-                new Guest { FirstName = "John", LastName = "Doe", PhoneNumber = "+4598765432", Email = "john.doe@mail.com", Country = "Sweden" },
-                new Guest { FirstName = "Sreymom", LastName = "Sok", PhoneNumber = "+85593847584", Email = "sreysok@hotmail.com", Country = "Cambodia", PassportNumber = "N83749573"}
-            };
-
             _guestRepo = new GuestRepo();
+            LoadGuests();
 
             NewGuestCommand = new RelayCommand(_ => OnNewGuest());
             EditGuestCommand = new RelayCommand(_ => OnEditGuest(), _ => SelectedGuest != null);
             ClearGuestCommand = new RelayCommand(_ => ClearGuest());
             CreateBookingForGuestCommand = new RelayCommand(_ => OnBookingRequestedForGuest(), _ => SelectedGuest != null);
-                        
+
             IsEditing = false;
             IsNewGuest = false;
         }
 
+        private void LoadGuests()
+        {
+            var guests = _guestRepo.GetAll();
+            Guests.Clear();
+            foreach (var guest in guests)
+            {
+                Guests.Add(guest);
+            }
+        }
 
         // Methods
         private void OnNewGuest()
@@ -112,7 +114,7 @@ namespace Floozys_Hotel.ViewModels
                 SelectedGuest.Country,
                 SelectedGuest.PassportNumber
             );
-            EditGuestRequested?.Invoke( guestCopy );
+            EditGuestRequested?.Invoke(guestCopy);
         }
 
 

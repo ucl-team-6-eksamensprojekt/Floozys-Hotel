@@ -57,46 +57,112 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-
-            <Button
-                Grid.Row="0"
-                Width="150"
-                Height="32"
-                Margin="0,0,0,10"
-                HorizontalAlignment="Left"
-                Content=" Filter by category" />
-
-            <Border
-                Grid.Row="1"
-                Padding="0"
-                Background="White"
-                ClipToBounds="True"
-                CornerRadius="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
 
+            <ToggleButton Grid.Row="0"
+                    x:Name="FilterButton"
+                    Content=" Filter by category"
+                    Width="150"
+                    Height="32"
+                    Margin="0,0,0,10"
+                    HorizontalAlignment="Left"
+                    Command="{Binding ApplyFilterCommand}"/>
+
+
+            <Popup PlacementTarget="{Binding ElementName=FilterButton}"
+                   Placement="Bottom"
+                   StaysOpen="False"
+                   IsOpen="{Binding IsChecked, ElementName=FilterButton}">
+                <Border Background="White"
+                        BorderBrush="LightSlateGray"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="10"
+                        Width="{Binding ElementName=FilterButton, Path=ActualWidth}">
+
+
+
+                    <StackPanel>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="Floor"/>
+                            <ComboBox Width="120"
+                                      ItemsSource="{Binding Floors}"
+                                      SelectedItem="{Binding SelectedFloor}"/>
+                        </StackPanel >
+
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="Room Size"/>
+                            <ComboBox Width="120"
+                                      ItemsSource="{Binding RoomSizes}"
+                                      SelectedItem="{Binding SelectedRoomSize}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="Room Status"/>
+                            <ComboBox Width="120"
+                                      ItemsSource="{Binding RoomStatuses}"
+                                      SelectedItem="{Binding SelectedRoomStatus}"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <Button Content="Apply"
+                                    Width="70"
+                                    Margin="0,0,8,0"
+                                    Command="{Binding ApplyFilterCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                </Border>
+            </Popup>
+                   
+
+            <Button Grid.Row="0"
+                    Grid.Column="1"
+                    Content="Clear Filter"
+                    Width="150"
+                    Height="32"
+                    Margin="10,0,0,10"
+                    HorizontalAlignment="Left"
+                    Command="{Binding ClearFilterCommand}"/>
+
+            <Border Grid.Row="1"
+                    Grid.ColumnSpan="2"
+        CornerRadius="10"
+        Background="White"
+        Padding="0"
+        ClipToBounds="True">
+        
 
 
 
 
-                <DataGrid
-                    AutoGenerateColumns="False"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    CellStyle="{StaticResource FlatDataGridCellStyle}"
-                    ColumnHeaderStyle="{StaticResource FlatDataGridHeaderStyle}"
-                    ColumnWidth="*"
-                    GridLinesVisibility="None"
-                    HeadersVisibility="Column"
-                    IsReadOnly="True"
-                    ItemsSource="{Binding Rooms}"
-                    Style="{StaticResource FlatDataGridStyle}">
 
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding RoomNumber}" Header="Room" />
-                        <DataGridTextColumn Binding="{Binding Floor}" Header="Floor" />
-                        <DataGridTextColumn Binding="{Binding RoomSize}" Header="Room Size" />
-                        <DataGridTextColumn Binding="{Binding Capacity}" Header="Capacity" />
-                        <DataGridTextColumn Binding="{Binding Status}" Header="Status" />
+            <DataGrid 
+                  ItemsSource="{Binding Rooms}"
+                  AutoGenerateColumns="False"
+                  GridLinesVisibility="None"
+                  HeadersVisibility="Column"
+                  IsReadOnly="True"
+                  Background="Transparent"
+                  BorderThickness="0"
+                  ColumnWidth="*"
+                  Style="{StaticResource FlatDataGridStyle}"
+                  ColumnHeaderStyle="{StaticResource FlatDataGridHeaderStyle}"
+                  CellStyle="{StaticResource FlatDataGridCellStyle}">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Room"
+                                    Binding="{Binding RoomNumber}"/>
+                <DataGridTextColumn Header="Floor" 
+                                    Binding="{Binding Floor}"/>
+                <DataGridTextColumn Header="Room Size"
+                                    Binding="{Binding RoomSize}"/>
+                <DataGridTextColumn Header="Capacity" 
+                                    Binding="{Binding Capacity}"/>
+                <DataGridTextColumn Header="Status"
+                                    Binding="{Binding Status}"/>
                         <DataGridTemplateColumn Header="Edit">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>

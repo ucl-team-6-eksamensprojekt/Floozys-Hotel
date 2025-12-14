@@ -14,7 +14,51 @@ namespace Floozys_Hotel.ViewModels
         private readonly RoomRepo _roomRepo;
 
         public ObservableCollection<Room> Rooms { get; set; }
+        public ObservableCollection<int> Floors { get; } = new();
+        public ObservableCollection<string> RoomSizes { get; } = new();
+        public ObservableCollection<RoomStatus> RoomStatuses { get; } = new();
 
+        private int? _selectedFloor;
+        public int? SelectedFloor
+        {
+            get => _selectedFloor;
+            set
+            {
+                if (_selectedFloor != value)
+                {
+                    _selectedFloor = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string? _selectedRoomSize;
+        public string? SelectedRoomSize
+        {
+            get => _selectedRoomSize;
+            set
+            {
+                if (_selectedRoomSize != value)
+                {
+                    _selectedRoomSize = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private RoomStatus? _selectedStatus;
+        public RoomStatus? SelectedStatus
+        {
+            get => _selectedStatus;
+            set
+            {
+                if(_selectedStatus != value)
+                {
+                    _selectedStatus = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
 
         private bool _isRoomFormOpen;
@@ -48,7 +92,8 @@ namespace Floozys_Hotel.ViewModels
 
 
 
-
+        public ICommand ApplyFilterCommand { get; }
+        public ICommand ClearFilterCommand { get; }
         public ICommand OpenCreateRoomCommand { get; }
         public ICommand OpenEditRoomCommand { get; }
         public ICommand DeleteRoomCommand { get; }
@@ -59,7 +104,10 @@ namespace Floozys_Hotel.ViewModels
             _roomRepo = new RoomRepo();
             Rooms = new ObservableCollection<Room>();
             LoadRooms();
+            LoadFilterOptions();
 
+            ApplyFilterCommand = new RelayCommand(_ => ApplyFilter());
+            ClearFilterCommand = new RelayCommand(_ => ClearFilter());
             OpenCreateRoomCommand = new RelayCommand(_ => OpenCreateRoom());
             OpenEditRoomCommand = new RelayCommand(r => OpenEditRoom(r as Room));
             DeleteRoomCommand = new RelayCommand(r => DeleteRoom(r as Room));
@@ -74,6 +122,48 @@ namespace Floozys_Hotel.ViewModels
             {
                 Rooms.Add(room);
             }
+        }
+
+        private void LoadFilterOptions()
+        {
+            Floors.Clear();
+            RoomSizes.Clear();
+            RoomStatuses.Clear();
+
+            var rooms = _roomRepo.GetAll();
+
+            foreach (var floor in rooms.Select(r => r.Floor).Distinct().OrderBy(f => f))
+                Floors.Add(floor);
+
+            foreach (var roomSize in rooms.Select(r => r.RoomSize).Distinct().OrderBy(f => f))
+                RoomSizes.Add(roomSize);
+
+            foreach (var roomStatus in rooms.Select(r => r.Status).Distinct().OrderBy(f => f))
+                RoomStatuses.Add(roomStatus);
+        }
+
+        public void ApplyFilter()
+        {
+            var rooms = _roomRepo.GetRoomsFromCriteria
+                (
+                SelectedFloor,
+                string.IsNullOrWhiteSpace(SelectedRoomSize) ? null : SelectedRoomSize,
+                SelectedStatus
+                );
+
+            Rooms.Clear();
+            foreach (var room in rooms)
+                Rooms.Add(room);
+            
+        }
+
+        private void ClearFilter()
+        {
+            SelectedFloor = null;
+            SelectedRoomSize = null;
+            SelectedStatus = null;
+
+            LoadRooms();
         }
 
         private void OpenCreateRoom()
@@ -113,6 +203,7 @@ namespace Floozys_Hotel.ViewModels
         private void OnRoomSaved()
         {
             LoadRooms();
+            LoadFilterOptions();
             ClosePanel();
         }
 

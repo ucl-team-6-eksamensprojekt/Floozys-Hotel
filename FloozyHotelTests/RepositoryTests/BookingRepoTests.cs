@@ -11,16 +11,6 @@ namespace FloozyHotelTests.RepositoryTests
     [TestClass]
     public class BookingRepoTests
     {
-        public BookingRepoTests()
-        {
-            var config = new ConfigurationBuilder()
-           .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-           .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-           .Build();
-
-            DatabaseConfig.ConnectionString = config.GetConnectionString("DefaultConnection");
-        }
-
         [TestMethod]
         public void Create_AddsBookingToRepository()
         {
@@ -191,9 +181,8 @@ namespace FloozyHotelTests.RepositoryTests
             var repo = new BookingRepo();
             var booking = repo.GetAll().First();
             var originalEndDate = booking.EndDate;
-
-            // Add 100 days to ensure it's different from any existing date
-            booking.EndDate = originalEndDate.AddDays(100);
+            var newEndDate = originalEndDate.AddDays(1);
+            booking.EndDate = newEndDate;
 
             // Act
             repo.Update(booking);
@@ -201,7 +190,7 @@ namespace FloozyHotelTests.RepositoryTests
             // Assert
             var updated = repo.GetById(booking.BookingID);
             Assert.AreNotEqual(originalEndDate, updated.EndDate);
-            Assert.AreEqual(originalEndDate.AddDays(100), updated.EndDate);
+            Assert.AreEqual(newEndDate, updated.EndDate);
         }
 
         [TestMethod]

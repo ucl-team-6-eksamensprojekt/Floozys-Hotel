@@ -12,16 +12,6 @@ namespace FloozyHotelTests.ViewModelTests
     [TestClass]
     public class NewBookingViewModelTests
     {
-        public NewBookingViewModelTests()
-        {
-            var config = new ConfigurationBuilder()
-           .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-           .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-           .Build();
-
-            DatabaseConfig.ConnectionString = config.GetConnectionString("DefaultConnection");
-        }
-
         [TestMethod]
         public void Constructor_LoadsAvailableRooms()
         {

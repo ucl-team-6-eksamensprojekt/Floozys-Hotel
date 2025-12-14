@@ -9,16 +9,6 @@ namespace FloozyHotelTests.ModelTests
     [TestClass]
     public class BookingTests
     {
-        public BookingTests() 
-        {
-            var config = new ConfigurationBuilder()
-           .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-           .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-           .Build();
-
-            DatabaseConfig.ConnectionString = config.GetConnectionString("DefaultConnection");
-        }
-
         [TestMethod]
         public void Validate_WhenStartDateIsDefault_ReturnsError()
         {

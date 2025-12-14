@@ -22,6 +22,7 @@ namespace Floozys_Hotel.ViewModels
         private string _country;
         private string _errorMessage;
         private Room _selectedRoom;
+        private Guest _selectedGuest;
 
         // OBSERVABLE COLLECTIONS
         public ObservableCollection<Room> NewBookingRoomList { get; set; }
@@ -139,6 +140,7 @@ namespace Floozys_Hotel.ViewModels
 
         public NewBookingViewModel(Guest? selectedGuest = null)
         {
+            _selectedGuest = selectedGuest;
             ConfirmBookingCommand = new RelayCommand(CreateBooking);
 
             // Initialize ObservableCollection
@@ -164,10 +166,10 @@ namespace Floozys_Hotel.ViewModels
                 NewBookingRoomList.Add(room);
             }
 
-            // Load existing guest
-            if (selectedGuest != null)
-            { 
-                LoadFromGuest(selectedGuest);
+            // Load existing guest if provided
+            if (_selectedGuest != null)
+            {
+                LoadFromGuest(_selectedGuest);
             }
         }
 
@@ -231,7 +233,10 @@ namespace Floozys_Hotel.ViewModels
                 ErrorMessage = string.Empty; // Clear error if rooms found
             }
         }
-        
+
+        /// <summary>
+        /// Load guest information into form fields
+        /// </summary>
         private void LoadFromGuest(Guest guest)
         {
             GuestID = guest.GuestID;
@@ -246,7 +251,6 @@ namespace Floozys_Hotel.ViewModels
         /// <summary>
         /// UC01 Step 8-9: Create and save booking
         /// </summary>
-        
         private void CreateBooking(object parameter)
         {
             try
@@ -299,13 +303,12 @@ namespace Floozys_Hotel.ViewModels
                     throw new ArgumentException(guestErrors.First()); // UC01 Alt Flow A2
                 }
 
-                // STEP 4: SAVE GUEST TO DATABASE FIRST
-                
+                // STEP 4: SAVE GUEST TO DATABASE FIRST (only if new guest)
                 if (guest.GuestID == 0)
                 {
-                GuestRepo guestRepo = new GuestRepo();
-                int guestId = guestRepo.AddGuest(guest);
-                guest.GuestID = guestId;
+                    GuestRepo guestRepo = new GuestRepo();
+                    int guestId = guestRepo.AddGuest(guest);
+                    guest.GuestID = guestId;
                 }
 
                 // STEP 5: CREATE BOOKING

@@ -198,6 +198,14 @@ namespace Floozys_Hotel.ViewModels
             UpdateDaysInMonth();
         }
 
+        /// <summary>
+        /// UC01 Step 9: Refresh calendar data to show new booking
+        /// </summary>
+        public void RefreshData()
+        {
+            LoadData();
+        }
+
         private void ChangeMonth(int months)  // Navigates forward/backward in time
         {
             if (ViewDuration == "Week")
@@ -306,10 +314,12 @@ namespace Floozys_Hotel.ViewModels
 
         public RelayCommand SortCommand { get; set; }
 
-        private void OpenNewBooking()  // Opens new booking window and refreshes data
+        private void OpenNewBooking()
         {
             var newBookingWindow = new NewBookingView();
-            newBookingWindow.ShowDialog();
+            newBookingWindow.ShowDialog(); // Blocks until window closes
+
+            // UC01 Step 9: Reload calendar data so new booking appears
             LoadData();
         }
 

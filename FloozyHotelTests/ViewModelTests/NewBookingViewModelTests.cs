@@ -1,9 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Linq;
+using Floozys_Hotel.Database;
 using Floozys_Hotel.Models;
 using Floozys_Hotel.Repositories;
 using Floozys_Hotel.ViewModels;
-using System;
-using System.Linq;
+using Microsoft.Extensions.Configuration;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FloozyHotelTests.ViewModelTests
 {

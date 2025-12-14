@@ -1,8 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Linq;
+using Floozys_Hotel.Database;
 using Floozys_Hotel.Models;
 using Floozys_Hotel.Repositories;
-using System;
-using System.Linq;
+using Microsoft.Extensions.Configuration;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FloozyHotelTests.RepositoryTests
 {
@@ -179,7 +181,8 @@ namespace FloozyHotelTests.RepositoryTests
             var repo = new BookingRepo();
             var booking = repo.GetAll().First();
             var originalEndDate = booking.EndDate;
-            booking.EndDate = DateTime.Today.AddDays(10);
+            var newEndDate = originalEndDate.AddDays(1);
+            booking.EndDate = newEndDate;
 
             // Act
             repo.Update(booking);
@@ -187,7 +190,7 @@ namespace FloozyHotelTests.RepositoryTests
             // Assert
             var updated = repo.GetById(booking.BookingID);
             Assert.AreNotEqual(originalEndDate, updated.EndDate);
-            Assert.AreEqual(DateTime.Today.AddDays(10), updated.EndDate);
+            Assert.AreEqual(newEndDate, updated.EndDate);
         }
 
         [TestMethod]

@@ -395,3 +395,11 @@ _nCrunch_*
 # Ignore config files with sensitive data
 **/App.config
 **/*.config
+
+# Ignorér alle rigtige appsettings-filer (med credentials)
+**/appsettings.json
+**/appsettings.*.json
+
+# ...men behold skabeloner (templaten) i repo
+!**/appsettings.Template.json
+!**/appsettings.*.Template.json

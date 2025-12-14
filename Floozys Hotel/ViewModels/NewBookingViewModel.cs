@@ -66,6 +66,8 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
+        private int GuestID { get; set; }
+
         public string FirstName
         {
             get => _firstName;
@@ -169,6 +171,7 @@ namespace Floozys_Hotel.ViewModels
 
         private void LoadFromGuest(Guest guest)
         {
+            GuestID = guest.GuestID;
             FirstName = guest.FirstName;
             LastName = guest.LastName;
             Email = guest.Email;
@@ -213,6 +216,8 @@ namespace Floozys_Hotel.ViewModels
                     country: Country,
                     passportNumber: PassportNumber
                 );
+
+                guest.GuestID = GuestID;
 
                 var guestErrors = guest.Validate();
 

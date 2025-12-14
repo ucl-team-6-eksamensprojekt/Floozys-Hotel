@@ -55,15 +55,78 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-            <Button Grid.Row="0"
+
+            <ToggleButton Grid.Row="0"
+                    x:Name="FilterButton"
                     Content=" Filter by category"
                     Width="150"
                     Height="32"
                     Margin="0,0,0,10"
-                    HorizontalAlignment="Left"/>
+                    HorizontalAlignment="Left"
+                    Command="{Binding ApplyFilterCommand}"/>
+
+
+            <Popup PlacementTarget="{Binding ElementName=FilterButton}"
+                   Placement="Bottom"
+                   StaysOpen="False"
+                   IsOpen="{Binding IsChecked, ElementName=FilterButton}">
+                <Border Background="White"
+                        BorderBrush="LightSlateGray"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="10"
+                        Width="{Binding ElementName=FilterButton, Path=ActualWidth}">
+
+
+
+                    <StackPanel>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="Floor"/>
+                            <ComboBox Width="120"
+                                      ItemsSource="{Binding Floors}"
+                                      SelectedItem="{Binding SelectedFloor}"/>
+                        </StackPanel >
+
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="Room Size"/>
+                            <ComboBox Width="120"
+                                      ItemsSource="{Binding RoomSizes}"
+                                      SelectedItem="{Binding SelectedRoomSize}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="Room Status"/>
+                            <ComboBox Width="120"
+                                      ItemsSource="{Binding RoomStatuses}"
+                                      SelectedItem="{Binding SelectedRoomStatus}"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <Button Content="Apply"
+                                    Width="70"
+                                    Margin="0,0,8,0"
+                                    Command="{Binding ApplyFilterCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                </Border>
+            </Popup>
+                   
+
+            <Button Grid.Row="0"
+                    Grid.Column="1"
+                    Content="Clear Filter"
+                    Width="150"
+                    Height="32"
+                    Margin="10,0,0,10"
+                    HorizontalAlignment="Left"
+                    Command="{Binding ClearFilterCommand}"/>
 
             <Border Grid.Row="1"
+                    Grid.ColumnSpan="2"
         CornerRadius="10"
         Background="White"
         Padding="0"

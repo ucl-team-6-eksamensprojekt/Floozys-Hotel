@@ -142,7 +142,7 @@ namespace Floozys_Hotel.ViewModels
 
         // CONSTRUCTOR
 
-        public NewBookingViewModel()
+        public NewBookingViewModel(Guest? selectedGuest = null)
         {
             ConfirmBookingCommand = new RelayCommand(CreateBooking);
 
@@ -157,9 +157,25 @@ namespace Floozys_Hotel.ViewModels
             {
                 NewBookingRoomList.Add(room);  // Add each room to ObservableCollection
             }
+
+            // Load existing guest
+            if (selectedGuest != null)
+            { 
+                LoadFromGuest(selectedGuest);
+            }
         }
 
         // METHODS
+
+        private void LoadFromGuest(Guest guest)
+        {
+            FirstName = guest.FirstName;
+            LastName = guest.LastName;
+            Email = guest.Email;
+            PhoneNumber = guest.PhoneNumber;
+            Country = guest.Country;
+            PassportNumber = guest.PassportNumber;
+        }
 
         private void CreateBooking(object parameter)
         {

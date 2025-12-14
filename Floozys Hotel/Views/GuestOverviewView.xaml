@@ -147,22 +147,23 @@
                         IsReadOnly="{Binding IsEditing, Converter={StaticResource InverseBoolConverter}}"
                         Text="{Binding SelectedGuest.PassportNumber, Mode=TwoWay}" />
                 </StackPanel>
-                <Button
-                    Width="120"
-                    Margin="0,10,0,0"
-                    Command="{Binding EditGuestCommand}"
-                    Content="Edit Guest"
-                    IsEnabled="{Binding SelectedGuest, Converter={StaticResource NotNullToBoolConverter}}" />
-                <Button
-                    Width="120"
-                    Margin="0,10,0,0"
-                    Command="{Binding NewGuestCommand}"
-                    Content="New Guest" />
-                <Button
-                    Width="120"
-                    Margin="0,10,0,0"
-                    Command="{Binding ClearGuestCommand}"
-                    Content="Clear" />
+                <Button Content="Edit Guest"
+                        Command="{Binding EditGuestCommand}"
+                        Margin="0,10,0,0"
+                        Width="120"
+                        IsEnabled="{Binding SelectedGuest,Converter={StaticResource NotNullToBoolConverter}}"/>
+                <Button Content="New Booking"
+                        Command="{Binding CreateBookingForGuestCommand}"
+                        Margin="0,10,0,0"
+                        Width="120"/>
+                <Button Content="New Guest"
+                        Command="{Binding NewGuestCommand}"
+                        Margin="0,10,0,0"
+                        Width="120"/>
+                <Button Content="Clear" 
+                        Command="{Binding ClearGuestCommand}" 
+                        Margin="0,10,0,0" 
+                        Width="120"/>
 
             </StackPanel>
         </Border>

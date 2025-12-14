@@ -33,7 +33,7 @@ namespace Floozys_Hotel.Views
             _viewModel.EditGuestRequested += ShowEditGuestDialog;
             _viewModel.ShowInfoDialog += (msg, title) =>
                 MessageBox.Show(Window.GetWindow(this), msg, title, MessageBoxButton.OK, MessageBoxImage.Information);
-
+            _viewModel.BookingRequestedForGuest += OpenNewBooking;
             DataContext = _viewModel;
         }
 
@@ -57,6 +57,12 @@ namespace Floozys_Hotel.Views
             });
             win.Owner = Window.GetWindow(this);
             win.ShowDialog();
+        }
+        private void OpenNewBooking(Guest selectedGuest)  // Opens new booking window and refreshes data
+        {
+            var newBookingWindow = new NewBookingView(selectedGuest);
+            newBookingWindow.ShowDialog();
+           
         }
     }
 }

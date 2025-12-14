@@ -56,12 +56,14 @@ namespace Floozys_Hotel.ViewModels
         public RelayCommand NewGuestCommand { get; set; }
         public RelayCommand EditGuestCommand { get; set; }
         public RelayCommand ClearGuestCommand { get; set; }
-
+        public RelayCommand CreateBookingForGuestCommand { get; set; }
+       
 
         // Events for View
         public event Action<Guest> EditGuestRequested;
         public event Action NewGuestRequested;
         public event Action<string, string> ShowInfoDialog;
+        public event Action<Guest> BookingRequestedForGuest;
 
 
         // Constructor
@@ -73,6 +75,7 @@ namespace Floozys_Hotel.ViewModels
             NewGuestCommand = new RelayCommand(_ => OnNewGuest());
             EditGuestCommand = new RelayCommand(_ => OnEditGuest(), _ => SelectedGuest != null);
             ClearGuestCommand = new RelayCommand(_ => ClearGuest());
+            CreateBookingForGuestCommand = new RelayCommand(_ => OnBookingRequestedForGuest(), _ => SelectedGuest != null);
 
             IsEditing = false;
             IsNewGuest = false;
@@ -122,6 +125,13 @@ namespace Floozys_Hotel.ViewModels
             IsNewGuest = false;
         }
 
+        private void OnBookingRequestedForGuest()
+        {
+            if (SelectedGuest != null)
+            {
+                BookingRequestedForGuest?.Invoke( SelectedGuest );
+            }
+        }
 
         // Method to receive new/updated guest (called from View after dialog)
         public void AddGuestToOverview(Guest newGuest)

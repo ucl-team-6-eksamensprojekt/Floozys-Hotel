@@ -321,7 +321,7 @@
                                                         <ItemsControl.ItemsSource>
                                                             <MultiBinding Converter="{StaticResource RoomBookingsConverter}">
                                                                 <Binding Path="RoomId" />
-                                                                <!-- CHANGED from DataContext.Bookings to DataContext.FilteredBookings -->
+                                                                <!--  CHANGED from DataContext.Bookings to DataContext.FilteredBookings  -->
                                                                 <Binding Path="DataContext.FilteredBookings" RelativeSource="{RelativeSource AncestorType=UserControl}" />
                                                             </MultiBinding>
                                                         </ItemsControl.ItemsSource>
@@ -844,6 +844,35 @@
                                     <Button.Style>
                                         <Style TargetType="Button">
                                             <Style.Triggers>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Opacity" Value="0.5" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <!--  Cancel Booking Button  -->
+                                <Button
+                                    Height="40"
+                                    Margin="0,0,0,10"
+                                    Background="#DC3545"
+                                    BorderBrush="#C82333"
+                                    BorderThickness="2"
+                                    Command="{Binding CancelBookingCommand}"
+                                    Content="❌ Cancel Booking"
+                                    FontSize="14"
+                                    FontWeight="SemiBold"
+                                    Foreground="White">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedBooking.Status}" Value="Pending">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding SelectedBooking.Status}" Value="Confirmed">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
                                                 <Trigger Property="IsEnabled" Value="False">
                                                     <Setter Property="Opacity" Value="0.5" />
                                                 </Trigger>

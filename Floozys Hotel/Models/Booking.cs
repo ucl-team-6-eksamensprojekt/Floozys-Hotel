@@ -70,5 +70,51 @@ namespace Floozys_Hotel.Models
 
             return errors;
         }
+
+        // HELPER METHODS FOR CHECK-IN/CHECK-OUT
+
+        /// <summary>
+        /// Checks if booking can be checked in today
+        /// </summary>
+        public bool CanCheckIn()
+        {
+            return Status == BookingStatus.Confirmed &&
+                   StartDate.Date <= DateTime.Today &&
+                   !CheckInTime.HasValue;
+        }
+
+        /// <summary>
+        /// Checks if booking can be checked out
+        /// </summary>
+        public bool CanCheckOut()
+        {
+            return Status == BookingStatus.CheckedIn &&
+                   CheckInTime.HasValue &&
+                   !CheckOutTime.HasValue;
+        }
+
+        /// <summary>
+        /// Performs check-in operation
+        /// </summary>
+        public void PerformCheckIn()
+        {
+            if (!CanCheckIn())
+                throw new InvalidOperationException("Cannot check in this booking");
+
+            CheckInTime = DateTime.Now;
+            Status = BookingStatus.CheckedIn;
+        }
+
+        /// <summary>
+        /// Performs check-out operation
+        /// </summary>
+        public void PerformCheckOut()
+        {
+            if (!CanCheckOut())
+                throw new InvalidOperationException("Cannot check out this booking");
+
+            CheckOutTime = DateTime.Now;
+            Status = BookingStatus.CheckedOut;
+        }
     }
 }

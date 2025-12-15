@@ -11,8 +11,8 @@ namespace Floozys_Hotel.ViewModels
     public class BookingOverviewViewModel : ObservableObject
     {
         // REPOSITORIES
-        private readonly IBookingRepo _bookingRepo;  // Depends on interface
-        private readonly IRoomRepo _roomRepo;  // Depends on interface
+        private readonly IBookingRepo _bookingRepo;
+        private readonly IRoomRepo _roomRepo;
 
         // BACKING FIELDS
         private DateTime _currentMonth;
@@ -54,13 +54,12 @@ namespace Floozys_Hotel.ViewModels
             {
                 _selectedBooking = value;
                 OnPropertyChanged();
-                // Notify commands that CanExecute may have changed
                 CheckInBookingCommand?.RaiseCanExecuteChanged();
                 CheckOutBookingCommand?.RaiseCanExecuteChanged();
             }
         }
 
-        public string SearchText  // Bound to search field, triggers filtering
+        public string SearchText
         {
             get => _searchText;
             set
@@ -75,7 +74,7 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        public string ViewDuration  // Controls display mode: Week, Month, or Year
+        public string ViewDuration
         {
             get => _viewDuration;
             set
@@ -104,7 +103,7 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        public string CurrentMonthDisplay  // Displays readable header like "December 2025" or "Week 48, 2025"
+        public string CurrentMonthDisplay
         {
             get
             {
@@ -149,10 +148,11 @@ namespace Floozys_Hotel.ViewModels
         public RelayCommand SetWeekViewCommand { get; set; }
         public RelayCommand SetMonthViewCommand { get; set; }
         public RelayCommand SetYearViewCommand { get; set; }
+        public RelayCommand SortCommand { get; set; }
 
         // CONSTRUCTORS
 
-        public BookingOverviewViewModel() : this(new BookingRepo(), new RoomRepo())  // Parameterless for XAML - calls overloaded constructor
+        public BookingOverviewViewModel() : this(new BookingRepo(), new RoomRepo())
         {
         }
 
@@ -192,7 +192,7 @@ namespace Floozys_Hotel.ViewModels
 
         // METHODS
 
-        private void LoadData()  // Fetches data from repositories
+        private void LoadData()
         {
             var rooms = _roomRepo.GetAll();
             Rooms.Clear();
@@ -213,15 +213,12 @@ namespace Floozys_Hotel.ViewModels
             UpdateDaysInMonth();
         }
 
-        /// <summary>
-        /// UC01 Step 9: Refresh calendar data to show new booking
-        /// </summary>
         public void RefreshData()
         {
             LoadData();
         }
 
-        private void ChangeMonth(int months)  // Navigates forward/backward in time
+        private void ChangeMonth(int months)
         {
             if (ViewDuration == "Week")
             {
@@ -238,7 +235,7 @@ namespace Floozys_Hotel.ViewModels
             UpdateDaysInMonth();
         }
 
-        private void UpdateDaysInMonth()  // Calculates which days to display in header
+        private void UpdateDaysInMonth()
         {
             DaysInMonth.Clear();
 
@@ -279,7 +276,7 @@ namespace Floozys_Hotel.ViewModels
                    b.Room.RoomNumber.ToString().Contains(search, StringComparison.OrdinalIgnoreCase);
         }
 
-        private void FilterBookings()  // Ensures only bookings within selected period are shown
+        private void FilterBookings()
         {
             FilteredBookings.Clear();
 
@@ -303,7 +300,7 @@ namespace Floozys_Hotel.ViewModels
             }
 
             var filtered = Bookings.Where(b =>
-                b.StartDate <= endPeriod && 
+                b.StartDate <= endPeriod &&
                 b.EndDate >= startPeriod &&
                 b.Status != BookingStatus.Cancelled);
 
@@ -320,21 +317,16 @@ namespace Floozys_Hotel.ViewModels
 
         private void UpdateRevenue()
         {
-            // TODO: Calculate revenue when pricing is implemented
             RevenueThisMonth = 0;
         }
 
         private string _sortColumn;
         private bool _isAscending;
 
-        public RelayCommand SortCommand { get; set; }
-
         private void OpenNewBooking()
         {
             var newBookingWindow = new NewBookingView();
-            newBookingWindow.ShowDialog(); // Blocks until window closes
-
-            // UC01 Step 9: Reload calendar data so new booking appears
+            newBookingWindow.ShowDialog();
             LoadData();
         }
 
@@ -345,18 +337,15 @@ namespace Floozys_Hotel.ViewModels
 
             if (_sortColumn == column)
             {
-                // Toggle direction
                 _isAscending = !_isAscending;
             }
             else
             {
-                // New column, default to ascending
                 _sortColumn = column;
                 _isAscending = true;
             }
 
-            // Sort the FilteredBookings collection
-            var sorted = _isAscending 
+            var sorted = _isAscending
                 ? FilteredBookings.OrderBy(b => GetPropValue(b, _sortColumn)).ToList()
                 : FilteredBookings.OrderByDescending(b => GetPropValue(b, _sortColumn)).ToList();
 
@@ -377,52 +366,6 @@ namespace Floozys_Hotel.ViewModels
             }
             var prop = src.GetType().GetProperty(propName);
             return prop != null ? prop.GetValue(src, null) : null;
-        }
-
-        /// <summary>
-        /// UC03: Check-in guest
-        /// </summary>
-        private void CheckInBooking()
-        {
-            if (SelectedBooking == null) return;
-
-            try
-            {
-                _bookingRepo.CheckIn(SelectedBooking.BookingID);
-
-                // Refresh data to show updated status
-                LoadData();
-
-                // TODO: Show success message to user
-            }
-            catch (Exception ex)
-            {
-                // TODO: Show error message to user
-                System.Diagnostics.Debug.WriteLine($"Check-in failed: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// UC04: Check-out guest
-        /// </summary>
-        private void CheckOutBooking()
-        {
-            if (SelectedBooking == null) return;
-
-            try
-            {
-                _bookingRepo.CheckOut(SelectedBooking.BookingID);
-
-                // Refresh data to show updated status
-                LoadData();
-
-                // TODO: Show success message to user
-            }
-            catch (Exception ex)
-            {
-                // TODO: Show error message to user
-                System.Diagnostics.Debug.WriteLine($"Check-out failed: {ex.Message}");
-            }
         }
 
         // Check-in/out eligibility helpers

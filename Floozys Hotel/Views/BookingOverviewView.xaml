@@ -20,6 +20,9 @@
         <converters:DateHeaderConverter x:Key="DateHeaderConverter" />
         <converters:BookingStatusColorConverter x:Key="BookingStatusColorConverter" />
         <converters:CheckInStatusConverter x:Key="CheckInStatusConverter" />
+
+        <!-- UC03: Inverse boolean for edit mode visibility -->
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
     </UserControl.Resources>
 
     <Grid Margin="20">
@@ -321,7 +324,6 @@
                                                         <ItemsControl.ItemsSource>
                                                             <MultiBinding Converter="{StaticResource RoomBookingsConverter}">
                                                                 <Binding Path="RoomId" />
-                                                                <!--  CHANGED from DataContext.Bookings to DataContext.FilteredBookings  -->
                                                                 <Binding Path="DataContext.FilteredBookings" RelativeSource="{RelativeSource AncestorType=UserControl}" />
                                                             </MultiBinding>
                                                         </ItemsControl.ItemsSource>
@@ -622,14 +624,16 @@
                             </Style>
                         </ScrollViewer.Style>
                         <StackPanel>
-                            <!--  Guest Section  -->
+                            <!--  UC03: Guest Section - View/Edit Mode  -->
                             <TextBlock
                                 Margin="0,0,0,5"
                                 FontWeight="SemiBold"
                                 Foreground="#555"
                                 Text="Guest Information"
                                 TextDecorations="Underline" />
-                            <Grid Margin="0,0,0,15">
+
+                            <!--  View Mode  -->
+                            <Grid Margin="0,0,0,15" Visibility="{Binding IsViewMode, Converter={StaticResource BoolToVisibility}}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
@@ -694,14 +698,16 @@
                                     Text="{Binding SelectedBooking.Guest.Country}" />
                             </Grid>
 
-                            <!--  Room Section  -->
+                            <!--  UC03: Room Section - View/Edit Mode  -->
                             <TextBlock
                                 Margin="0,0,0,5"
                                 FontWeight="SemiBold"
                                 Foreground="#555"
                                 Text="Room Information"
                                 TextDecorations="Underline" />
-                            <Grid Margin="0,0,0,15">
+
+                            <!--  View Mode  -->
+                            <Grid Margin="0,0,0,15" Visibility="{Binding IsViewMode, Converter={StaticResource BoolToVisibility}}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
@@ -746,14 +752,29 @@
                                     Text="{Binding SelectedBooking.Room.Floor}" />
                             </Grid>
 
-                            <!--  Booking Section  -->
+                            <!--  Edit Mode - Room Dropdown  -->
+                            <StackPanel Margin="0,0,0,15" Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock
+                                    Margin="0,0,0,5"
+                                    FontWeight="SemiBold"
+                                    Text="Select Room:" />
+                                <ComboBox
+                                    Height="35"
+                                    DisplayMemberPath="RoomNumber"
+                                    ItemsSource="{Binding AllRooms}"
+                                    SelectedItem="{Binding EditRoom}" />
+                            </StackPanel>
+
+                            <!--  UC03: Booking Section - View/Edit Mode  -->
                             <TextBlock
                                 Margin="0,0,0,5"
                                 FontWeight="SemiBold"
                                 Foreground="#555"
                                 Text="Booking Status"
                                 TextDecorations="Underline" />
-                            <Grid>
+
+                            <!--  View Mode  -->
+                            <Grid Visibility="{Binding IsViewMode, Converter={StaticResource BoolToVisibility}}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
@@ -829,77 +850,198 @@
                                     Text="{Binding SelectedBooking.CheckOutTime, TargetNullValue='Not Checked Out', StringFormat='{}{0:HH:mm}'}" />
                             </Grid>
 
-                            <!--  Check-In/Check-Out Actions  -->
-                            <StackPanel Margin="0,20,0,0" Orientation="Vertical">
-                                <Button
-                                    Height="40"
-                                    Margin="0,0,0,10"
-                                    Background="#90EE90"
-                                    BorderBrush="#32CD32"
-                                    BorderThickness="2"
-                                    Command="{Binding CheckInBookingCommand}"
-                                    Content="✓ Check In Guest"
-                                    FontSize="14"
-                                    FontWeight="SemiBold">
-                                    <Button.Style>
-                                        <Style TargetType="Button">
-                                            <Style.Triggers>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter Property="Opacity" Value="0.5" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
-                                <!--  Cancel Booking Button  -->
-                                <Button
-                                    Height="40"
-                                    Margin="0,0,0,10"
-                                    Background="#DC3545"
-                                    BorderBrush="#C82333"
-                                    BorderThickness="2"
-                                    Command="{Binding CancelBookingCommand}"
-                                    Content="❌ Cancel Booking"
-                                    FontSize="14"
-                                    FontWeight="SemiBold"
-                                    Foreground="White">
-                                    <Button.Style>
-                                        <Style TargetType="Button">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding SelectedBooking.Status}" Value="Pending">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding SelectedBooking.Status}" Value="Confirmed">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter Property="Opacity" Value="0.5" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
+                            <!--  Edit Mode - Date Pickers  -->
+                            <StackPanel Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibility}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
 
-                                <Button
-                                    Height="40"
-                                    Background="#FFB6C1"
-                                    BorderBrush="#FF69B4"
-                                    BorderThickness="2"
-                                    Command="{Binding CheckOutBookingCommand}"
-                                    Content="✓ Check Out Guest"
-                                    FontSize="14"
-                                    FontWeight="SemiBold">
-                                    <Button.Style>
-                                        <Style TargetType="Button">
-                                            <Style.Triggers>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter Property="Opacity" Value="0.5" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
+                                    <TextBlock
+                                        Grid.Row="0"
+                                        Grid.Column="0"
+                                        Margin="0,0,10,5"
+                                        FontWeight="SemiBold"
+                                        Text="Status:" />
+                                    <TextBlock
+                                        Grid.Row="0"
+                                        Grid.Column="1"
+                                        Margin="0,0,0,5"
+                                        FontWeight="Bold"
+                                        Text="{Binding SelectedBooking.Status}" />
+
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        Margin="0,0,10,5"
+                                        FontWeight="SemiBold"
+                                        Text="Booking #:" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Margin="0,0,0,5"
+                                        FontWeight="Bold"
+                                        Foreground="#6B8CBF"
+                                        Text="{Binding SelectedBooking.BookingNumber}" />
+                                </Grid>
+
+                                <TextBlock
+                                    Margin="0,10,0,5"
+                                    FontWeight="SemiBold"
+                                    Text="Check-In Date:" />
+                                <DatePicker
+                                    Height="35"
+                                    Margin="0,0,0,10"
+                                    SelectedDate="{Binding EditCheckInDate}" />
+
+                                <TextBlock
+                                    Margin="0,0,0,5"
+                                    FontWeight="SemiBold"
+                                    Text="Check-Out Date:" />
+                                <DatePicker
+                                    Height="35"
+                                    Margin="0,0,0,10"
+                                    SelectedDate="{Binding EditCheckOutDate}" />
+                            </StackPanel>
+
+                            <!--  UC03: Action Buttons  -->
+                            <StackPanel Margin="0,20,0,0" Orientation="Vertical">
+                                <!--  Edit Mode Buttons  -->
+                                <StackPanel Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibility}}">
+                                    <Button
+                                        Height="40"
+                                        Margin="0,0,0,10"
+                                        Background="#4CAF50"
+                                        BorderBrush="#45A049"
+                                        BorderThickness="2"
+                                        Command="{Binding SaveEditCommand}"
+                                        Content="💾 Save Changes"
+                                        FontSize="14"
+                                        FontWeight="SemiBold"
+                                        Foreground="White" />
+
+                                    <Button
+                                        Height="40"
+                                        Margin="0,0,0,10"
+                                        Background="#9E9E9E"
+                                        BorderBrush="#757575"
+                                        BorderThickness="2"
+                                        Command="{Binding CancelEditCommand}"
+                                        Content="Cancel"
+                                        FontSize="14"
+                                        FontWeight="SemiBold"
+                                        Foreground="White" />
+                                </StackPanel>
+
+                                <!--  View Mode Buttons  -->
+                                <StackPanel Visibility="{Binding IsViewMode, Converter={StaticResource BoolToVisibility}}">
+                                    <!--  Edit Button  -->
+                                    <Button
+                                        Height="40"
+                                        Margin="0,0,0,10"
+                                        Background="#4A90E2"
+                                        BorderBrush="#2E5C8A"
+                                        BorderThickness="2"
+                                        Command="{Binding EditBookingCommand}"
+                                        Content="✏️ Edit Booking"
+                                        FontSize="14"
+                                        FontWeight="SemiBold"
+                                        Foreground="White">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedBooking.Status}" Value="CheckedIn">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding SelectedBooking.Status}" Value="CheckedOut">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Opacity" Value="0.5" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <!--  Check In Button  -->
+                                    <Button
+                                        Height="40"
+                                        Margin="0,0,0,10"
+                                        Background="#90EE90"
+                                        BorderBrush="#32CD32"
+                                        BorderThickness="2"
+                                        Command="{Binding CheckInBookingCommand}"
+                                        Content="✓ Check In Guest"
+                                        FontSize="14"
+                                        FontWeight="SemiBold">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Opacity" Value="0.5" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <!--  Cancel Booking Button  -->
+                                    <Button
+                                        Height="40"
+                                        Margin="0,0,0,10"
+                                        Background="#DC3545"
+                                        BorderBrush="#C82333"
+                                        BorderThickness="2"
+                                        Command="{Binding CancelBookingCommand}"
+                                        Content="❌ Cancel Booking"
+                                        FontSize="14"
+                                        FontWeight="SemiBold"
+                                        Foreground="White">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedBooking.Status}" Value="Pending">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding SelectedBooking.Status}" Value="Confirmed">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Opacity" Value="0.5" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <!--  Check Out Button  -->
+                                    <Button
+                                        Height="40"
+                                        Background="#FFB6C1"
+                                        BorderBrush="#FF69B4"
+                                        BorderThickness="2"
+                                        Command="{Binding CheckOutBookingCommand}"
+                                        Content="✓ Check Out Guest"
+                                        FontSize="14"
+                                        FontWeight="SemiBold">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Opacity" Value="0.5" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </StackPanel>
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>

@@ -23,5 +23,8 @@ namespace Floozys_Hotel.Repositories.Interfaces
         // CHECK-IN/CHECK-OUT
         void CheckIn(int bookingID);
         void CheckOut(int bookingID);
+
+        // Cancels a booking
+        void CancelBooking(int bookingID);  
     }
 }

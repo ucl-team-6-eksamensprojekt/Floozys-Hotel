@@ -1,5 +1,4 @@
-﻿
-using Floozys_Hotel.Models;
+﻿using Floozys_Hotel.Models;
 
 namespace Floozys_Hotel.Repositories.Interfaces
 {
@@ -20,5 +19,9 @@ namespace Floozys_Hotel.Repositories.Interfaces
 
         // DELETE
         void Delete(int bookingID);
+
+        // CHECK-IN/CHECK-OUT
+        void CheckIn(int bookingID);
+        void CheckOut(int bookingID);
     }
 }

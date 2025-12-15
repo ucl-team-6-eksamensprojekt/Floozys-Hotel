@@ -27,17 +27,31 @@ namespace Floozys_Hotel.Converters
                 // Calculate the difference in days between booking start and calendar start
                 var daysOffset = (startDate - viewStartDate).Days;
 
-                // If booking starts before the visible period, set margin to 0
-                if (daysOffset < 0)
+                // Adjust for half-day visualization: Start at noon
+                double offsetWithHalfDay = daysOffset + 0.5;
+
+                // If booking starts before the visible period, we might still need to draw it if it overlaps into the view
+                // But the margin calculation handles positioning relative to the start of the grid.
+                // If offset is negative, margin is usually 0 (handled by previous logic or implicit clipping), 
+                // but let's keep the simple logic: negative margin isn't usually valid for Grid positioning in this context.
+                if (offsetWithHalfDay < 0)
                 {
-                    return new Thickness(0);
+                    // If it starts way before, margin is 0. 
+                    // Note: If it starts -0.5 days (noon yesterday), margin is 0 in the current view? 
+                    // Actually, if it starts before, the margin should be 0 and we construct the width to bridge the gap.
+                    // But if checking strictly StartDate vs ViewDate...
+                    // Let's stick to the plan: Shift existing margin calculation.
+                    if (daysOffset < 0) return new Thickness(0); 
                 }
+                
+                // Determine left margin based on 0.5 offset if positive
+                double effectiveOffset = Math.Max(0, daysOffset + 0.5);
 
                 // Find the width of one day in pixels
                 double dayWidth = actualWidth / dayCount;
 
                 // Multiply number of days by width to find the left margin
-                double left = (double)(daysOffset * dayWidth);
+                double left = (double)(effectiveOffset * dayWidth);
                 return new Thickness(left, 5, 0, 0);
             }
 
@@ -66,15 +80,81 @@ namespace Floozys_Hotel.Converters
                 // If booking starts before the view, clip the start to the view start date
                 var effectiveStart = booking.StartDate < viewStartDate ? viewStartDate : booking.StartDate;
 
-                // Calculate duration in days (add 1 to include both start and end day)
-                var days = (booking.EndDate - effectiveStart).Days + 1;
-
-                // Negative days means booking is outside visible range
-                if (days < 0) return 0.0;
+                // Calculate duration in days of the VISIBLE portion
+                // Total duration = (EndDate - StartDate).Days
+                // But we act on visible range.
+                
+                // Logic:
+                // 1. Calculate raw visible duration in days.
+                // 2. Subtract 0.5 for the Check-Out day (it ends at noon).
+                // 3. Subtract 0.5 for the Check-In day IF the Check-In day is visible (it starts at noon).
+                
+                double visibleDuration = (booking.EndDate - effectiveStart).Days; // e.g. 17th to 18th = 1 day diff
+                
+                // Add 1 to include the full day range initially?
+                // Example: 17th to 18th. 1 day diff. 
+                // We want visual: 17th PM (0.5) + 18th AM (0.5) = 1.0 day width? 
+                // Wait, 17th to 18th is 1 night. Visualization spans from 17th (center) to 18th (center).
+                // Total width = 1.0 day.
+                
+                // Example: 17th to 19th (2 nights). 
+                // Spans 17th (center) -> 18th (full) -> 19th (center). 
+                // 0.5 + 1.0 + 0.5 = 2.0 days width.
+                
+                // Formula: Dates Difference is exactly the width in days we want!
+                // (EndDate - StartDate).Days = Number of nights. 
+                // 1 night = 1 day width. 
+                
+                // BUT we have to handle clipping.
+                // If started before view: 
+                // ViewStart 17th. Booking 16-19. 
+                // Visible part: 17th (full) -> 18th (full) -> 19th (center).
+                // Real: 16-19 is 3 nights.
+                // Visible from 17th start (00:00) to 19th (12:00) = 2.5 days.
+                
+                double widthInDays;
+                
+                if (booking.StartDate < viewStartDate)
+                {
+                    // Starts before view. We see from Start of View (00:00) to EndDate (12:00)
+                    // Difference: (EndDate - ViewStart).Days
+                    // Visual: 17th(00:00) to 19th(12:00). 
+                    // Diff (19-17) = 2 days. 
+                    // Are we seeing 12:00 end? Yes.
+                    // Are we seeing 00:00 start? Yes.
+                    // So Width = 2.0? 
+                    // 17(full) + 18(full) + 19(half)? No, 19th ends at noon. 
+                    // 17(full) + 18(full) + 19(0.5) = 2.5? 
+                    
+                    // Let's assume standard "end at noon".
+                    // Diff days (19-17) = 2. 
+                    // We want 2.5? No wait. 
+                    // 16(noon)-17(noon)-18(noon)-19(noon).
+                    // View: 17(00:00) to ...
+                    // Visible: 17(AM+PM) + 18(AM+PM) + 19(AM).
+                    // 1.0 + 1.0 + 0.5 = 2.5.
+                    
+                    // Calculation: (EndDate - ViewStartDate).Days + 0.5?
+                    // (19-17) = 2 + 0.5 = 2.5. Correct.
+                     widthInDays = (booking.EndDate - viewStartDate).Days + 0.5;
+                }
+                else
+                {
+                    // Starts inside view.
+                    // 17-19.
+                    // 17(PM) + 18(full) + 19(AM).
+                    // 0.5 + 1.0 + 0.5 = 2.0.
+                    // Diff (19-17) = 2. 
+                    // Matches exactly Number of Nights.
+                    widthInDays = (booking.EndDate - booking.StartDate).Days;
+                }
+                
+                // Safety check
+                if (widthInDays < 0) return 0.0;
 
                 // Multiply number of days by day width to get total width
                 double dayWidth = actualWidth / dayCount;
-                return days * dayWidth;
+                return widthInDays * dayWidth;
             }
             return 0.0;
         }

@@ -9,23 +9,20 @@ namespace Floozys_Hotel.Models
 
         public int BookingID { get; set; }
 
+        // Display-friendly booking number
+        public string BookingNumber => $"FLZ-{BookingID:D6}";
+
         public DateTime StartDate { get; set; }
-
         public DateTime EndDate { get; set; }
-
-        public DateTime? CheckInTime { get; set; }  // Nullable because guest may not have checked in yet
-
-        public DateTime? CheckOutTime { get; set; }  // Nullable because guest may not have checked out yet
-
-        // ENUM
+        public DateTime? CheckInTime { get; set; }
+        public DateTime? CheckOutTime { get; set; }
         public BookingStatus Status { get; set; }
 
-        // FOREIGN KEYS - Added these since we need them to correctly map the data from the database :-)
+        // FOREIGN KEYS
         public int RoomID { get; set; }
         public int GuestID { get; set; }
 
         public Room Room { get; set; }
-
         public Guest Guest { get; set; }
 
         // CALCULATED PROPERTIES
@@ -43,7 +40,7 @@ namespace Floozys_Hotel.Models
 
         // VALIDATION
 
-        public List<string> Validate()  // Collects all validation errors instead of throwing on first error
+        public List<string> Validate()
         {
             var errors = new List<string>();
 
@@ -69,6 +66,42 @@ namespace Floozys_Hotel.Models
                 errors.Add("Check-out time must be after check-in time");
 
             return errors;
+        }
+
+        // BUSINESS LOGIC
+
+        // Check-in allowed for both Pending and Confirmed when guest arrives
+        public bool CanCheckIn()
+        {
+            return (Status == BookingStatus.Pending || Status == BookingStatus.Confirmed) &&
+                   StartDate.Date <= DateTime.Today &&
+                   !CheckInTime.HasValue;
+        }
+
+        // Business rules for check-out eligibility
+        public bool CanCheckOut()
+        {
+            return Status == BookingStatus.CheckedIn &&
+                   CheckInTime.HasValue &&
+                   !CheckOutTime.HasValue;
+        }
+
+        public void PerformCheckIn()
+        {
+            if (!CanCheckIn())
+                throw new InvalidOperationException("Cannot check in this booking");
+
+            CheckInTime = DateTime.Now;
+            Status = BookingStatus.CheckedIn;
+        }
+
+        public void PerformCheckOut()
+        {
+            if (!CanCheckOut())
+                throw new InvalidOperationException("Cannot check out this booking");
+
+            CheckOutTime = DateTime.Now;
+            Status = BookingStatus.CheckedOut;
         }
     }
 }

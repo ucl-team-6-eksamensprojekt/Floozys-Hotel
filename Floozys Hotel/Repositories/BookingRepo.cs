@@ -230,6 +230,32 @@ namespace Floozys_Hotel.Repositories
             }
         }
 
+        /// <summary>
+        /// Performs check-in operation on a booking
+        /// </summary>
+        public void CheckIn(int bookingID)
+        {
+            var booking = GetById(bookingID);
+            if (booking == null)
+                throw new ArgumentException($"Booking with ID {bookingID} not found");
+
+            booking.PerformCheckIn();
+            Update(booking);
+        }
+
+        /// <summary>
+        /// Performs check-out operation on a booking
+        /// </summary>
+        public void CheckOut(int bookingID)
+        {
+            var booking = GetById(bookingID);
+            if (booking == null)
+                throw new ArgumentException($"Booking with ID {bookingID} not found");
+
+            booking.PerformCheckOut();
+            Update(booking);
+        }
+
         public void Delete(int bookingID)
         {
             var booking = GetById(bookingID);

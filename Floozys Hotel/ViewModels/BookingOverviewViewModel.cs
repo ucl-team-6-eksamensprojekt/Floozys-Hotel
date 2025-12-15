@@ -56,6 +56,7 @@ namespace Floozys_Hotel.ViewModels
                 OnPropertyChanged();
                 CheckInBookingCommand?.RaiseCanExecuteChanged();
                 CheckOutBookingCommand?.RaiseCanExecuteChanged();
+                CancelBookingCommand?.RaiseCanExecuteChanged();
             }
         }
 
@@ -145,6 +146,7 @@ namespace Floozys_Hotel.ViewModels
         public RelayCommand SelectBookingCommand { get; set; }
         public RelayCommand CheckInBookingCommand { get; set; }
         public RelayCommand CheckOutBookingCommand { get; set; }
+        public RelayCommand CancelBookingCommand { get; set; }
         public RelayCommand SetWeekViewCommand { get; set; }
         public RelayCommand SetMonthViewCommand { get; set; }
         public RelayCommand SetYearViewCommand { get; set; }
@@ -185,6 +187,11 @@ namespace Floozys_Hotel.ViewModels
             CheckOutBookingCommand = new RelayCommand(
                 execute: _ => CheckOutBooking(),
                 canExecute: _ => CanExecuteCheckOut()
+            );
+
+            CancelBookingCommand = new RelayCommand(  // ← NY!
+                execute: _ => CancelBooking(),
+                canExecute: _ => CanExecuteCancel()
             );
 
             LoadData();
@@ -407,6 +414,50 @@ namespace Floozys_Hotel.ViewModels
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Check-out failed: {ex.Message}");
+            }
+        }
+
+        // Cancellation eligibility
+        private bool CanExecuteCancel()
+        {
+            return SelectedBooking != null && SelectedBooking.CanCancel();
+        }
+
+        // UC04: Cancel booking
+        private void CancelBooking()
+        {
+            if (SelectedBooking == null) return;
+
+            var result = System.Windows.MessageBox.Show(
+                "Cancel Booking Permanently From System?",
+                "Confirm Cancellation",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Warning
+            );
+
+            if (result != System.Windows.MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                _bookingRepo.CancelBooking(SelectedBooking.BookingID);
+                LoadData();
+
+                System.Windows.MessageBox.Show(
+                    "Booking Cancelled Successfully",
+                    "Success",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Information
+                );
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Cancellation failed: {ex.Message}",
+                    "Error",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error
+                );
             }
         }
     }

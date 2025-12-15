@@ -103,5 +103,22 @@ namespace Floozys_Hotel.Models
             CheckOutTime = DateTime.Now;
             Status = BookingStatus.CheckedOut;
         }
+
+        // BUSINESS LOGIC - CANCELLATION
+
+        // Business rules for cancellation eligibility
+        public bool CanCancel()
+        {
+            return Status == BookingStatus.Pending || Status == BookingStatus.Confirmed;
+        }
+
+        // Cancel booking operation
+        public void CancelBooking()
+        {
+            if (!CanCancel())
+                throw new InvalidOperationException("Cannot cancel this booking");
+
+            Status = BookingStatus.Cancelled;
+        }
     }
 }

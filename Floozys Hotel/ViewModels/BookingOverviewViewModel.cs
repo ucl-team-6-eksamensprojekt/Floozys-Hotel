@@ -47,13 +47,16 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        public Booking SelectedBooking  // Selected booking for displaying details
+        public Booking SelectedBooking
         {
             get => _selectedBooking;
             set
             {
                 _selectedBooking = value;
                 OnPropertyChanged();
+                // Notify commands that CanExecute may have changed
+                CheckInBookingCommand?.RaiseCanExecuteChanged();
+                CheckOutBookingCommand?.RaiseCanExecuteChanged();
             }
         }
 
@@ -141,6 +144,8 @@ namespace Floozys_Hotel.ViewModels
         public RelayCommand NextMonthCommand { get; set; }
         public RelayCommand PreviousMonthCommand { get; set; }
         public RelayCommand SelectBookingCommand { get; set; }
+        public RelayCommand CheckInBookingCommand { get; set; }
+        public RelayCommand CheckOutBookingCommand { get; set; }
         public RelayCommand SetWeekViewCommand { get; set; }
         public RelayCommand SetMonthViewCommand { get; set; }
         public RelayCommand SetYearViewCommand { get; set; }
@@ -171,6 +176,16 @@ namespace Floozys_Hotel.ViewModels
             SetMonthViewCommand = new RelayCommand(m => ViewDuration = "Month");
             SetYearViewCommand = new RelayCommand(y => ViewDuration = "Year");
             SortCommand = new RelayCommand(SortBookings);
+
+            CheckInBookingCommand = new RelayCommand(
+                execute: _ => CheckInBooking(),
+                canExecute: _ => SelectedBooking != null && SelectedBooking.CanCheckIn()
+            );
+
+            CheckOutBookingCommand = new RelayCommand(
+                execute: _ => CheckOutBooking(),
+                canExecute: _ => SelectedBooking != null && SelectedBooking.CanCheckOut()
+            );
 
             LoadData();
         }
@@ -362,6 +377,52 @@ namespace Floozys_Hotel.ViewModels
             }
             var prop = src.GetType().GetProperty(propName);
             return prop != null ? prop.GetValue(src, null) : null;
+        }
+
+        /// <summary>
+        /// UC03: Check-in guest
+        /// </summary>
+        private void CheckInBooking()
+        {
+            if (SelectedBooking == null) return;
+
+            try
+            {
+                _bookingRepo.CheckIn(SelectedBooking.BookingID);
+
+                // Refresh data to show updated status
+                LoadData();
+
+                // TODO: Show success message to user
+            }
+            catch (Exception ex)
+            {
+                // TODO: Show error message to user
+                System.Diagnostics.Debug.WriteLine($"Check-in failed: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// UC04: Check-out guest
+        /// </summary>
+        private void CheckOutBooking()
+        {
+            if (SelectedBooking == null) return;
+
+            try
+            {
+                _bookingRepo.CheckOut(SelectedBooking.BookingID);
+
+                // Refresh data to show updated status
+                LoadData();
+
+                // TODO: Show success message to user
+            }
+            catch (Exception ex)
+            {
+                // TODO: Show error message to user
+                System.Diagnostics.Debug.WriteLine($"Check-out failed: {ex.Message}");
+            }
         }
     }
 }

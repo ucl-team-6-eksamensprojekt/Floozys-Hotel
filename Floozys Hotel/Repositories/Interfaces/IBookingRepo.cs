@@ -20,11 +20,14 @@ namespace Floozys_Hotel.Repositories.Interfaces
         // DELETE
         void Delete(int bookingID);
 
-        // CHECK-IN/CHECK-OUT
+        // UC: CHECK-IN/CHECK-OUT
         void CheckIn(int bookingID);
         void CheckOut(int bookingID);
 
-        // Cancels a booking
-        void CancelBooking(int bookingID);  
+        // UC04: Cancels a booking
+        void CancelBooking(int bookingID);
+
+        // UC03: Edit booking
+        void EditBooking(int bookingID, DateTime newStartDate, DateTime newEndDate, int newRoomID, int newGuestID);
     }
 }

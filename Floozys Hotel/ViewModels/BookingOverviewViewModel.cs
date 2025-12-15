@@ -5,6 +5,7 @@ using Floozys_Hotel.Models;
 using Floozys_Hotel.Repositories;
 using Floozys_Hotel.Repositories.Interfaces;
 using Floozys_Hotel.Views;
+using System.Linq;
 
 namespace Floozys_Hotel.ViewModels
 {
@@ -20,6 +21,7 @@ namespace Floozys_Hotel.ViewModels
         private string _searchText = "";
         private string _viewDuration = "Month";
         private Booking _selectedBooking;
+        private bool _isEditMode;  
 
         // COLLECTIONS
 
@@ -57,6 +59,7 @@ namespace Floozys_Hotel.ViewModels
                 CheckInBookingCommand?.RaiseCanExecuteChanged();
                 CheckOutBookingCommand?.RaiseCanExecuteChanged();
                 CancelBookingCommand?.RaiseCanExecuteChanged();
+                EditBookingCommand?.RaiseCanExecuteChanged();
             }
         }
 
@@ -138,6 +141,57 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
+        // UC03: Edit mode properties
+        public bool IsEditMode
+        {
+            get => _isEditMode;
+            set
+            {
+                _isEditMode = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsViewMode));
+                EditBookingCommand?.RaiseCanExecuteChanged();
+                SaveEditCommand?.RaiseCanExecuteChanged();
+                CancelEditCommand?.RaiseCanExecuteChanged();
+            }
+        }
+
+        public bool IsViewMode => !IsEditMode;
+
+        // Edit mode - temporary values
+        private Guest _editGuest;
+        private Room _editRoom;
+        private DateTime _editCheckInDate;
+        private DateTime _editCheckOutDate;
+
+        public Guest EditGuest
+        {
+            get => _editGuest;
+            set { _editGuest = value; OnPropertyChanged(); }
+        }
+
+        public Room EditRoom
+        {
+            get => _editRoom;
+            set { _editRoom = value; OnPropertyChanged(); }
+        }
+
+        public DateTime EditCheckInDate
+        {
+            get => _editCheckInDate;
+            set { _editCheckInDate = value; OnPropertyChanged(); }
+        }
+
+        public DateTime EditCheckOutDate
+        {
+            get => _editCheckOutDate;
+            set { _editCheckOutDate = value; OnPropertyChanged(); }
+        }
+
+        // Collections for edit dropdowns
+        public ObservableCollection<Guest> AllGuests { get; set; }
+        public ObservableCollection<Room> AllRooms { get; set; }
+
         // COMMANDS
 
         public RelayCommand NewBookingCommand { get; set; }
@@ -147,6 +201,9 @@ namespace Floozys_Hotel.ViewModels
         public RelayCommand CheckInBookingCommand { get; set; }
         public RelayCommand CheckOutBookingCommand { get; set; }
         public RelayCommand CancelBookingCommand { get; set; }
+        public RelayCommand EditBookingCommand { get; set; }  
+        public RelayCommand SaveEditCommand { get; set; }    
+        public RelayCommand CancelEditCommand { get; set; }   
         public RelayCommand SetWeekViewCommand { get; set; }
         public RelayCommand SetMonthViewCommand { get; set; }
         public RelayCommand SetYearViewCommand { get; set; }
@@ -194,6 +251,26 @@ namespace Floozys_Hotel.ViewModels
                 canExecute: _ => CanExecuteCancel()
             );
 
+            // UC03: Edit booking commands
+            EditBookingCommand = new RelayCommand(
+                execute: _ => EnterEditMode(),
+                canExecute: _ => CanExecuteEdit()
+            );
+
+            SaveEditCommand = new RelayCommand(
+                execute: _ => SaveEdit(),
+                canExecute: _ => IsEditMode
+            );
+
+            CancelEditCommand = new RelayCommand(
+                execute: _ => CancelEdit(),
+                canExecute: _ => IsEditMode
+            );
+
+            // Initialize collections for edit dropdowns
+            AllGuests = new ObservableCollection<Guest>();
+            AllRooms = new ObservableCollection<Room>();
+
             LoadData();
         }
 
@@ -208,11 +285,27 @@ namespace Floozys_Hotel.ViewModels
                 Rooms.Add(room);
             }
 
+            // Load all rooms for edit dropdown
+            AllRooms.Clear();
+            foreach (var room in rooms)
+            {
+                AllRooms.Add(room);
+            }
+
             var bookings = _bookingRepo.GetAll();
             Bookings.Clear();
             foreach (var booking in bookings)
             {
                 Bookings.Add(booking);
+            }
+
+            // Load all guests for edit dropdown
+            var guestRepo = new GuestRepo();
+            var guests = guestRepo.GetAll();
+            AllGuests.Clear();
+            foreach (var guest in guests)
+            {
+                AllGuests.Add(guest);
             }
 
             FilterBookings();
@@ -459,6 +552,68 @@ namespace Floozys_Hotel.ViewModels
                     System.Windows.MessageBoxImage.Error
                 );
             }
+        }
+
+        // UC03: Edit booking eligibility
+        private bool CanExecuteEdit()
+        {
+            return SelectedBooking != null && SelectedBooking.CanEdit();
+        }
+
+        // UC03: Enter edit mode
+        private void EnterEditMode()
+        {
+            if (SelectedBooking == null) return;
+
+            // Store current values in edit properties
+            EditGuest = AllGuests.FirstOrDefault(g => g.GuestID == SelectedBooking.GuestID);
+            EditRoom = AllRooms.FirstOrDefault(r => r.RoomId == SelectedBooking.RoomID);
+            EditCheckInDate = SelectedBooking.StartDate;
+            EditCheckOutDate = SelectedBooking.EndDate;
+
+            IsEditMode = true;
+        }
+
+        // UC03: Save edited booking
+        private void SaveEdit()
+        {
+            if (SelectedBooking == null) return;
+
+            try
+            {
+                _bookingRepo.EditBooking(
+                    SelectedBooking.BookingID,
+                    EditCheckInDate,
+                    EditCheckOutDate,
+                    EditRoom.RoomId,
+                    EditGuest.GuestID
+                );
+
+                IsEditMode = false;
+                LoadData();
+
+                System.Windows.MessageBox.Show(
+                    "Booking updated successfully",
+                    "Success",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Information
+                );
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Failed to update booking: {ex.Message}",
+                    "Error",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error
+                );
+            }
+        }
+
+        // UC03: Cancel edit mode
+        private void CancelEdit()
+        {
+            IsEditMode = false;
         }
     }
 }

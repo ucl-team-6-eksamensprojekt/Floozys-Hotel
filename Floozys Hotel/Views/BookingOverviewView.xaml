@@ -321,7 +321,8 @@
                                                         <ItemsControl.ItemsSource>
                                                             <MultiBinding Converter="{StaticResource RoomBookingsConverter}">
                                                                 <Binding Path="RoomId" />
-                                                                <Binding Path="DataContext.Bookings" RelativeSource="{RelativeSource AncestorType=UserControl}" />
+                                                                <!-- CHANGED from DataContext.Bookings to DataContext.FilteredBookings -->
+                                                                <Binding Path="DataContext.FilteredBookings" RelativeSource="{RelativeSource AncestorType=UserControl}" />
                                                             </MultiBinding>
                                                         </ItemsControl.ItemsSource>
                                                         <ItemsControl.ItemsPanel>

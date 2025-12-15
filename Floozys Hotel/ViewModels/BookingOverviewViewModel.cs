@@ -283,26 +283,25 @@ namespace Floozys_Hotel.ViewModels
             DateTime startPeriod;
             DateTime endPeriod;
 
+            IEnumerable<Booking> filtered;
+
             if (ViewDuration == "Year")
             {
                 startPeriod = new DateTime(CurrentMonth.Year, 1, 1);
                 endPeriod = new DateTime(CurrentMonth.Year, 12, 31);
+                
+                filtered = Bookings.Where(b =>
+                    b.StartDate <= endPeriod &&
+                    b.EndDate >= startPeriod &&
+                    b.Status != BookingStatus.Cancelled);
             }
-            else if (ViewDuration == "Week")
+            else 
             {
-                startPeriod = CurrentMonth.AddDays(-(int)CurrentMonth.DayOfWeek);
-                endPeriod = startPeriod.AddDays(6);
+                // For Month/Week views, we do NOT filter by date range.
+                // We rely on the Converters to handle visibility based on ViewStartDate.
+                // This prevents issues where bookings overlapping the edge of the view might be filtered out incorrectly or cause rendering glitches.
+                filtered = Bookings.Where(b => b.Status != BookingStatus.Cancelled);
             }
-            else
-            {
-                startPeriod = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
-                endPeriod = startPeriod.AddMonths(1).AddDays(-1);
-            }
-
-            var filtered = Bookings.Where(b =>
-                b.StartDate <= endPeriod &&
-                b.EndDate >= startPeriod &&
-                b.Status != BookingStatus.Cancelled);
 
             if (!string.IsNullOrWhiteSpace(SearchText))
             {

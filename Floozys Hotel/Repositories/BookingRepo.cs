@@ -256,6 +256,16 @@ namespace Floozys_Hotel.Repositories
             Update(booking);
         }
 
+        public void CancelBooking(int bookingID)
+        {
+            var booking = GetById(bookingID);
+            if (booking == null)
+                throw new ArgumentException($"Booking with ID {bookingID} not found");
+
+            booking.CancelBooking();
+            Update(booking);
+        }
+
         public void Delete(int bookingID)
         {
             var booking = GetById(bookingID);

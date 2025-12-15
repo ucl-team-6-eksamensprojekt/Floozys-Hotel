@@ -156,7 +156,7 @@ namespace Floozys_Hotel.ViewModels
         {
         }
 
-        public BookingOverviewViewModel(IBookingRepo bookingRepo, IRoomRepo roomRepo)  // For dependency injection (testing)
+        public BookingOverviewViewModel(IBookingRepo bookingRepo, IRoomRepo roomRepo)
         {
             _bookingRepo = bookingRepo;
             _roomRepo = roomRepo;
@@ -179,12 +179,12 @@ namespace Floozys_Hotel.ViewModels
 
             CheckInBookingCommand = new RelayCommand(
                 execute: _ => CheckInBooking(),
-                canExecute: _ => SelectedBooking != null && SelectedBooking.CanCheckIn()
+                canExecute: _ => CanExecuteCheckIn()
             );
 
             CheckOutBookingCommand = new RelayCommand(
                 execute: _ => CheckOutBooking(),
-                canExecute: _ => SelectedBooking != null && SelectedBooking.CanCheckOut()
+                canExecute: _ => CanExecuteCheckOut()
             );
 
             LoadData();
@@ -421,6 +421,49 @@ namespace Floozys_Hotel.ViewModels
             catch (Exception ex)
             {
                 // TODO: Show error message to user
+                System.Diagnostics.Debug.WriteLine($"Check-out failed: {ex.Message}");
+            }
+        }
+
+        // Check-in/out eligibility helpers
+        private bool CanExecuteCheckIn()
+        {
+            return SelectedBooking != null && SelectedBooking.CanCheckIn();
+        }
+
+        private bool CanExecuteCheckOut()
+        {
+            return SelectedBooking != null && SelectedBooking.CanCheckOut();
+        }
+
+        // UC03: Guest check-in
+        private void CheckInBooking()
+        {
+            if (SelectedBooking == null) return;
+
+            try
+            {
+                _bookingRepo.CheckIn(SelectedBooking.BookingID);
+                LoadData();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Check-in failed: {ex.Message}");
+            }
+        }
+
+        // UC04: Guest check-out
+        private void CheckOutBooking()
+        {
+            if (SelectedBooking == null) return;
+
+            try
+            {
+                _bookingRepo.CheckOut(SelectedBooking.BookingID);
+                LoadData();
+            }
+            catch (Exception ex)
+            {
                 System.Diagnostics.Debug.WriteLine($"Check-out failed: {ex.Message}");
             }
         }

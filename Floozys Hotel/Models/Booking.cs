@@ -8,24 +8,17 @@ namespace Floozys_Hotel.Models
         // PROPERTIES
 
         public int BookingID { get; set; }
-
         public DateTime StartDate { get; set; }
-
         public DateTime EndDate { get; set; }
-
-        public DateTime? CheckInTime { get; set; }  // Nullable because guest may not have checked in yet
-
-        public DateTime? CheckOutTime { get; set; }  // Nullable because guest may not have checked out yet
-
-        // ENUM
+        public DateTime? CheckInTime { get; set; }
+        public DateTime? CheckOutTime { get; set; }
         public BookingStatus Status { get; set; }
 
-        // FOREIGN KEYS - Added these since we need them to correctly map the data from the database :-)
+        // FOREIGN KEYS
         public int RoomID { get; set; }
         public int GuestID { get; set; }
 
         public Room Room { get; set; }
-
         public Guest Guest { get; set; }
 
         // CALCULATED PROPERTIES
@@ -43,7 +36,7 @@ namespace Floozys_Hotel.Models
 
         // VALIDATION
 
-        public List<string> Validate()  // Collects all validation errors instead of throwing on first error
+        public List<string> Validate()
         {
             var errors = new List<string>();
 
@@ -71,11 +64,9 @@ namespace Floozys_Hotel.Models
             return errors;
         }
 
-        // HELPER METHODS FOR CHECK-IN/CHECK-OUT
+        // BUSINESS LOGIC
 
-        /// <summary>
-        /// Checks if booking can be checked in today
-        /// </summary>
+        // Business rules for check-in eligibility
         public bool CanCheckIn()
         {
             return Status == BookingStatus.Confirmed &&
@@ -83,9 +74,7 @@ namespace Floozys_Hotel.Models
                    !CheckInTime.HasValue;
         }
 
-        /// <summary>
-        /// Checks if booking can be checked out
-        /// </summary>
+        // Business rules for check-out eligibility
         public bool CanCheckOut()
         {
             return Status == BookingStatus.CheckedIn &&
@@ -93,9 +82,6 @@ namespace Floozys_Hotel.Models
                    !CheckOutTime.HasValue;
         }
 
-        /// <summary>
-        /// Performs check-in operation
-        /// </summary>
         public void PerformCheckIn()
         {
             if (!CanCheckIn())
@@ -105,9 +91,6 @@ namespace Floozys_Hotel.Models
             Status = BookingStatus.CheckedIn;
         }
 
-        /// <summary>
-        /// Performs check-out operation
-        /// </summary>
         public void PerformCheckOut()
         {
             if (!CanCheckOut())

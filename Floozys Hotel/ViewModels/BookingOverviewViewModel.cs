@@ -586,7 +586,7 @@ namespace Floozys_Hotel.ViewModels
                     EditCheckInDate,
                     EditCheckOutDate,
                     EditRoom.RoomId,
-                    EditGuest.GuestID
+                    SelectedBooking.GuestID
                 );
 
                 IsEditMode = false;

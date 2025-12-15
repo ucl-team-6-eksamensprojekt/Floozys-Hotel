@@ -698,31 +698,6 @@
                                     Text="{Binding SelectedBooking.Guest.Country}" />
                             </Grid>
 
-                            <!--  Edit Mode - Guest Dropdown  -->
-                            <StackPanel Margin="0,0,0,15" Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibility}}">
-                                <TextBlock
-                                    Margin="0,0,0,5"
-                                    FontWeight="SemiBold"
-                                    Text="Select Guest:" />
-                                <ComboBox
-                                    Height="35"
-                                    ItemsSource="{Binding AllGuests}"
-                                    SelectedItem="{Binding EditGuest}">
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock>
-                                                <TextBlock.Text>
-                                                    <MultiBinding StringFormat="{}{0} {1}">
-                                                        <Binding Path="FirstName" />
-                                                        <Binding Path="LastName" />
-                                                    </MultiBinding>
-                                                </TextBlock.Text>
-                                            </TextBlock>
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </ComboBox>
-                            </StackPanel>
-
                             <!--  UC03: Room Section - View/Edit Mode  -->
                             <TextBlock
                                 Margin="0,0,0,5"

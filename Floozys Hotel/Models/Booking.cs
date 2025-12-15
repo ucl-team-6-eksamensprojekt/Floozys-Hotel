@@ -8,6 +8,10 @@ namespace Floozys_Hotel.Models
         // PROPERTIES
 
         public int BookingID { get; set; }
+
+        // Display-friendly booking number
+        public string BookingNumber => $"FLZ-{BookingID:D6}";
+
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public DateTime? CheckInTime { get; set; }
@@ -66,10 +70,10 @@ namespace Floozys_Hotel.Models
 
         // BUSINESS LOGIC
 
-        // Business rules for check-in eligibility
+        // Check-in allowed for both Pending and Confirmed when guest arrives
         public bool CanCheckIn()
         {
-            return Status == BookingStatus.Confirmed &&
+            return (Status == BookingStatus.Pending || Status == BookingStatus.Confirmed) &&
                    StartDate.Date <= DateTime.Today &&
                    !CheckInTime.HasValue;
         }

@@ -20,5 +20,9 @@ namespace Floozys_Hotel.Repositories.Interfaces
 
         // DELETE
         void Delete(int bookingID);
+
+        // CHECK-IN/CHECK-OUT OPERATIONS
+        void CheckIn(int bookingID);
+        void CheckOut(int bookingID);
     }
 }

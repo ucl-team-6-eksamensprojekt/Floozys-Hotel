@@ -836,6 +836,49 @@
                                     Grid.Column="1"
                                     Text="{Binding SelectedBooking.CheckOutTime, TargetNullValue='Not Checked Out', StringFormat='{}{0:HH:mm}'}" />
                             </Grid>
+                            <!--  Check-In/Check-Out Actions  -->
+                            <StackPanel Margin="0,20,0,0" Orientation="Vertical">
+                                <Button
+                                    Height="40"
+                                    Margin="0,0,0,10"
+                                    Background="#90EE90"
+                                    BorderBrush="#32CD32"
+                                    BorderThickness="2"
+                                    Command="{Binding CheckInBookingCommand}"
+                                    Content="✓ Check In Guest"
+                                    FontSize="14"
+                                    FontWeight="SemiBold">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Opacity" Value="0.5" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+
+                                <Button
+                                    Height="40"
+                                    Background="#FFB6C1"
+                                    BorderBrush="#FF69B4"
+                                    BorderThickness="2"
+                                    Command="{Binding CheckOutBookingCommand}"
+                                    Content="✓ Check Out Guest"
+                                    FontSize="14"
+                                    FontWeight="SemiBold">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Opacity" Value="0.5" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
                     <TextBlock

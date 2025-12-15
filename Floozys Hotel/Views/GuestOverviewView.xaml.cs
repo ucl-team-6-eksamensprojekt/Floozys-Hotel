@@ -64,5 +64,16 @@ namespace Floozys_Hotel.Views
             newBookingWindow.ShowDialog();
            
         }
+
+        private void SearchTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                if (DataContext is GuestOverviewViewModel vm)
+                {
+                    vm.SortGuestsByName();
+                }
+            }
+        }
     }
 }

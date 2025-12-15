@@ -70,7 +70,7 @@ namespace Floozys_Hotel.Models
 
         // BUSINESS LOGIC
 
-        // Check-in allowed for both Pending and Confirmed when guest arrives
+        // UC: Check-in allowed for both Pending and Confirmed when guest arrives
         public bool CanCheckIn()
         {
             return (Status == BookingStatus.Pending || Status == BookingStatus.Confirmed) &&
@@ -78,7 +78,7 @@ namespace Floozys_Hotel.Models
                    !CheckInTime.HasValue;
         }
 
-        // Business rules for check-out eligibility
+        // UC: Check-out. Business rules for check-out eligibility
         public bool CanCheckOut()
         {
             return Status == BookingStatus.CheckedIn &&
@@ -106,19 +106,41 @@ namespace Floozys_Hotel.Models
 
         // BUSINESS LOGIC - CANCELLATION
 
-        // Business rules for cancellation eligibility
+        // UC04: Business rules for cancellation eligibility
         public bool CanCancel()
         {
             return Status == BookingStatus.Pending || Status == BookingStatus.Confirmed;
         }
 
-        // Cancel booking operation
+        // UC04: Cancel booking operation
         public void CancelBooking()
         {
             if (!CanCancel())
                 throw new InvalidOperationException("Cannot cancel this booking");
 
             Status = BookingStatus.Cancelled;
+        }
+
+        // BUSINESS LOGIC - EDITING
+
+        // UC03: Check if booking can be edited
+        public bool CanEdit()
+        {
+            return Status == BookingStatus.Pending || Status == BookingStatus.Confirmed;
+        }
+
+        // UC03: Validate edit changes before saving
+        public List<string> ValidateEdit(DateTime newStartDate, DateTime newEndDate)
+        {
+            var errors = new List<string>();
+
+            if (newEndDate <= newStartDate)
+                errors.Add("End date must be after start date");
+
+            if (newStartDate.Date < DateTime.Now.Date)
+                errors.Add("Start date cannot be in the past");
+
+            return errors;
         }
     }
 }

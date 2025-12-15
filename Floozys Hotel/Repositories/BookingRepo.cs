@@ -266,6 +266,46 @@ namespace Floozys_Hotel.Repositories
             Update(booking);
         }
 
+        /// <summary>
+        /// UC03: Edit booking with conflict detection
+        /// </summary>
+        public void EditBooking(int bookingID, DateTime newStartDate, DateTime newEndDate, int newRoomID, int newGuestID)
+        {
+            var booking = GetById(bookingID);
+            if (booking == null)
+                throw new ArgumentException($"Booking with ID {bookingID} not found");
+
+            // Only Pending/Confirmed bookings can be edited
+            if (!booking.CanEdit())
+                throw new InvalidOperationException("Cannot edit this booking - only Pending or Confirmed bookings can be edited");
+
+            // Validate new dates
+            var validationErrors = booking.ValidateEdit(newStartDate, newEndDate);
+            if (validationErrors.Any())
+                throw new InvalidOperationException(string.Join(", ", validationErrors));
+
+            // Check for room conflicts (exclude current booking)
+            var conflictingBookings = GetAll()
+                .Where(b => b.BookingID != bookingID &&
+                            b.RoomID == newRoomID &&
+                            b.Status != BookingStatus.Cancelled &&
+                            b.Status != BookingStatus.CheckedOut &&
+                            b.StartDate < newEndDate &&
+                            b.EndDate > newStartDate)
+                .ToList();
+
+            if (conflictingBookings.Any())
+                throw new InvalidOperationException("Room is not available for selected dates");
+
+            // Update booking properties
+            booking.StartDate = newStartDate;
+            booking.EndDate = newEndDate;
+            booking.RoomID = newRoomID;
+            booking.GuestID = newGuestID;
+
+            Update(booking);
+        }
+
         public void Delete(int bookingID)
         {
             var booking = GetById(bookingID);

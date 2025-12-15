@@ -11,51 +11,83 @@
     mc:Ignorable="d">
 
     <Grid Margin="20">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300" />
-            <ColumnDefinition Width="30" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" /> <!-- Top bar -->
+            <RowDefinition Height="Auto" /> <!-- In between -->
+            <RowDefinition Height="*" />    <!-- Content -->
         </Grid.RowDefinitions>
 
-        <!--  Header  -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="3*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Header -->
         <TextBlock
             Grid.Row="0"
-            Grid.Column="0"
-            Margin="0,0,0,30"
+            Grid.ColumnSpan="2"
             VerticalAlignment="Center"
             FontSize="30"
             FontWeight="ExtraBold"
-            Text="Guest Overview" />
+            Text="Guest Overview"
+            Margin="0,0,30,0"/>
 
-        <!--  TODO: Make Search guest work (e.g. searh for name)  -->
-        <Button
-            Grid.Row="0"
-            Grid.Column="2"
-            Width="180"
-            Height="50"
-            Margin="0,0,0,30"
-            HorizontalAlignment="Right"
-            Background="#90EE90"
-            BorderBrush="#32CD32"
-            BorderThickness="2"
-            Command="{Binding SearchGuestCommand}"
-            Content="Search guest"
-            FontSize="16"
-            FontWeight="SemiBold"
-            Foreground="Black" />
+        <!--  Search field & button  -->
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,20">
+            
+            <TextBox
+                Width="200"
+                Height="35"
+                Padding="10,0"
+                VerticalContentAlignment="Center"
+                FontSize="14"
+                Text="{Binding SearchGuest, UpdateSourceTrigger=PropertyChanged}"
+                VerticalAlignment="Center"
+                Margin="0,30,10,0"
+                KeyDown="SearchTextBox_KeyDown">
+                <TextBox.Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="Foreground" Value="Black" />
+                        <Style.Triggers>
+                            <Trigger Property="Text" Value="">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <VisualBrush
+                                            AlignmentX="Left"
+                                            AlignmentY="Center"
+                                            Stretch="None">
+                                            <VisualBrush.Visual>
+                                                <TextBlock
+                                                    Margin="10,0,0,0"
+                                                    Foreground="Gray"
+                                                    Text="🔍 Search by guest..." />
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
+            <Button
+                Content="New Guest"
+                Command="{Binding NewGuestCommand}"
+                Width="120"
+                Height="35"
+                VerticalAlignment="Center"
+                Margin="300,30,10,0"/>
+        </StackPanel>
 
-        <!--  Guest List  -->
+        <!-- Guest List -->
         <Border
-            Grid.Row="1"
+            Grid.Row="2"
             Grid.Column="0"
             Padding="10"
             BorderBrush="LightGray"
-            BorderThickness="1">
+            BorderThickness="1"
+            Margin="0,0,10,0">
             <ListView
                 Margin="0"
                 HorizontalAlignment="Stretch"
@@ -72,10 +104,10 @@
             </ListView>
         </Border>
 
-        <!--  Guest Details (Edit)  -->
+        <!-- Guest Details -->
         <Border
-            Grid.Row="1"
-            Grid.Column="2"
+            Grid.Row="2"
+            Grid.Column="1"
             Padding="10"
             BorderBrush="LightGray"
             BorderThickness="1">
@@ -156,15 +188,10 @@
                         Command="{Binding CreateBookingForGuestCommand}"
                         Margin="0,10,0,0"
                         Width="120"/>
-                <Button Content="New Guest"
-                        Command="{Binding NewGuestCommand}"
-                        Margin="0,10,0,0"
-                        Width="120"/>
                 <Button Content="Clear" 
                         Command="{Binding ClearGuestCommand}" 
                         Margin="0,10,0,0" 
                         Width="120"/>
-
             </StackPanel>
         </Border>
     </Grid>

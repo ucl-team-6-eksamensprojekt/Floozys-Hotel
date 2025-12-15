@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Xps.Serialization;
 using Floozys_Hotel.Commands;
 using Floozys_Hotel.Core;
 using Floozys_Hotel.Models;
@@ -20,12 +21,16 @@ namespace Floozys_Hotel.ViewModels
         // Fields and properties
         private readonly IGuestRepo _guestRepo;
 
-
+        private ObservableCollection<Guest> _allGuests = new ObservableCollection<Guest>();
         private ObservableCollection<Guest> _guests = new ObservableCollection<Guest>();
         public ObservableCollection<Guest> Guests
         {
             get => _guests;
-            set { _guests = value; OnPropertyChanged(); }
+            set
+            {
+                _guests = value;
+                OnPropertyChanged();
+            }
         }
 
 
@@ -33,7 +38,12 @@ namespace Floozys_Hotel.ViewModels
         public Guest SelectedGuest
         {
             get => _selectedGuest;
-            set { _selectedGuest = value; OnPropertyChanged(); EditGuestCommand?.RaiseCanExecuteChanged(); }
+            set
+            {
+                _selectedGuest = value;
+                OnPropertyChanged();
+                EditGuestCommand?.RaiseCanExecuteChanged();
+            }
         }
 
 
@@ -41,7 +51,11 @@ namespace Floozys_Hotel.ViewModels
         public bool IsEditing
         {
             get => _isEditing;
-            set { _isEditing = value; OnPropertyChanged(); }
+            set
+            {
+                _isEditing = value;
+                OnPropertyChanged();
+            }
         }
 
 
@@ -49,7 +63,23 @@ namespace Floozys_Hotel.ViewModels
         public bool IsNewGuest
         {
             get => _isNewGuest;
-            set { _isNewGuest = value; OnPropertyChanged(); }
+            set
+            {
+                _isNewGuest = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _searchGuest = "";
+        public string SearchGuest  // Bound to search field
+        {
+            get => _searchGuest;
+            set
+            {
+                _searchGuest = value;
+                OnPropertyChanged();
+                FilterAndSortGuests();
+            }
         }
 
 
@@ -57,7 +87,7 @@ namespace Floozys_Hotel.ViewModels
         public RelayCommand EditGuestCommand { get; set; }
         public RelayCommand ClearGuestCommand { get; set; }
         public RelayCommand CreateBookingForGuestCommand { get; set; }
-       
+
 
         // Events for View
         public event Action<Guest> EditGuestRequested;
@@ -81,17 +111,52 @@ namespace Floozys_Hotel.ViewModels
             IsNewGuest = false;
         }
 
+        // Methods
+
         private void LoadGuests()
         {
             var guests = _guestRepo.GetAll();
+            _allGuests.Clear();
             Guests.Clear();
             foreach (var guest in guests)
             {
+                _allGuests.Add(guest);
                 Guests.Add(guest);
             }
         }
 
-        // Methods
+
+        private void FilterAndSortGuests()
+        {
+            var search = (SearchGuest ?? "").Trim();
+
+            var filtered = string.IsNullOrWhiteSpace(search)
+                ? _allGuests
+                : _allGuests.Where(g => MatchSearchGuest(g, search));
+
+            // Sort in alphabetic order (firstname + lastname)
+            var sorted = filtered.OrderBy(g => (g.FirstName + " " + g.LastName).ToLowerInvariant()).ToList();
+
+            Guests.Clear();
+            foreach (var guest in sorted)
+                Guests.Add(guest);
+        }
+
+
+        private bool MatchSearchGuest(Guest guest, string search)
+        {
+            if (guest == null) return false;
+            var terms = search.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var fullName = (guest.FirstName + " " + guest.LastName).ToLowerInvariant();
+
+            return terms.All(term =>
+                fullName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                (guest.Country ?? "").Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                (guest.Email ?? "").Contains(term, StringComparison.OrdinalIgnoreCase)
+            );
+        }
+
+
         private void OnNewGuest()
         {
             NewGuestRequested?.Invoke();
@@ -129,7 +194,7 @@ namespace Floozys_Hotel.ViewModels
         {
             if (SelectedGuest != null)
             {
-                BookingRequestedForGuest?.Invoke( SelectedGuest );
+                BookingRequestedForGuest?.Invoke(SelectedGuest);
             }
         }
 
@@ -151,6 +216,14 @@ namespace Floozys_Hotel.ViewModels
 
             OnPropertyChanged(nameof(Guests)); // Opdate in special edge cases
         }
+
+        public void SortGuestsByName()
+        {
+            // Sortér kun de allerede filtrerede gæster
+            var sorted = Guests.OrderBy(g => (g.FirstName + " " + g.LastName).ToLowerInvariant()).ToList();
+            Guests.Clear();
+            foreach (var guest in sorted)
+                Guests.Add(guest);
+        }
     }
 }
-

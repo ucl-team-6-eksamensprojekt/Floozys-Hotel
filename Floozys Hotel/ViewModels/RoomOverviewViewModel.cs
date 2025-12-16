@@ -4,6 +4,7 @@ using Floozys_Hotel.Models;
 using Floozys_Hotel.Repositories;
 using Floozys_Hotel.ViewModels.FormsViewModel;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
 
 
@@ -196,8 +197,21 @@ namespace Floozys_Hotel.ViewModels
         {
             if (room == null) return;
 
-            _roomRepo.DeleteRoom(room.RoomId);
-            Rooms.Remove(room);
+            var result = System.Windows.MessageBox.Show($"Are you sure you want to delete room {room.RoomNumber}?\n\n" + "This can disrupt logged bookings ", "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                _roomRepo.DeleteRoom(room.RoomId);
+                Rooms.Remove(room);
+            }
+            catch (InvalidOperationException ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message, "Unable to delete room", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            }
+
         }
 
         private void OnRoomSaved()

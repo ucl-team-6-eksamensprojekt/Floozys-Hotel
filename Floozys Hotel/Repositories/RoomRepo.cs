@@ -189,20 +189,27 @@ namespace Floozys_Hotel.Repositories
         // DELETE
         public void DeleteRoom(int roomId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            try
             {
-                conn.Open();
-                var sql = "uspDeleteRoom";
-
-                using (var cmd = new SqlCommand(sql, conn))
+                using (var conn = new SqlConnection(_connectionString))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@RoomID", roomId);
+                    conn.Open();
+                    var sql = "uspDeleteRoom";
 
-                    cmd.ExecuteNonQuery();
+                    using (var cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@RoomID", roomId);
+
+                        cmd.ExecuteNonQuery();
+                    }
                 }
             }
-
+            catch (SqlException ex) when (ex.Number == 547)
+            {
+                throw new InvalidOperationException("Room Cannot be deleted because it has existing bookings. set Room Status to Out of service with edit to disable it");
+            }
+            
         }
 
 

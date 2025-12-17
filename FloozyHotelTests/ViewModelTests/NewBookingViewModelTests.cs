@@ -39,7 +39,7 @@ namespace FloozyHotelTests.ViewModelTests
             viewModel.SelectedRoom = viewModel.NewBookingRoomList.First();
 
             // Act
-            viewModel.ConfirmBookingCommand.Execute(null);
+            viewModel.SaveBookingCommand.Execute(null);
 
             // Assert - Just check success message, not repo count
             Assert.IsTrue(viewModel.ErrorMessage.Contains("✅"));
@@ -61,7 +61,7 @@ namespace FloozyHotelTests.ViewModelTests
             viewModel.SelectedRoom = viewModel.NewBookingRoomList.First();
 
             // Act
-            viewModel.ConfirmBookingCommand.Execute(null);
+            viewModel.SaveBookingCommand.Execute(null);
 
             // Assert
             Assert.AreEqual("Check-in date is required", viewModel.ErrorMessage);
@@ -82,7 +82,7 @@ namespace FloozyHotelTests.ViewModelTests
             viewModel.SelectedRoom = viewModel.NewBookingRoomList.First();
 
             // Act
-            viewModel.ConfirmBookingCommand.Execute(null);
+            viewModel.SaveBookingCommand.Execute(null);
 
             // Assert
             Assert.AreEqual("Check-out date is required", viewModel.ErrorMessage);
@@ -104,7 +104,7 @@ namespace FloozyHotelTests.ViewModelTests
             viewModel.SelectedRoom = viewModel.NewBookingRoomList.First();
 
             // Act
-            viewModel.ConfirmBookingCommand.Execute(null);
+            viewModel.SaveBookingCommand.Execute(null);
 
             // Assert
             Assert.AreEqual("Check-out date must be after check-in date", viewModel.ErrorMessage);
@@ -126,7 +126,7 @@ namespace FloozyHotelTests.ViewModelTests
             viewModel.SelectedRoom = viewModel.NewBookingRoomList.First();
 
             // Act
-            viewModel.ConfirmBookingCommand.Execute(null);
+            viewModel.SaveBookingCommand.Execute(null);
 
             // Assert
             Assert.AreEqual("Check-in date cannot be in the past", viewModel.ErrorMessage);
@@ -148,7 +148,7 @@ namespace FloozyHotelTests.ViewModelTests
             // No room selected
 
             // Act
-            viewModel.ConfirmBookingCommand.Execute(null);
+            viewModel.SaveBookingCommand.Execute(null);
 
             // Assert
             Assert.AreEqual("Please select a room", viewModel.ErrorMessage);
@@ -170,7 +170,7 @@ namespace FloozyHotelTests.ViewModelTests
             viewModel.SelectedRoom = viewModel.NewBookingRoomList.First();
 
             // Act
-            viewModel.ConfirmBookingCommand.Execute(null);
+            viewModel.SaveBookingCommand.Execute(null);
 
             // Assert
             Assert.IsTrue(viewModel.ErrorMessage.Contains("email") || viewModel.ErrorMessage.Contains("Email"));
@@ -192,7 +192,7 @@ namespace FloozyHotelTests.ViewModelTests
             viewModel.SelectedRoom = viewModel.NewBookingRoomList.First();
 
             // Act - Create booking which calls ClearForm on success
-            viewModel.ConfirmBookingCommand.Execute(null);
+            viewModel.SaveBookingCommand.Execute(null);
 
             // Assert - Fields should be cleared after successful booking
             Assert.IsNull(viewModel.CheckInDate);

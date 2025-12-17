@@ -21,7 +21,7 @@ namespace Floozys_Hotel.ViewModels
         private string _searchText = "";
         private string _viewDuration = "Month";
         private Booking _selectedBooking;
-        private bool _isEditMode;  
+        private bool _isEditMode;
 
         // COLLECTIONS
 
@@ -159,16 +159,9 @@ namespace Floozys_Hotel.ViewModels
         public bool IsViewMode => !IsEditMode;
 
         // Edit mode - temporary values
-        private Guest _editGuest;
         private Room _editRoom;
         private DateTime _editCheckInDate;
         private DateTime _editCheckOutDate;
-
-        public Guest EditGuest
-        {
-            get => _editGuest;
-            set { _editGuest = value; OnPropertyChanged(); }
-        }
 
         public Room EditRoom
         {
@@ -201,9 +194,9 @@ namespace Floozys_Hotel.ViewModels
         public RelayCommand CheckInBookingCommand { get; set; }
         public RelayCommand CheckOutBookingCommand { get; set; }
         public RelayCommand CancelBookingCommand { get; set; }
-        public RelayCommand EditBookingCommand { get; set; }  
-        public RelayCommand SaveEditCommand { get; set; }    
-        public RelayCommand CancelEditCommand { get; set; }   
+        public RelayCommand EditBookingCommand { get; set; }
+        public RelayCommand SaveEditCommand { get; set; }
+        public RelayCommand CancelEditCommand { get; set; }
         public RelayCommand SetWeekViewCommand { get; set; }
         public RelayCommand SetMonthViewCommand { get; set; }
         public RelayCommand SetYearViewCommand { get; set; }
@@ -246,7 +239,7 @@ namespace Floozys_Hotel.ViewModels
                 canExecute: _ => CanExecuteCheckOut()
             );
 
-            CancelBookingCommand = new RelayCommand(  // ← NY!
+            CancelBookingCommand = new RelayCommand(
                 execute: _ => CancelBooking(),
                 canExecute: _ => CanExecuteCancel()
             );
@@ -389,17 +382,14 @@ namespace Floozys_Hotel.ViewModels
             {
                 startPeriod = new DateTime(CurrentMonth.Year, 1, 1);
                 endPeriod = new DateTime(CurrentMonth.Year, 12, 31);
-                
+
                 filtered = Bookings.Where(b =>
                     b.StartDate <= endPeriod &&
                     b.EndDate >= startPeriod &&
                     b.Status != BookingStatus.Cancelled);
             }
-            else 
+            else
             {
-                // For Month/Week views, we do NOT filter by date range.
-                // We rely on the Converters to handle visibility based on ViewStartDate.
-                // This prevents issues where bookings overlapping the edge of the view might be filtered out incorrectly or cause rendering glitches.
                 filtered = Bookings.Where(b => b.Status != BookingStatus.Cancelled);
             }
 
@@ -467,25 +457,47 @@ namespace Floozys_Hotel.ViewModels
             return prop != null ? prop.GetValue(src, null) : null;
         }
 
-        // Check-in/out eligibility helpers
+        // ========================================
+        // BUSINESS LOGIC - CHECK-IN
+        // ========================================
+
+        // UC20: Business rule - can check in
         private bool CanExecuteCheckIn()
         {
-            return SelectedBooking != null && SelectedBooking.CanCheckIn();
+            if (SelectedBooking == null) return false;
+
+            // Check-in allowed for Pending or Confirmed bookings
+            // when start date has arrived and not already checked in
+            return (SelectedBooking.Status == BookingStatus.Pending ||
+                    SelectedBooking.Status == BookingStatus.Confirmed) &&
+                   SelectedBooking.StartDate.Date <= DateTime.Today &&
+                   !SelectedBooking.CheckInTime.HasValue;
         }
 
-        private bool CanExecuteCheckOut()
-        {
-            return SelectedBooking != null && SelectedBooking.CanCheckOut();
-        }
-
-        // UC03: Guest check-in
+        // UC20: Guest check-in operation
         private void CheckInBooking()
         {
             if (SelectedBooking == null) return;
 
+            // Business rule validation
+            if (!CanExecuteCheckIn())
+            {
+                System.Windows.MessageBox.Show(
+                    "Cannot check in this booking",
+                    "Error",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error
+                );
+                return;
+            }
+
             try
             {
-                _bookingRepo.CheckIn(SelectedBooking.BookingID);
+                // Perform check-in operation
+                SelectedBooking.CheckInTime = DateTime.Now;
+                SelectedBooking.Status = BookingStatus.CheckedIn;
+
+                _bookingRepo.Update(SelectedBooking);
                 LoadData();
             }
             catch (Exception ex)
@@ -494,14 +506,45 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        // UC04: Guest check-out
+        // ========================================
+        // BUSINESS LOGIC - CHECK-OUT
+        // ========================================
+
+        // UC21: Business rule - can check out
+        private bool CanExecuteCheckOut()
+        {
+            if (SelectedBooking == null) return false;
+
+            // Check-out only allowed for checked-in bookings
+            return SelectedBooking.Status == BookingStatus.CheckedIn &&
+                   SelectedBooking.CheckInTime.HasValue &&
+                   !SelectedBooking.CheckOutTime.HasValue;
+        }
+
+        // UC21: Guest check-out operation
         private void CheckOutBooking()
         {
             if (SelectedBooking == null) return;
 
+            // Business rule validation
+            if (!CanExecuteCheckOut())
+            {
+                System.Windows.MessageBox.Show(
+                    "Cannot check out this booking",
+                    "Error",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error
+                );
+                return;
+            }
+
             try
             {
-                _bookingRepo.CheckOut(SelectedBooking.BookingID);
+                // Perform check-out operation
+                SelectedBooking.CheckOutTime = DateTime.Now;
+                SelectedBooking.Status = BookingStatus.CheckedOut;
+
+                _bookingRepo.Update(SelectedBooking);
                 LoadData();
             }
             catch (Exception ex)
@@ -510,16 +553,36 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        // Cancellation eligibility
+        // ========================================
+        // BUSINESS LOGIC - CANCELLATION
+        // ========================================
+
+        // UC04: Business rule - can cancel
         private bool CanExecuteCancel()
         {
-            return SelectedBooking != null && SelectedBooking.CanCancel();
+            if (SelectedBooking == null) return false;
+
+            // Can only cancel Pending or Confirmed bookings
+            return SelectedBooking.Status == BookingStatus.Pending ||
+                   SelectedBooking.Status == BookingStatus.Confirmed;
         }
 
-        // UC04: Cancel booking
+        // UC04: Cancel booking operation
         private void CancelBooking()
         {
             if (SelectedBooking == null) return;
+
+            // Business rule validation
+            if (!CanExecuteCancel())
+            {
+                System.Windows.MessageBox.Show(
+                    "Cannot cancel this booking",
+                    "Error",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error
+                );
+                return;
+            }
 
             var result = System.Windows.MessageBox.Show(
                 "Cancel Booking Permanently From System?",
@@ -533,7 +596,10 @@ namespace Floozys_Hotel.ViewModels
 
             try
             {
-                _bookingRepo.CancelBooking(SelectedBooking.BookingID);
+                // Perform cancellation
+                SelectedBooking.Status = BookingStatus.Cancelled;
+
+                _bookingRepo.Update(SelectedBooking);
                 LoadData();
 
                 System.Windows.MessageBox.Show(
@@ -554,10 +620,18 @@ namespace Floozys_Hotel.ViewModels
             }
         }
 
-        // UC03: Edit booking eligibility
+        // ========================================
+        // BUSINESS LOGIC - EDIT BOOKING
+        // ========================================
+
+        // UC03: Business rule - can edit
         private bool CanExecuteEdit()
         {
-            return SelectedBooking != null && SelectedBooking.CanEdit();
+            if (SelectedBooking == null) return false;
+
+            // Can only edit Pending or Confirmed bookings
+            return SelectedBooking.Status == BookingStatus.Pending ||
+                   SelectedBooking.Status == BookingStatus.Confirmed;
         }
 
         // UC03: Enter edit mode
@@ -566,7 +640,6 @@ namespace Floozys_Hotel.ViewModels
             if (SelectedBooking == null) return;
 
             // Store current values in edit properties
-            EditGuest = AllGuests.FirstOrDefault(g => g.GuestID == SelectedBooking.GuestID);
             EditRoom = AllRooms.FirstOrDefault(r => r.RoomId == SelectedBooking.RoomID);
             EditCheckInDate = SelectedBooking.StartDate;
             EditCheckOutDate = SelectedBooking.EndDate;
@@ -579,15 +652,60 @@ namespace Floozys_Hotel.ViewModels
         {
             if (SelectedBooking == null) return;
 
+            // Business rule: Only Pending/Confirmed can be edited
+            if (!CanExecuteEdit())
+            {
+                System.Windows.MessageBox.Show(
+                    "Cannot edit this booking - only Pending or Confirmed bookings can be edited",
+                    "Error",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error
+                );
+                return;
+            }
+
+            // Validation: Check dates
+            var validationErrors = SelectedBooking.ValidateEdit(EditCheckInDate, EditCheckOutDate);
+            if (validationErrors.Any())
+            {
+                System.Windows.MessageBox.Show(
+                    string.Join("\n", validationErrors),
+                    "Validation Error",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error
+                );
+                return;
+            }
+
+            // Business rule: Check for room conflicts (exclude current booking)
+            var conflictingBookings = Bookings
+                .Where(b => b.BookingID != SelectedBooking.BookingID &&
+                            b.RoomID == EditRoom.RoomId &&
+                            b.Status != BookingStatus.Cancelled &&
+                            b.Status != BookingStatus.CheckedOut &&
+                            b.StartDate < EditCheckOutDate &&
+                            b.EndDate > EditCheckInDate)
+                .ToList();
+
+            if (conflictingBookings.Any())
+            {
+                System.Windows.MessageBox.Show(
+                    "Room is not available for selected dates",
+                    "Conflict Error",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error
+                );
+                return;
+            }
+
             try
             {
-                _bookingRepo.EditBooking(
-                    SelectedBooking.BookingID,
-                    EditCheckInDate,
-                    EditCheckOutDate,
-                    EditRoom.RoomId,
-                    SelectedBooking.GuestID
-                );
+                // Update booking properties
+                SelectedBooking.StartDate = EditCheckInDate;
+                SelectedBooking.EndDate = EditCheckOutDate;
+                SelectedBooking.RoomID = EditRoom.RoomId;
+
+                _bookingRepo.Update(SelectedBooking);
 
                 IsEditMode = false;
                 LoadData();

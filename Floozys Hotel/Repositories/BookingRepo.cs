@@ -35,8 +35,8 @@ namespace Floozys_Hotel.Repositories
                     cmd.Parameters.AddWithValue("@CheckInTime", (object?)booking.CheckInTime ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@CheckOutTime", (object?)booking.CheckOutTime ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@Status", (int)booking.Status);
-                    cmd.Parameters.AddWithValue("@RoomID", (object?)booking.Room?.RoomId ?? (object?)booking.RoomID ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@GuestID", (object?)booking.Guest?.GuestID ?? (object?)booking.GuestID ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@RoomID", booking.RoomID);
+                    cmd.Parameters.AddWithValue("@GuestID", booking.GuestID);
 
                     int newId = (int)cmd.ExecuteScalar();
                     booking.BookingID = newId;
@@ -217,8 +217,8 @@ namespace Floozys_Hotel.Repositories
                     cmd.Parameters.AddWithValue("@CheckInTime", (object?)booking.CheckInTime ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@CheckOutTime", (object?)booking.CheckOutTime ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@Status", (int)booking.Status);
-                    cmd.Parameters.AddWithValue("@RoomID", booking.Room?.RoomId ?? booking.RoomID);
-                    cmd.Parameters.AddWithValue("@GuestID", booking.Guest?.GuestID ?? booking.GuestID);
+                    cmd.Parameters.AddWithValue("@RoomID", booking.RoomID);
+                    cmd.Parameters.AddWithValue("@GuestID", booking.GuestID);
 
                     int rowsAffected = cmd.ExecuteNonQuery();
 
@@ -228,82 +228,6 @@ namespace Floozys_Hotel.Repositories
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Performs check-in operation on a booking
-        /// </summary>
-        public void CheckIn(int bookingID)
-        {
-            var booking = GetById(bookingID);
-            if (booking == null)
-                throw new ArgumentException($"Booking with ID {bookingID} not found");
-
-            booking.PerformCheckIn();
-            Update(booking);
-        }
-
-        /// <summary>
-        /// Performs check-out operation on a booking
-        /// </summary>
-        public void CheckOut(int bookingID)
-        {
-            var booking = GetById(bookingID);
-            if (booking == null)
-                throw new ArgumentException($"Booking with ID {bookingID} not found");
-
-            booking.PerformCheckOut();
-            Update(booking);
-        }
-
-        public void CancelBooking(int bookingID)
-        {
-            var booking = GetById(bookingID);
-            if (booking == null)
-                throw new ArgumentException($"Booking with ID {bookingID} not found");
-
-            booking.CancelBooking();
-            Update(booking);
-        }
-
-        /// <summary>
-        /// UC03: Edit booking with conflict detection
-        /// </summary>
-        public void EditBooking(int bookingID, DateTime newStartDate, DateTime newEndDate, int newRoomID, int newGuestID)
-        {
-            var booking = GetById(bookingID);
-            if (booking == null)
-                throw new ArgumentException($"Booking with ID {bookingID} not found");
-
-            // Only Pending/Confirmed bookings can be edited
-            if (!booking.CanEdit())
-                throw new InvalidOperationException("Cannot edit this booking - only Pending or Confirmed bookings can be edited");
-
-            // Validate new dates
-            var validationErrors = booking.ValidateEdit(newStartDate, newEndDate);
-            if (validationErrors.Any())
-                throw new InvalidOperationException(string.Join(", ", validationErrors));
-
-            // Check for room conflicts (exclude current booking)
-            var conflictingBookings = GetAll()
-                .Where(b => b.BookingID != bookingID &&
-                            b.RoomID == newRoomID &&
-                            b.Status != BookingStatus.Cancelled &&
-                            b.Status != BookingStatus.CheckedOut &&
-                            b.StartDate < newEndDate &&
-                            b.EndDate > newStartDate)
-                .ToList();
-
-            if (conflictingBookings.Any())
-                throw new InvalidOperationException("Room is not available for selected dates");
-
-            // Update booking properties
-            booking.StartDate = newStartDate;
-            booking.EndDate = newEndDate;
-            booking.RoomID = newRoomID;
-            booking.GuestID = newGuestID;
-
-            Update(booking);
         }
 
         public void Delete(int bookingID)

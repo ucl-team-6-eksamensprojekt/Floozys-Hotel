@@ -38,7 +38,7 @@ namespace Floozys_Hotel.Models
             }
         }
 
-        // VALIDATION
+        // VALIDATION ONLY
 
         public List<string> Validate()
         {
@@ -56,10 +56,10 @@ namespace Floozys_Hotel.Models
             if (StartDate != default && StartDate.Date < DateTime.Now.Date)
                 errors.Add("Start date cannot be in the past");
 
-            if (Room == null)
+            if (Room == null && RoomID == 0)
                 errors.Add("Room is required");
 
-            if (Guest == null)
+            if (Guest == null && GuestID == 0)
                 errors.Add("Guest is required");
 
             if (CheckOutTime.HasValue && CheckInTime.HasValue && CheckOutTime.Value <= CheckInTime.Value)
@@ -68,68 +68,6 @@ namespace Floozys_Hotel.Models
             return errors;
         }
 
-        // BUSINESS LOGIC
-
-        // UC: Check-in allowed for both Pending and Confirmed when guest arrives
-        public bool CanCheckIn()
-        {
-            return (Status == BookingStatus.Pending || Status == BookingStatus.Confirmed) &&
-                   StartDate.Date <= DateTime.Today &&
-                   !CheckInTime.HasValue;
-        }
-
-        // UC: Check-out. Business rules for check-out eligibility
-        public bool CanCheckOut()
-        {
-            return Status == BookingStatus.CheckedIn &&
-                   CheckInTime.HasValue &&
-                   !CheckOutTime.HasValue;
-        }
-
-        public void PerformCheckIn()
-        {
-            if (!CanCheckIn())
-                throw new InvalidOperationException("Cannot check in this booking");
-
-            CheckInTime = DateTime.Now;
-            Status = BookingStatus.CheckedIn;
-        }
-
-        public void PerformCheckOut()
-        {
-            if (!CanCheckOut())
-                throw new InvalidOperationException("Cannot check out this booking");
-
-            CheckOutTime = DateTime.Now;
-            Status = BookingStatus.CheckedOut;
-        }
-
-        // BUSINESS LOGIC - CANCELLATION
-
-        // UC04: Business rules for cancellation eligibility
-        public bool CanCancel()
-        {
-            return Status == BookingStatus.Pending || Status == BookingStatus.Confirmed;
-        }
-
-        // UC04: Cancel booking operation
-        public void CancelBooking()
-        {
-            if (!CanCancel())
-                throw new InvalidOperationException("Cannot cancel this booking");
-
-            Status = BookingStatus.Cancelled;
-        }
-
-        // BUSINESS LOGIC - EDITING
-
-        // UC03: Check if booking can be edited
-        public bool CanEdit()
-        {
-            return Status == BookingStatus.Pending || Status == BookingStatus.Confirmed;
-        }
-
-        // UC03: Validate edit changes before saving
         public List<string> ValidateEdit(DateTime newStartDate, DateTime newEndDate)
         {
             var errors = new List<string>();

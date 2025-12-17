@@ -134,14 +134,14 @@ namespace Floozys_Hotel.ViewModels
         }
 
         // COMMAND
-        public ICommand ConfirmBookingCommand { get; }
+        public ICommand SaveBookingCommand { get; }
 
         // CONSTRUCTOR
 
         public NewBookingViewModel(Guest? selectedGuest = null)
         {
             _selectedGuest = selectedGuest;
-            ConfirmBookingCommand = new RelayCommand(CreateBooking);
+            SaveBookingCommand = new RelayCommand(CreateBooking);
 
             // Initialize ObservableCollection
             NewBookingRoomList = new ObservableCollection<Room>();

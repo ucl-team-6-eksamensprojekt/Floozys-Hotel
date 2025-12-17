@@ -21,7 +21,7 @@
         <converters:BookingStatusColorConverter x:Key="BookingStatusColorConverter" />
         <converters:CheckInStatusConverter x:Key="CheckInStatusConverter" />
 
-        <!-- UC03: Inverse boolean for edit mode visibility -->
+        <!--  UC03: Inverse boolean for edit mode visibility  -->
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
     </UserControl.Resources>
 
@@ -960,6 +960,33 @@
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding SelectedBooking.Status}" Value="CheckedOut">
                                                         <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Opacity" Value="0.5" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <!--  Confirm Booking Button  -->
+                                    <Button
+                                        Height="40"
+                                        Margin="0,0,0,10"
+                                        Background="#4CAF50"
+                                        BorderBrush="#2E8B57"
+                                        BorderThickness="2"
+                                        Command="{Binding ConfirmBookingCommand}"
+                                        Content="✓ Confirm Booking"
+                                        FontSize="14"
+                                        FontWeight="SemiBold"
+                                        Foreground="White">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedBooking.Status}" Value="Pending">
+                                                        <Setter Property="Visibility" Value="Visible" />
                                                     </DataTrigger>
                                                     <Trigger Property="IsEnabled" Value="False">
                                                         <Setter Property="Opacity" Value="0.5" />

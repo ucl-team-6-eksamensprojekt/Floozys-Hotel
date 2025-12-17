@@ -23,6 +23,7 @@ namespace Floozys_Hotel.ViewModels
         private Booking _selectedBooking;
         private bool _isEditMode;
 
+
         // COLLECTIONS
 
         public ObservableCollection<Room> Rooms { get; set; }

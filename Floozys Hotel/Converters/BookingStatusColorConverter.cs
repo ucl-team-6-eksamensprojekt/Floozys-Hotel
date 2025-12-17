@@ -15,15 +15,22 @@ namespace Floozys_Hotel.Converters
                 switch (status)
                 {
                     case BookingStatus.Pending:
-                        return new SolidColorBrush(Colors.Gold); // Yellow for Pending
-                    
+                        return new SolidColorBrush(Colors.Gold); // YELLOW for Pending
+
                     case BookingStatus.Confirmed:
+                        return new SolidColorBrush(Colors.CornflowerBlue); // BLUE for Confirmed
+
                     case BookingStatus.CheckedIn:
+                        return new SolidColorBrush(Colors.LimeGreen); // GREEN for CheckedIn
+
                     case BookingStatus.CheckedOut:
-                        return new SolidColorBrush(Colors.LimeGreen); // Green for Confirmed statuses
-                    
+                        return new SolidColorBrush(Colors.LightGray); // GRAY for CheckedOut
+
+                    case BookingStatus.Cancelled:
+                        return new SolidColorBrush(Colors.IndianRed); // RED for Cancelled
+
                     default:
-                        return new SolidColorBrush(Colors.Lavender); // Default color
+                        return new SolidColorBrush(Colors.Lavender); // Default
                 }
             }
             return new SolidColorBrush(Colors.Lavender);

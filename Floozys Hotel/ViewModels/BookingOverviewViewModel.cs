@@ -56,6 +56,7 @@ namespace Floozys_Hotel.ViewModels
             {
                 _selectedBooking = value;
                 OnPropertyChanged();
+                ConfirmBookingCommand?.RaiseCanExecuteChanged();
                 CheckInBookingCommand?.RaiseCanExecuteChanged();
                 CheckOutBookingCommand?.RaiseCanExecuteChanged();
                 CancelBookingCommand?.RaiseCanExecuteChanged();
@@ -191,6 +192,7 @@ namespace Floozys_Hotel.ViewModels
         public RelayCommand NextMonthCommand { get; set; }
         public RelayCommand PreviousMonthCommand { get; set; }
         public RelayCommand SelectBookingCommand { get; set; }
+        public RelayCommand ConfirmBookingCommand { get; set; }
         public RelayCommand CheckInBookingCommand { get; set; }
         public RelayCommand CheckOutBookingCommand { get; set; }
         public RelayCommand CancelBookingCommand { get; set; }
@@ -228,6 +230,11 @@ namespace Floozys_Hotel.ViewModels
             SetMonthViewCommand = new RelayCommand(m => ViewDuration = "Month");
             SetYearViewCommand = new RelayCommand(y => ViewDuration = "Year");
             SortCommand = new RelayCommand(SortBookings);
+
+            ConfirmBookingCommand = new RelayCommand(
+                execute: _ => ConfirmBooking(),
+                canExecute: _ => CanExecuteConfirm()
+            );
 
             CheckInBookingCommand = new RelayCommand(
                 execute: _ => CheckInBooking(),
@@ -455,6 +462,85 @@ namespace Floozys_Hotel.ViewModels
             }
             var prop = src.GetType().GetProperty(propName);
             return prop != null ? prop.GetValue(src, null) : null;
+        }
+
+        // ========================================
+        // BUSINESS LOGIC - CONFIRM BOOKING
+        // ========================================
+
+        // Business rule - can confirm
+        private bool CanExecuteConfirm()
+        {
+            if (SelectedBooking == null) return false;
+
+            // Can only confirm Pending bookings
+            return SelectedBooking.Status == BookingStatus.Pending;
+        }
+
+        // Confirm booking operation (Pending -> Confirmed)
+        // Confirm booking operation (Pending -> Confirmed)
+        private void ConfirmBooking()
+        {
+            if (SelectedBooking == null) return;
+
+            // Business rule validation
+            if (!CanExecuteConfirm())
+            {
+                System.Windows.MessageBox.Show(
+                    "Cannot confirm this booking - only Pending bookings can be confirmed",
+                    "Error",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error
+                );
+                return;
+            }
+
+            var result = System.Windows.MessageBox.Show(
+                "Confirm this booking?\n\n" +
+                "This means:\n" +
+                "• Payment has been received\n" +
+                "• Room is guaranteed for guest\n" +
+                "• Booking is finalized",
+                "Confirm Booking",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Question
+            );
+
+            if (result != System.Windows.MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                // Store info before update (in case Guest becomes null after LoadData)
+                string bookingNumber = SelectedBooking.BookingNumber;
+                string guestName = SelectedBooking.Guest != null
+                    ? $"{SelectedBooking.Guest.FirstName} {SelectedBooking.Guest.LastName}"
+                    : "Guest";
+
+                // Perform confirmation
+                SelectedBooking.Status = BookingStatus.Confirmed;
+                _bookingRepo.Update(SelectedBooking);
+
+                LoadData();
+
+                System.Windows.MessageBox.Show(
+                    $"Booking confirmed successfully!\n" +
+                    $"Booking: {bookingNumber}\n" +
+                    $"Guest: {guestName}",
+                    "Success",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Information
+                );
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Confirmation failed: {ex.Message}",
+                    "Error",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error
+                );
+            }
         }
 
         // ========================================

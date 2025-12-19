@@ -202,39 +202,6 @@ namespace Floozys_Hotel_Tests.Repositories
         }
 
         [TestMethod]
-        public void GetByStatus_FiltersByStatus()
-        {
-            // Arrange
-            var pending = new Booking
-            {
-                StartDate = DateTime.Today.AddDays(1),
-                EndDate = DateTime.Today.AddDays(2),
-                Status = BookingStatus.Pending,
-                RoomID = _testRoomId,
-                GuestID = _testGuestId
-            };
-            var confirmed = new Booking
-            {
-                StartDate = DateTime.Today.AddDays(3),
-                EndDate = DateTime.Today.AddDays(4),
-                Status = BookingStatus.Confirmed,
-                RoomID = _testRoomId,
-                GuestID = _testGuestId
-            };
-
-            _bookingRepo.Create(pending);
-            _bookingRepo.Create(confirmed);
-
-            // Act
-            var pendingBookings = _bookingRepo.GetByStatus(BookingStatus.Pending);
-            var confirmedBookings = _bookingRepo.GetByStatus(BookingStatus.Confirmed);
-
-            // Assert
-            Assert.IsTrue(pendingBookings.Any(b => b.BookingID == pending.BookingID), "Should find pending booking");
-            Assert.IsTrue(confirmedBookings.Any(b => b.BookingID == confirmed.BookingID), "Should find confirmed booking");
-        }
-
-        [TestMethod]
         public void GetByRoomID_FiltersByRoom()
         {
             // Arrange

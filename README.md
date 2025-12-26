@@ -1,4 +1,4 @@
-﻿# 🏨 Floozys Hotel - Booking Management System
+# 🏨 Floozys Hotel - Booking Management System
 
 <div align="center">
 
@@ -56,16 +56,6 @@ The system is designed to streamline hotel operations by providing an intuitive 
 ## 👥 Team
 
 ### Group 6 - UCL Eksamensprojekt
-
-| Name | Email |
-|------|-------|
-| **Michael Kragh** | mikr71394@edu.ucl.dk |
-| **Anna Olina Lundin** | aolu71339@edu.ucl.dk |
-| **Bjarke Teglgaard Pagh** | btpa67373@edu.ucl.dk |
-| **Johnny Torben Bjerring** | jtbj76616@edu.ucl.dk |
-| **Nickolai Søren Christian Nygaard** | nscn71402@edu.ucl.dk |
-
----
 
 ## 🛠️ Technology Stack
 

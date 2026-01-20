@@ -201,14 +201,13 @@ Floozys-Hotel/
 ## 📸 Screenshots
 
 ### Booking Calendar Overview
-![Booking Calendar](Assets/Images/BookingCalendar.png)
+![Booking Calendar](./Floozys%20Hotel/Assets/Images/BookingCalendar.png)
 
 ### New Booking Window
-![New Booking](Assets/Images/NewBooking.png)
+![New Booking](./Floozys%20Hotel/Assets/Images/NewBooking.png)
 
 ### Edit Booking Window
-![Edit Booking](Assets/Images/EditBooking.png)
-
+![Edit Booking](./Floozys%20Hotel/Assets/Images/EditBooking.png)
 
 ---
 

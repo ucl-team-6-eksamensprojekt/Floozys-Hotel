@@ -53,6 +53,34 @@ The system is designed to streamline hotel operations by providing an intuitive 
 
 ---
 
+## 🧾 Requested Changes from Floozys Hotel
+
+During development, the hotel owner requested a set of improvements to better match their real-world workflow in Phnom Penh.
+
+### ✅ Main Requests
+- **Passport details with image upload**
+  - Add a passport ID field and allow uploading an image of the guest’s passport.
+  - Keep booking + passport ID + passport image **in one place** for easy check-in.
+
+- **Walk-in guest support**
+  - Remove the email requirement in *New Booking*, because walk-in guests often do not have an email address.
+
+- **Better calendar usability**
+  - Highlight the clicked/selected booking in the calendar.
+  - Add a clear **color legend** explaining what each booking status means in the calendar.
+
+- **Guest overview improvements**
+  - Add a feature to show the guest’s assigned room number (guest ↔ room traceability).
+
+- **Special pricing & discounts**
+  - Add discount pricing for rooms **8, 9, and 10**.
+  - Ensure the pricing changes are reflected in both **Edit Price** and **Sales Overview**.
+
+### 🌐 Future Goal (Next Version)
+- Convert the system into a **web-based solution with an API** for website bookings and platform integrations.
+
+---
+
 ## 👥 Team
 
 ### Group 6 - UCL Eksamensprojekt
@@ -172,13 +200,21 @@ Floozys-Hotel/
 
 ## 📸 Screenshots
 
-*Screenshots will be added as the project progresses*
+### Booking Calendar Overview
+![Booking Calendar](Assets/Images/BookingCalendar.png)
+
+### New Booking Window
+![New Booking](Assets/Images/NewBooking.png)
+
+### Edit Booking Window
+![Edit Booking](Assets/Images/EditBooking.png)
+
 
 ---
 
 ## 🤝 Contributing
 
-This is an exam project and contributions are limited to team members only.
+This is an exam project and contributions are limited to team members and Floozys Hotel only.
 
 ---
 
@@ -200,7 +236,7 @@ This project is developed for educational purposes as part of the Computer Scien
 
 <div align="center">
 
-**Made with ❤️ by Team 6 at UCL**
+**Made with ❤️ by Team 6 at UCL @ 2025**
 
 *Floozys Hotel - Your Home Away From Home*
 

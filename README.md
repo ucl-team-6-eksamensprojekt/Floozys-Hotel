@@ -9,8 +9,7 @@
 
 **A comprehensive hotel booking management system built with WPF and MVVM architecture**
 
-[About](#about) • [Features](#features) • [Team](#team) • [Installation](#installation) • [Documentation](#documentation)
-
+[About](#about) • [Problem & Solution](#-problem-statement--solution) • [Features](#-features) • [Scope](#-scope--limitations) • [Installation](#-installation) • [Documentation](#-documentation)
 </div>
 
 ---
@@ -30,6 +29,61 @@ The system is designed to streamline hotel operations by providing an intuitive 
 | Project Start | November 3, 2025 |
 | Project Delivery | December 19, 2025 |
 | Oral Examination | January 15, 2026 |
+
+## 🎯 Problem Statement & Solution
+
+### The Problem
+Floozys Hotel in Phnom Penh, Cambodia currently manages bookings through a **manual, fragmented system**:
+
+- Bookings scattered across email, Agoda notifications, and walk-in guests
+- No centralized overview of room availability
+- High risk of double-bookings
+- Time-consuming manual calendar updates
+- Inefficient communication between reception and housekeeping
+
+### Our Solution
+A **Windows desktop booking management system** that provides:
+
+- Centralized calendar view (day/week/month) of all bookings
+- Real-time room availability checking
+- Prevention of double-bookings through validation
+- Guest information management with passport details
+- Booking status tracking (Pending → Confirmed → Checked In → Checked Out)
+- Room management across 3 floors (4 small + 6 large rooms)
+
+---
+### What's NOT Included (Out of Scope)
+
+#### For this version (December 2025 delivery)
+- **No payment processing** - Payment tracking is manual (marked paid/unpaid by staff)
+- **No Agoda API integration** - Bookings from Agoda must be entered manually
+- **No web-based interface** - Desktop application only (WPF)
+- **No email notifications** - No automatic emails to guests
+- **No online booking portal** - Guests cannot book directly through the system
+- **No multi-user/role management** - Basic access control only
+- **No real-time synchronization** - Single-machine database
+- **No mobile app** - Desktop only
+- **No food/restaurant management** - Booking system only
+- **No invoice generation** - Accounting reports are manual
+
+#### Why these limitations?
+- **Academic constraints** - 2nd semester project scope (6 weeks development time)
+- **Learning objectives** - Focus on MVVM, Clean Architecture, and SOLID principles
+- **Technical complexity** - API integration and web development are outside curriculum
+- **Prototype approach** - This is a proof-of-concept for testing usability
+
+---
+
+## 🛠️ Technology Stack
+
+| Category | Technology |
+|----------|------------|
+| **Framework** | WPF (.NET) |
+| **Language** | C# |
+| **Architecture** | MVVM |
+| **Database** | SQL Server |
+| **Version Control** | Git / GitHub |
+| **Methodology** | SCRUM |
 
 ---
 
@@ -51,7 +105,33 @@ The system is designed to streamline hotel operations by providing an intuitive 
 - 💾 SQL Server database integration
 - 📱 Responsive WPF design
 
+
+### Quality Assurance
+- **SOLID Principles** - Applied throughout codebase
+- **GRASP Patterns** - Information Expert, Creator, Controller, Low Coupling, High Cohesion
+- **Code Reviews** - Peer review through GitHub pull requests
+- **Testing Strategy** - Unit tests for models, repositories, and ViewModels
+- **Normalization** - Database in 3rd Normal Form (3NF)
+
 ---
+
+## ⚠️ Known Limitations & Constraints
+
+### Technical Limitations
+- **Windows Only** - Requires Windows OS with .NET framework
+- **Single Database** - No distributed/cloud database support
+- **Manual Data Entry** - Agoda bookings must be entered by hand
+- **Local Network Only** - No remote access capability
+- **No Backup System** - Manual database backup required
+
+### Business Process Limitations
+- **No Financial Integration** - Separate accounting system required
+- **Manual Payment Tracking** - Staff must mark bookings as paid
+- **Limited Scalability** - Designed for 10 rooms (not 100+)
+- **English Interface Only** - No localization/translation support
+
+---
+
 
 ## 🧾 Requested Changes from Floozys Hotel
 
@@ -83,18 +163,7 @@ During development, the hotel owner requested a set of improvements to better ma
 
 ## 👥 Team
 
-### Group 6 - UCL Eksamensprojekt
-
-## 🛠️ Technology Stack
-
-| Category | Technology |
-|----------|------------|
-| **Framework** | WPF (.NET) |
-| **Language** | C# |
-| **Architecture** | MVVM |
-| **Database** | SQL Server |
-| **Version Control** | Git / GitHub |
-| **Methodology** | SCRUM |
+### Group 6 - UCL Odense Computer Science AP project
 
 ---
 
@@ -270,38 +339,94 @@ Floozys-Hotel/
 - Visual Studio 2022 or later
 - .NET 6.0 or later
 - SQL Server (LocalDB or full installation)
+- Git (for cloning the repository)
 
-### Setup
+### Quick Start Guide
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/ucl-team-6-eksamensprojekt/Floozys-Hotel.git
-   ```
+#### Step 1: Clone the Repository
+```bash
+git clone https://github.com/ucl-team-6-eksamensprojekt/Floozys-Hotel.git
+cd Floozys-Hotel
+```
 
-2. **Open the solution**
-   ```bash
-   cd Floozys-Hotel
-   start Floozys-Hotel.sln
-   ```
+#### Step 2: Open Solution in Visual Studio
+- Open `Floozys Hotel.sln` in Visual Studio 2022
+- Or use command line:
+```bash
+  start "Floozys Hotel.sln"
+```
 
-3. **Restore NuGet packages**
-   ```bash
-   dotnet restore
-   ```
+#### Step 3: Restore NuGet Packages
+Visual Studio will automatically restore packages when opening the solution.
 
-4. **Update database connection string**
-   - Open `App.config` or `appsettings.json`
-   - Update the connection string to match your SQL Server instance
+Alternatively, restore manually:
+```bash
+dotnet restore
+```
 
-5. **Run the application**
-   - Press `F5` in Visual Studio or run:
-   ```bash
-   dotnet run
-   ```
+#### Step 4: Configure Database Connection
+1. Locate `appsettings.json` in the main project
+2. Update the connection string to match your SQL Server instance:
+```json
+   {
+     "ConnectionStrings": {
+       "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=FloozysHotel;Trusted_Connection=True;"
+     }
+   }
+```
+3. Save the file
+
+#### Step 5: Initialize Database
+1. Navigate to `/Floozys Hotel/Database/SQL_Scripts/`
+2. Execute the following scripts in order:
+   - `Database_Schema.sql` - Creates tables and structure
+   - `TestData_Generator.sql` - (Optional) Adds sample bookings and rooms
+
+**Using SQL Server Management Studio (SSMS):**
+- Connect to your SQL Server instance
+- Open each script file
+- Execute (F5)
+
+#### Step 6: Build and Run
+**Option A: Using Visual Studio**
+- Press `F5` to build and run with debugging
+- Or press `Ctrl+F5` to run without debugging
+
+**Option B: Using Command Line**
+```bash
+dotnet build
+dotnet run
+```
+
+### First-Time Setup
+After launching the application for the first time:
+1. The main menu will appear
+2. Navigate to "Room Overview" to verify the 10 rooms are loaded
+3. Navigate to "Booking Overview" to see the calendar view
+4. Click "New Booking" to create your first reservation
 
 ---
 
-## 📸 Screenshots
+### Troubleshooting
+
+#### Database Connection Issues
+- Verify SQL Server is running
+- Check connection string in `appsettings.json`
+- Ensure database "FloozysHotel" exists
+
+#### Build Errors
+- Ensure all NuGet packages are restored
+- Clean solution: `Build > Clean Solution`
+- Rebuild: `Build > Rebuild Solution`
+
+#### Missing Tables/Data
+- Re-run `Database_Schema.sql`
+- Verify script execution completed without errors
+
+
+---
+
+## 📸 Screenshots of Program
 
 ### Booking Calendar Overview
 ![Booking Calendar](./Floozys%20Hotel/Assets/Images/BookingCalendar.png)
@@ -341,5 +466,7 @@ This project is developed for educational purposes as part of the Computer Scien
 **Made with ❤️ by Team 6 at UCL @ 2025**
 
 *Floozys Hotel - Your Home Away From Home*
+
+**[⬆ Back to Top](#-floozys-hotel---booking-management-system)**
 
 </div>

@@ -55,7 +55,7 @@ The system is designed to streamline hotel operations by providing an intuitive 
 
 ## 🧾 Requested Changes from Floozys Hotel
 
-During development, the hotel owner requested a set of improvements to better match their real-world workflow in Phnom Penh.
+During development, the hotel owner requested a set of improvements to better match their real-world workflow in Phnom Penh. Yet to be made!
 
 ### ✅ Main Requests
 - **Passport details with image upload**
@@ -102,37 +102,140 @@ During development, the hotel owner requested a set of improvements to better ma
 
 ```
 Floozys-Hotel/
-├── 📂 Models/
-│   ├── Booking.cs
-│   ├── Guest.cs
-│   ├── Room.cs
-│   └── ...
-├── 📂 ViewModels/
-│   ├── BookingOverviewViewModel.cs
-│   ├── GuestOverviewViewModel.cs
-│   ├── RoomOverviewViewModel.cs
-│   └── ...
-├── 📂 Views/
-│   ├── BookingOverviewView.xaml
-│   ├── GuestOverviewView.xaml
-│   ├── GuestPolicyView.xaml
-│   ├── RoomOverviewView.xaml
-│   ├── SalesOverviewView.xaml
-│   └── ...
-├── 📂 Commands/
-│   └── RelayCommand.cs
-├── 📂 Services/
-│   └── ...
-├── 📂 Data/
-│   └── ...
-└── 📂 Documentation/
-    ├── Business Model Canvas
-    ├── Business Case
-    ├── BPMN Diagrams
-    ├── Use Cases
-    ├── Domain Model
-    ├── ER Diagram
-    └── ...
+│
+├── 📦 Floozys Hotel/                          # Main WPF Application
+│   │
+│   ├── 📁 Assets/
+│   │   ├── 📁 Images/
+│   │   │   ├── BookingCalendar.png
+│   │   │   ├── NewBooking.png
+│   │   │   └── EditBooking.png
+│   │   └── 📁 Logo/
+│   │       └── Logo_1-1.png
+│   │
+│   ├── 📁 Commands/
+│   │   └── RelayCommand.cs
+│   │
+│   ├── 📁 Converters/
+│   │   ├── BookingLeftMarginConverter.cs
+│   │   ├── BookingWidthConverter.cs
+│   │   ├── BookingStatusColorConverter.cs
+│   │   ├── CheckInStatusConverter.cs
+│   │   ├── DateHeaderConverter.cs
+│   │   ├── InverseBoolConverter.cs
+│   │   ├── NotNullToBoolConverter.cs
+│   │   └── RoomBookingsConverter.cs
+│   │
+│   ├── 📁 Core/
+│   │   ├── BindingProxy.cs
+│   │   └── ObservableObject.cs
+│   │
+│   ├── 📁 Database/
+│   │   ├── DatabaseConfig.cs
+│   │   └── 📁 SQL_Scripts/
+│   │       ├── Database_Schema.sql
+│   │       ├── Fix_RoomNumber_Type.sql
+│   │       ├── Fix_BookingID_Identity.sql
+│   │       ├── Room_StoredProcedures.sql
+│   │       └── TestData_Generator.sql
+│   │
+│   ├── 📁 Models/
+│   │   ├── Booking.cs
+│   │   ├── BookingStatus.cs
+│   │   ├── Guest.cs
+│   │   ├── Room.cs
+│   │   └── RoomStatus.cs
+│   │
+│   ├── 📁 Repositories/
+│   │   ├── 📁 Interfaces/
+│   │   │   ├── IBookingRepo.cs
+│   │   │   ├── IGuestRepo.cs
+│   │   │   └── IRoomRepo.cs
+│   │   ├── BookingRepo.cs
+│   │   ├── GuestRepo.cs
+│   │   └── RoomRepo.cs
+│   │
+│   ├── 📁 Validation/
+│   │   └── DateGreaterThanAttribute.cs
+│   │
+│   ├── 📁 ViewModels/
+│   │   ├── 📁 FormsViewModel/
+│   │   │   └── RoomFormViewModel.cs
+│   │   ├── BookingOverviewViewModel.cs
+│   │   ├── GuestOverviewViewModel.cs
+│   │   ├── GuestPolicyViewModel.cs
+│   │   ├── MainViewModel.cs
+│   │   ├── NewBookingViewModel.cs
+│   │   ├── NewGuestViewModel.cs
+│   │   ├── RoomOverviewViewModel.cs
+│   │   └── SalesOverviewViewModel.cs
+│   │
+│   ├── 📁 Views/
+│   │   ├── 📁 Forms/
+│   │   │   ├── RoomFormView.xaml
+│   │   │   └── RoomFormView.xaml.cs
+│   │   ├── BookingOverviewView.xaml
+│   │   ├── BookingOverviewView.xaml.cs
+│   │   ├── GuestOverviewView.xaml
+│   │   ├── GuestOverviewView.xaml.cs
+│   │   ├── GuestPolicyView.xaml
+│   │   ├── GuestPolicyView.xaml.cs
+│   │   ├── NewBookingView.xaml
+│   │   ├── NewBookingView.xaml.cs
+│   │   ├── NewGuestView.xaml
+│   │   ├── NewGuestView.xaml.cs
+│   │   ├── RoomOverviewView.xaml
+│   │   ├── RoomOverviewView.xaml.cs
+│   │   ├── SalesOverviewView.xaml
+│   │   └── SalesOverviewView.xaml.cs
+│   │
+│   ├── 📁 Theme/
+│   │   ├── DataGridStyles.xaml
+│   │   ├── MenuButtonTheme.xaml
+│   │   └── MenuDropShadowTheme.xaml
+│   │
+│   ├── App.xaml
+│   ├── App.xaml.cs
+│   ├── AssemblyInfo.cs
+│   ├── MainWindow.xaml
+│   ├── MainWindow.xaml.cs
+│   ├── appsettings.json (🔒 NOT in Git)
+│   ├── appsettings.EXAMPLE.json
+│   └── Floozys Hotel.csproj
+│
+├── 🧪 Floozys Hotel.Tests/                    # MS Test Project 128 Green Tests
+│   │
+│   ├── 📁 Models/
+│   │   ├── ✅ BookingTests.cs (23 tests)
+│   │   ├── ✅ GuestTests.cs ()
+│   │   └── ✅ RoomTests.cs ()
+│   │
+│   ├── 📁 Repositories/
+│   │   ├── ✅ BookingRepoTests.cs (~16 tests)
+│   │   ├── ✅ GuestRepoTests.cs (~10 tests)
+│   │   └── ✅ RoomRepoTests.cs (~10 tests)
+│   │
+│   ├── 📁 ViewModels/
+│   │   ├── ✅ NewBookingViewModelTests.cs ()
+│   │   └── ✅ BookingOverviewViewModelTests.cs ()
+│   │
+│   └── Floozys Hotel.Tests.csproj
+│
+├── 📁 Documentation/
+│   ├── Business Model Canvas.pdf
+│   ├── BPMN Diagrams.pdf
+│   ├── Use Cases.pdf
+│   ├── Domain Model.pdf
+│   ├── SSD.pdf
+│   ├── Operation Contracts.pdf
+│   ├── Sequence Diagrams.pdf
+│   ├── Design Class Diagrams.pdf
+│   ├── ER Diagram.pdf
+│   └── Wireframes.pdf
+│
+├── README.md
+├── .gitignore
+└── Floozys Hotel.sln
 ```
 
 ---
